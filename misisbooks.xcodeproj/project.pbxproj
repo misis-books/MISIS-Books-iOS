@@ -1,0 +1,535 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		84B4152C1A80FAFD00A7E68A /* ControllerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B4152B1A80FAFD00A7E68A /* ControllerManager.swift */; };
+		84B4DA951A77A4B300B79E82 /* VkLogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B4DA941A77A4B300B79E82 /* VkLogInViewController.swift */; };
+		84B73EFD1A334B98009313FB /* Database.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 84B73EFC1A334B98009313FB /* Database.sqlite */; };
+		84B73EFE1A3354A9009313FB /* Database.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 84B73EFC1A334B98009313FB /* Database.sqlite */; };
+		84B73F011A335BA5009313FB /* MisisBooksApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73F001A335BA5009313FB /* MisisBooksApi.swift */; };
+		84B73F031A3374BC009313FB /* FavoritesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73F021A3374BC009313FB /* FavoritesTableViewController.swift */; };
+		84B73F051A337A59009313FB /* SearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73F041A337A59009313FB /* SearchTableViewController.swift */; };
+		84B9B5C51ABC95C3001F5877 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B9B5C41ABC95C3001F5877 /* DownloadManager.swift */; };
+		84BA0C291A35EF3A00B102D6 /* PreloaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BA0C281A35EF3A00B102D6 /* PreloaderView.swift */; };
+		84BBB0921AAF0D450015732F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84BBB0911AAF0D450015732F /* Images.xcassets */; };
+		84BD19CB1A76C47900F9CCA2 /* SlideMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BD19CA1A76C47900F9CCA2 /* SlideMenuController.swift */; };
+		84BD19CD1A76C8A400F9CCA2 /* MenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BD19CC1A76C8A400F9CCA2 /* MenuTableViewController.swift */; };
+		84BFE4201A2C8FBA00A88B7B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE41F1A2C8FBA00A88B7B /* AppDelegate.swift */; };
+		84BFE42A1A2C8FBA00A88B7B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84BFE4281A2C8FBA00A88B7B /* LaunchScreen.xib */; };
+		84BFE4361A2C8FBA00A88B7B /* misisbooksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE4351A2C8FBA00A88B7B /* misisbooksTests.swift */; };
+		84BFE4401A2C941600A88B7B /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE43F1A2C941600A88B7B /* Book.swift */; };
+		84BFE4421A2C951400A88B7B /* CustomLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE4411A2C951400A88B7B /* CustomLabel.swift */; };
+		84BFE4441A2C958B00A88B7B /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE4431A2C958B00A88B7B /* CustomTableViewCell.swift */; };
+		84BFE4461A2C976E00A88B7B /* DownloadsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE4451A2C976E00A88B7B /* DownloadsTableViewController.swift */; };
+		84BFE4481A2CAE5300A88B7B /* InformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE4471A2CAE5300A88B7B /* InformationView.swift */; };
+		84BFE44A1A2CBAFB00A88B7B /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE4491A2CBAFB00A88B7B /* Database.swift */; };
+		84BFE44C1A2CBBB200A88B7B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BFE44B1A2CBBB200A88B7B /* libsqlite3.dylib */; };
+		84BFE44E1A2CCA3600A88B7B /* FilterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE44D1A2CCA3600A88B7B /* FilterTableViewController.swift */; };
+		84E6937F1AB5D30C00F57DF6 /* AlertBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E6937E1AB5D30C00F57DF6 /* AlertBanner.swift */; };
+		84E693811AB6093700F57DF6 /* AlertBannerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E693801AB6093700F57DF6 /* AlertBannerManager.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		84BFE4301A2C8FBA00A88B7B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84BFE4121A2C8FBA00A88B7B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 84BFE4191A2C8FBA00A88B7B;
+			remoteInfo = misisbooks;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		84B4152B1A80FAFD00A7E68A /* ControllerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerManager.swift; sourceTree = "<group>"; };
+		84B4DA941A77A4B300B79E82 /* VkLogInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VkLogInViewController.swift; sourceTree = "<group>"; };
+		84B73EFC1A334B98009313FB /* Database.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = Database.sqlite; path = misisbooks/Database.sqlite; sourceTree = "<group>"; };
+		84B73F001A335BA5009313FB /* MisisBooksApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MisisBooksApi.swift; sourceTree = "<group>"; };
+		84B73F021A3374BC009313FB /* FavoritesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesTableViewController.swift; sourceTree = "<group>"; };
+		84B73F041A337A59009313FB /* SearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTableViewController.swift; sourceTree = "<group>"; };
+		84B861B21A2CF298008D357B /* misisbooks-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "misisbooks-Bridging-Header.h"; sourceTree = "<group>"; };
+		84B9B5C41ABC95C3001F5877 /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		84BA0C281A35EF3A00B102D6 /* PreloaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreloaderView.swift; sourceTree = "<group>"; };
+		84BBB0911AAF0D450015732F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		84BD19CA1A76C47900F9CCA2 /* SlideMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SlideMenuController.swift; sourceTree = "<group>"; };
+		84BD19CC1A76C8A400F9CCA2 /* MenuTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuTableViewController.swift; sourceTree = "<group>"; };
+		84BFE41A1A2C8FBA00A88B7B /* misisbooks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = misisbooks.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		84BFE41E1A2C8FBA00A88B7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		84BFE41F1A2C8FBA00A88B7B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		84BFE4291A2C8FBA00A88B7B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		84BFE42F1A2C8FBA00A88B7B /* misisbooksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = misisbooksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		84BFE4341A2C8FBA00A88B7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		84BFE4351A2C8FBA00A88B7B /* misisbooksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = misisbooksTests.swift; sourceTree = "<group>"; };
+		84BFE43F1A2C941600A88B7B /* Book.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
+		84BFE4411A2C951400A88B7B /* CustomLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomLabel.swift; sourceTree = "<group>"; };
+		84BFE4431A2C958B00A88B7B /* CustomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
+		84BFE4451A2C976E00A88B7B /* DownloadsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadsTableViewController.swift; sourceTree = "<group>"; };
+		84BFE4471A2CAE5300A88B7B /* InformationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InformationView.swift; sourceTree = "<group>"; };
+		84BFE4491A2CBAFB00A88B7B /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
+		84BFE44B1A2CBBB200A88B7B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		84BFE44D1A2CCA3600A88B7B /* FilterTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterTableViewController.swift; sourceTree = "<group>"; };
+		84E6937E1AB5D30C00F57DF6 /* AlertBanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertBanner.swift; sourceTree = "<group>"; };
+		84E693801AB6093700F57DF6 /* AlertBannerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertBannerManager.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		84BFE4171A2C8FBA00A88B7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84BFE44C1A2CBBB200A88B7B /* libsqlite3.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84BFE42C1A2C8FBA00A88B7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		84B650931A7FA58400BF0366 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				84E693801AB6093700F57DF6 /* AlertBannerManager.swift */,
+				84BFE43F1A2C941600A88B7B /* Book.swift */,
+				84B4152B1A80FAFD00A7E68A /* ControllerManager.swift */,
+				84BFE4491A2CBAFB00A88B7B /* Database.swift */,
+				84B9B5C41ABC95C3001F5877 /* DownloadManager.swift */,
+				84B73F001A335BA5009313FB /* MisisBooksApi.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		84B650941A7FDAFF00BF0366 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				84BFE4451A2C976E00A88B7B /* DownloadsTableViewController.swift */,
+				84B73F021A3374BC009313FB /* FavoritesTableViewController.swift */,
+				84BFE44D1A2CCA3600A88B7B /* FilterTableViewController.swift */,
+				84BD19CC1A76C8A400F9CCA2 /* MenuTableViewController.swift */,
+				84B73F041A337A59009313FB /* SearchTableViewController.swift */,
+				84BD19CA1A76C47900F9CCA2 /* SlideMenuController.swift */,
+				84B4DA941A77A4B300B79E82 /* VkLogInViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		84B650951A7FDB4900BF0366 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				84E6937E1AB5D30C00F57DF6 /* AlertBanner.swift */,
+				84BFE4411A2C951400A88B7B /* CustomLabel.swift */,
+				84BFE4431A2C958B00A88B7B /* CustomTableViewCell.swift */,
+				84BFE4471A2CAE5300A88B7B /* InformationView.swift */,
+				84BA0C281A35EF3A00B102D6 /* PreloaderView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		84BFE4111A2C8FBA00A88B7B = {
+			isa = PBXGroup;
+			children = (
+				84BFE41C1A2C8FBA00A88B7B /* misisbooks */,
+				84BFE4321A2C8FBA00A88B7B /* misisbooksTests */,
+				84BFE41B1A2C8FBA00A88B7B /* Products */,
+				84B861B21A2CF298008D357B /* misisbooks-Bridging-Header.h */,
+				84B73EFC1A334B98009313FB /* Database.sqlite */,
+				84BFE44B1A2CBBB200A88B7B /* libsqlite3.dylib */,
+			);
+			sourceTree = "<group>";
+		};
+		84BFE41B1A2C8FBA00A88B7B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				84BFE41A1A2C8FBA00A88B7B /* misisbooks.app */,
+				84BFE42F1A2C8FBA00A88B7B /* misisbooksTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		84BFE41C1A2C8FBA00A88B7B /* misisbooks */ = {
+			isa = PBXGroup;
+			children = (
+				84BFE41F1A2C8FBA00A88B7B /* AppDelegate.swift */,
+				84BFE4281A2C8FBA00A88B7B /* LaunchScreen.xib */,
+				84B650931A7FA58400BF0366 /* Models */,
+				84B650951A7FDB4900BF0366 /* Views */,
+				84B650941A7FDAFF00BF0366 /* Controllers */,
+				84BFE41D1A2C8FBA00A88B7B /* Supporting Files */,
+				84BBB0911AAF0D450015732F /* Images.xcassets */,
+			);
+			path = misisbooks;
+			sourceTree = "<group>";
+		};
+		84BFE41D1A2C8FBA00A88B7B /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				84BFE41E1A2C8FBA00A88B7B /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		84BFE4321A2C8FBA00A88B7B /* misisbooksTests */ = {
+			isa = PBXGroup;
+			children = (
+				84BFE4351A2C8FBA00A88B7B /* misisbooksTests.swift */,
+				84BFE4331A2C8FBA00A88B7B /* Supporting Files */,
+			);
+			path = misisbooksTests;
+			sourceTree = "<group>";
+		};
+		84BFE4331A2C8FBA00A88B7B /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				84BFE4341A2C8FBA00A88B7B /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		84BFE4191A2C8FBA00A88B7B /* misisbooks */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84BFE4391A2C8FBA00A88B7B /* Build configuration list for PBXNativeTarget "misisbooks" */;
+			buildPhases = (
+				84BFE4161A2C8FBA00A88B7B /* Sources */,
+				84BFE4171A2C8FBA00A88B7B /* Frameworks */,
+				84BFE4181A2C8FBA00A88B7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = misisbooks;
+			productName = misisbooks;
+			productReference = 84BFE41A1A2C8FBA00A88B7B /* misisbooks.app */;
+			productType = "com.apple.product-type.application";
+		};
+		84BFE42E1A2C8FBA00A88B7B /* misisbooksTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84BFE43C1A2C8FBA00A88B7B /* Build configuration list for PBXNativeTarget "misisbooksTests" */;
+			buildPhases = (
+				84BFE42B1A2C8FBA00A88B7B /* Sources */,
+				84BFE42C1A2C8FBA00A88B7B /* Frameworks */,
+				84BFE42D1A2C8FBA00A88B7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				84BFE4311A2C8FBA00A88B7B /* PBXTargetDependency */,
+			);
+			name = misisbooksTests;
+			productName = misisbooksTests;
+			productReference = 84BFE42F1A2C8FBA00A88B7B /* misisbooksTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		84BFE4121A2C8FBA00A88B7B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0620;
+				ORGANIZATIONNAME = "Maxim Loskov";
+				TargetAttributes = {
+					84BFE4191A2C8FBA00A88B7B = {
+						CreatedOnToolsVersion = 6.1;
+					};
+					84BFE42E1A2C8FBA00A88B7B = {
+						CreatedOnToolsVersion = 6.1;
+						TestTargetID = 84BFE4191A2C8FBA00A88B7B;
+					};
+				};
+			};
+			buildConfigurationList = 84BFE4151A2C8FBA00A88B7B /* Build configuration list for PBXProject "misisbooks" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 84BFE4111A2C8FBA00A88B7B;
+			productRefGroup = 84BFE41B1A2C8FBA00A88B7B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				84BFE4191A2C8FBA00A88B7B /* misisbooks */,
+				84BFE42E1A2C8FBA00A88B7B /* misisbooksTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		84BFE4181A2C8FBA00A88B7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84BBB0921AAF0D450015732F /* Images.xcassets in Resources */,
+				84BFE42A1A2C8FBA00A88B7B /* LaunchScreen.xib in Resources */,
+				84B73EFD1A334B98009313FB /* Database.sqlite in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84BFE42D1A2C8FBA00A88B7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84B73EFE1A3354A9009313FB /* Database.sqlite in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		84BFE4161A2C8FBA00A88B7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84BFE44E1A2CCA3600A88B7B /* FilterTableViewController.swift in Sources */,
+				84BFE4441A2C958B00A88B7B /* CustomTableViewCell.swift in Sources */,
+				84BD19CB1A76C47900F9CCA2 /* SlideMenuController.swift in Sources */,
+				84B4152C1A80FAFD00A7E68A /* ControllerManager.swift in Sources */,
+				84B73F031A3374BC009313FB /* FavoritesTableViewController.swift in Sources */,
+				84E6937F1AB5D30C00F57DF6 /* AlertBanner.swift in Sources */,
+				84BFE4481A2CAE5300A88B7B /* InformationView.swift in Sources */,
+				84BFE4201A2C8FBA00A88B7B /* AppDelegate.swift in Sources */,
+				84BFE4461A2C976E00A88B7B /* DownloadsTableViewController.swift in Sources */,
+				84BFE4401A2C941600A88B7B /* Book.swift in Sources */,
+				84BA0C291A35EF3A00B102D6 /* PreloaderView.swift in Sources */,
+				84B9B5C51ABC95C3001F5877 /* DownloadManager.swift in Sources */,
+				84BD19CD1A76C8A400F9CCA2 /* MenuTableViewController.swift in Sources */,
+				84BFE44A1A2CBAFB00A88B7B /* Database.swift in Sources */,
+				84B73F051A337A59009313FB /* SearchTableViewController.swift in Sources */,
+				84E693811AB6093700F57DF6 /* AlertBannerManager.swift in Sources */,
+				84B73F011A335BA5009313FB /* MisisBooksApi.swift in Sources */,
+				84BFE4421A2C951400A88B7B /* CustomLabel.swift in Sources */,
+				84B4DA951A77A4B300B79E82 /* VkLogInViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84BFE42B1A2C8FBA00A88B7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84BFE4361A2C8FBA00A88B7B /* misisbooksTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		84BFE4311A2C8FBA00A88B7B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 84BFE4191A2C8FBA00A88B7B /* misisbooks */;
+			targetProxy = 84BFE4301A2C8FBA00A88B7B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		84BFE4281A2C8FBA00A88B7B /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				84BFE4291A2C8FBA00A88B7B /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		84BFE4371A2C8FBA00A88B7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		84BFE4381A2C8FBA00A88B7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		84BFE43A1A2C8FBA00A88B7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				INFOPLIST_FILE = misisbooks/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "misisbooks-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		84BFE43B1A2C8FBA00A88B7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = misisbooks/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "misisbooks-Bridging-Header.h";
+			};
+			name = Release;
+		};
+		84BFE43D1A2C8FBA00A88B7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = misisbooksTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/misisbooks.app/misisbooks";
+			};
+			name = Debug;
+		};
+		84BFE43E1A2C8FBA00A88B7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = misisbooksTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/misisbooks.app/misisbooks";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		84BFE4151A2C8FBA00A88B7B /* Build configuration list for PBXProject "misisbooks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84BFE4371A2C8FBA00A88B7B /* Debug */,
+				84BFE4381A2C8FBA00A88B7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84BFE4391A2C8FBA00A88B7B /* Build configuration list for PBXNativeTarget "misisbooks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84BFE43A1A2C8FBA00A88B7B /* Debug */,
+				84BFE43B1A2C8FBA00A88B7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84BFE43C1A2C8FBA00A88B7B /* Build configuration list for PBXNativeTarget "misisbooksTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84BFE43D1A2C8FBA00A88B7B /* Debug */,
+				84BFE43E1A2C8FBA00A88B7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 84BFE4121A2C8FBA00A88B7B /* Project object */;
+}
