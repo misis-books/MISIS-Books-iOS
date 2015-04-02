@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreGraphics
 
 protocol FilterTableViewControllerDelegate {
     
@@ -22,28 +23,32 @@ class FilterTableViewController : UITableViewController {
     var selectedCategory : Int!
     
     /// Названия категорий
-    let categoryNames = ["Все",
+    let categoryNames = [
+        "Все",
         "Пособия",
         "Дипломы",
         "Сборники научных трудов",
         "Монографии, научные издания",
         "Книги «МИСиС»",
         "Авторефераты диссертаций",
-        "Разное"]
+        "Разное"
+    ]
     
     /// Цвета категорий
-    let categoryColors = [UIColor(red: 186 / 255.0, green: 186 / 255.0, blue: 186 / 255.0, alpha: 1.0),
+    let categoryColors = [
+        UIColor(red: 186 / 255.0, green: 186 / 255.0, blue: 186 / 255.0, alpha: 1.0),
         UIColor(red: 74 / 255.0, green: 191 / 255.0, blue: 180 / 255.0, alpha: 1.0),
         UIColor(red: 253 / 255.0, green: 85 / 255.0, blue: 89 / 255.0, alpha: 1.0),
         UIColor(red: 184 / 255.0, green: 145 / 255.0, blue: 78 / 255.0, alpha: 1.0),
         UIColor(red: 179 / 255.0, green: 200 / 255.0, blue: 51 / 255.0, alpha: 1.0),
         UIColor(red: 155 / 255.0, green: 89 / 255.0, blue: 182 / 255.0, alpha: 1.0),
         UIColor(red: 255 / 255.0, green: 145 / 255.0, blue: 0 / 255.0, alpha: 1.0),
-        UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1.0)]
+        UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1.0)
+    ]
     
     
     init(selectedCategory: Int, delegate: FilterTableViewControllerDelegate) {
-        super.init(style: UITableViewStyle.Plain)
+        super.init(style: .Plain)
         
         self.selectedCategory = selectedCategory
         self.delegate = delegate
@@ -60,17 +65,44 @@ class FilterTableViewController : UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.navigationItem.setRightBarButtonItem(UIBarButtonItem(image: UIImage(named: "Close"), style: UIBarButtonItemStyle.Plain, target: self, action: Selector("closeButtonPressed")), animated: false)
-        self.tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1.0)
-        self.tableView.tableFooterView = UIView(frame:CGRectZero)
-        self.title = "Категории"
-
+        let closeBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "Close"),
+            style: .Plain,
+            target: self,
+            action: Selector("closeButtonPressed")
+        )
+        navigationItem.setRightBarButtonItem(closeBarButtonItem, animated: false)
+        
+        tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1.0)
+        tableView.tableFooterView = UIView(frame: CGRectZero)
+        title = "Категории"
     }
     
     /// MARK: - Вспомогательные методы
     
+    /// Обрабатывает событие, когда нажата кнопка закрытия
     func closeButtonPressed() {
-        self.dismissViewControllerAnimated(true, completion: nil)
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    /// Возвращает картинку с кругом (с добавленим отступа сверху)
+    ///
+    /// :param: diameter Диаметр круга
+    /// :param: color Цвет заливки круга
+    /// :returns: Картинка с кругом
+    func getImageWithCircle(diameter: Double, color: UIColor) -> UIImage {
+        let paddingTop = 2.0
+        let imageSize = CGSize(width: diameter, height: diameter + paddingTop)
+        let circleSize = CGSize(width: diameter, height: diameter)
+        UIGraphicsBeginImageContextWithOptions(imageSize, false, 0.0)
+        var context = UIGraphicsGetCurrentContext()
+        CGContextSetFillColorWithColor(context, color.CGColor)
+        CGContextFillEllipseInRect(context, CGRect(origin: CGPointMake(0.0, CGFloat(paddingTop)), size: circleSize))
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return image
     }
     
     /// MARK: - Методы UITableViewDataSource
@@ -84,43 +116,34 @@ class FilterTableViewController : UITableViewController {
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCellWithIdentifier("Cell") as? UITableViewCell
-        
-        if cell == nil {
-            cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "Cell")
-            
-            let diameter: CGFloat = 12.0
-            let circleLabel = UILabel(frame: CGRectMake(15, 14, diameter, diameter))
-            circleLabel.layer.backgroundColor = categoryColors[indexPath.row].CGColor
-            circleLabel.layer.cornerRadius = diameter / 2.0
-            cell!.contentView.addSubview(circleLabel)
-            
-            let categoryLabel = UILabel(frame: CGRectMake(39.0, 10.5, 0.0, 0.0))
-            categoryLabel.font = UIFont(name: "HelveticaNeue-Light", size: 16.0)
-            categoryLabel.text = categoryNames[indexPath.row]
-            categoryLabel.textColor = UIColor(red: 58 / 255.0, green: 58 / 255.0, blue: 58 / 255.0, alpha: 1.0)
-            categoryLabel.sizeToFit()
-            cell!.contentView.addSubview(categoryLabel)
-        }
+        let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as UITableViewCell
+        cell.imageView?.image = getImageWithCircle(14.0, color: categoryColors[indexPath.row])
+        cell.textLabel?.font = UIFont(name: "HelveticaNeue-Light", size: 16.0)
+        cell.textLabel?.text = categoryNames[indexPath.row]
+        cell.textLabel?.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1.0)
         
         if indexPath.row == selectedCategory - 1 {
-            cell!.accessoryType = UITableViewCellAccessoryType.Checkmark
+            cell.accessoryType = .Checkmark
         }
         
-        return cell!
+        return cell
     }
     
     /// MARK: - Методы UITableViewDelegate
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 40.0
+        return 44.0
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.cellForRowAtIndexPath(NSIndexPath(forRow: selectedCategory - 1, inSection: 0))?.accessoryType
-         = UITableViewCellAccessoryType.None
-        tableView.cellForRowAtIndexPath(indexPath)?.accessoryType = UITableViewCellAccessoryType.Checkmark
+        let previousCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: selectedCategory - 1, inSection: 0))
+        previousCell?.accessoryType = .None
+        
+        let nextCell = tableView.cellForRowAtIndexPath(indexPath)
+        nextCell?.accessoryType = .Checkmark
+        
         delegate.filterTableViewControllerDidChangeCategory(indexPath.row + 1)
-        self.dismissViewControllerAnimated(true, completion: nil)
+        
+        dismissViewControllerAnimated(true, completion: nil)
     }
 }

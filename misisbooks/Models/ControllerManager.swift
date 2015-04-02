@@ -30,12 +30,12 @@ class ControllerManager {
     /// Возвращает экземпляр класса
     ///
     /// :returns: Экземпляр класса
-    class var instance : ControllerManager {
+    class var sharedInstance : ControllerManager {
         
         struct Singleton {
-            static let instance = ControllerManager()
+            static let sharedInstance = ControllerManager()
         }
         
-        return Singleton.instance
+        return Singleton.sharedInstance
     }
 }

@@ -8,13 +8,7 @@
 
 import UIKit
 
-class SearchTableViewController : UITableViewController, UISearchBarDelegate, UIScrollViewDelegate, UIDocumentInteractionControllerDelegate, PreloaderViewDelegate, FilterTableViewControllerDelegate {
-    
-    /// Последний введенный запрос
-    var lastInput = ""
-    
-    /// Массив книг
-    var books = [Book]()
+class SearchTableViewController : BookTableViewController, UISearchBarDelegate, UIScrollViewDelegate, PreloaderViewDelegate, FilterTableViewControllerDelegate {
     
     /// Поисковая строка
     var searchBar : UISearchBar!
@@ -34,8 +28,8 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
     /// Индикатор активности
     var activityIndicator : UIActivityIndicatorView!
     
-    /// API MISIS Books
-    var misisBooksApi : MisisBooksApi!
+    /// Последний введенный запрос
+    var lastInput = ""
     
     /// Количество результатов
     var count = 20
@@ -49,49 +43,35 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
     /// Действие
     var action : MisisBooksApiAction!
     
-    /// Строка для заголовка секции
-    private var sectionTitle : String!
-    
-    
-    override init() {
-        super.init(style: UITableViewStyle.Grouped)
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.navigationItem.setLeftBarButtonItem(UIBarButtonItem(image: UIImage(named: "Menu"), style: UIBarButtonItemStyle.Plain, target: ControllerManager.instance.slideMenuController, action: Selector("openLeft")), animated: false)
-        self.navigationItem.setRightBarButtonItem(UIBarButtonItem(image: UIImage(named: "Filter"), style: UIBarButtonItemStyle.Plain, target: self, action: Selector("filterButtonPressed")), animated: false)
-        self.tableView.registerClass(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseIdentifier)
-        self.tableView.backgroundColor = UIColor(red: 241 / 255.0, green: 239 / 255.0, blue: 237 / 255.0, alpha: 1.0)
-        self.tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1.0)
-        self.tableView.tableFooterView = UIView(frame: CGRectZero)
+        let filterBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "Filter"),
+            style: .Plain,
+            target: self,
+            action: Selector("filterButtonPressed")
+        )
+        navigationItem.setRightBarButtonItem(filterBarButtonItem, animated: false)
         
         searchBar = UISearchBar(frame: CGRectZero)
-        searchBar.autocapitalizationType = UITextAutocapitalizationType.None
-        searchBar.autocorrectionType = UITextAutocorrectionType.No
-        searchBar.autoresizingMask = UIViewAutoresizing.FlexibleWidth
+        searchBar.autocapitalizationType = .None
+        searchBar.autocorrectionType = .No
+        searchBar.autoresizingMask = .FlexibleWidth
         searchBar.delegate = self
-        searchBar.searchBarStyle = UISearchBarStyle.Minimal
+        searchBar.searchBarStyle = .Minimal
         searchBar.placeholder = "Поиск"
         searchBar.tintColor = UIColor.darkGrayColor()
-        self.navigationItem.titleView = searchBar
+        navigationItem.titleView = searchBar
         
-        activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
-        activityIndicator.center = CGPointMake(self.view.frame.size.width / 2, 18.0)
+        activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        activityIndicator.center = CGPointMake(view.frame.size.width / 2, 18.0)
         activityIndicator.startAnimating()
-        self.view.addSubview(activityIndicator)
+        view.addSubview(activityIndicator)
         
-        action = MisisBooksApiAction.GetPopular
-        misisBooksApi.getPopular(count: count, category: category)
+        action = .GetPopular
+        MisisBooksApi.sharedInstance.getPopular(count: count, category: category)
         
         NSTimer.scheduledTimerWithTimeInterval(0.8, target: self, selector: Selector("checkInput"), userInfo: nil, repeats: true)
     }
@@ -102,102 +82,107 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
     func checkInput() {
         if lastInput != searchBar.text {
             lastInput = searchBar.text
-            books = [Book]()
-            sectionTitle = ""
-            setEmptyTableFooterView()
-            self.tableView.reloadData()
+            books.removeAll(keepCapacity: false)
+            sectionTitleLabel1.text = ""
+            removePreloaderView()
             activityIndicator.startAnimating()
             
+            UIView.transitionWithView(
+                self.tableView,
+                duration: 0.2,
+                options: .TransitionCrossDissolve,
+                animations: {
+                    self.tableView.reloadData()
+                },
+                completion: nil
+            )
+            
             if searchBar.text == "" {
-                action = MisisBooksApiAction.GetPopular
-                misisBooksApi.getPopular(count: count, category: category)
+                action = .GetPopular
+                MisisBooksApi.sharedInstance.getPopular(count: count, category: category)
             } else {
                 offset = 0
-                action = MisisBooksApiAction.Search
-                misisBooksApi.search(query: lastInput, count: count, offset: offset, category: category)
+                action = .Search
+                MisisBooksApi.sharedInstance.search(query: lastInput, count: count, offset: offset, category: category)
             }
         }
     }
     
-    func setEmptyTableFooterView() {
+    func removePreloaderView() {
         preloaderView = nil
-        self.tableView.tableFooterView = UIView(frame: CGRectZero)
+        tableView.tableFooterView = UIView(frame: CGRectZero)
     }
     
-    func setTableFooterView(allItemsCount: Int) {
-        let numberOfRemainingResults = allItemsCount - offset - 20 // количество оставшихся результатов, которые можно подгрузить
-        let numberOfNextResults = numberOfRemainingResults >= 20 ? 20 : numberOfRemainingResults // количество элементов, которые будут подгружены
+    func updatePreloaderView(totalResults: Int) {
+        let remainingResults = totalResults - offset - 20
+        let nextResults = remainingResults >= 20 ? 20 : remainingResults
         
-        if numberOfRemainingResults <= 0 {
-            println("Больше нечего подгружать.")
-            
-            setEmptyTableFooterView()
+        if remainingResults <= 0 {
+            removePreloaderView()
         } else {
-            println("Результаты, которые можно подгрузить: \(numberOfNextResults), оставшиеся результаты: \(numberOfRemainingResults).")
+            let textForPreloaderView = getTextForPreloaderView(nextResults, remainingResults: remainingResults)
             
-            if preloaderView != nil { // возможна следующая подгрузка для данного запроса
-                preloaderView?.textLabel?.text = getStringForLabelOfPreloaderView(numberOfNextResults, numberOfRemainingResults: numberOfRemainingResults)
-            } else { // возможна первая подгрузка для данного запроса
-                preloaderView = PreloaderView(frame: CGRectMake(0.0, 0.0, self.tableView.bounds.size.width, self.tableView.bounds.size.height))
-                preloaderView!.textLabel?.text = getStringForLabelOfPreloaderView(numberOfNextResults, numberOfRemainingResults: numberOfRemainingResults)
-                preloaderView!.delegate = self
-                self.tableView.tableFooterView = preloaderView!
+            if preloaderView != nil {
+                preloaderView!.label.text = textForPreloaderView
+            } else {
+                preloaderView = PreloaderView(text: textForPreloaderView, delegate: self)
+                tableView.tableFooterView = preloaderView
             }
         }
     }
     
-    func getStringForSectionHeader(numberOfAllResults: Int) -> String {
-        let formats = ["НАЙДЕН %d ДОКУМЕНТ",
-            "НАЙДЕНО %d ДОКУМЕНТА",
-            "НАЙДЕНО %d ДОКУМЕНТОВ"]
+    func getTextForSectionHeader(totalResults: Int) -> String {
+        let formats = ["НАЙДЕН %d ДОКУМЕНТ", "НАЙДЕНО %d ДОКУМЕНТА", "НАЙДЕНО %d ДОКУМЕНТОВ"]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
-        let ending = numberOfAllResults % 100 > 4 && numberOfAllResults % 100 < 20 ? 2 : keys[numberOfAllResults % 10]
+        let ending = totalResults % 100 > 4 && totalResults % 100 < 20 ? 2 : keys[totalResults % 10]
         
-        return numberOfAllResults == 0 ? "ПОИСК НЕ ДАЛ РЕЗУЛЬТАТОВ" : String(format: formats[ending], numberOfAllResults)
+        return totalResults == 0 ? "ПОИСК НЕ ДАЛ РЕЗУЛЬТАТОВ" : String(format: formats[ending], totalResults)
     }
     
-    /// Возвращает строку для поля вида подгрузчика результатов с правильным сколонением слов
+    /// Возвращает текст для подгрузчика результатов
     ///
-    /// :param: numberOfNextResults Количество следующих результатов
-    /// :param: numberOfRemainingResults Количество оставшихся результатов
+    /// :param: nextResults Количество следующих результатов
+    /// :param: remainingResults Количество оставшихся результатов
     /// :returns: Строка для поля вида подгрузчика результатов
-    func getStringForLabelOfPreloaderView(numberOfNextResults: Int, numberOfRemainingResults: Int) -> String {
-        let formats = ["Потяните вверх, чтобы увидеть\nследующий %d результат из %d",
+    func getTextForPreloaderView(nextResults: Int, remainingResults: Int) -> String {
+        let formats = [
+            "Потяните вверх, чтобы увидеть\nследующий %d результат из %d",
             "Потяните вверх, чтобы увидеть\nследующие %d результата из %d",
-            "Потяните вверх, чтобы увидеть\nследующие %d результатов из %d"]
+            "Потяните вверх, чтобы увидеть\nследующие %d результатов из %d"
+        ]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
-        let ending = numberOfNextResults % 100 > 4 && numberOfNextResults % 100 < 20 ? 2 : keys[numberOfNextResults % 10]
+        let ending = nextResults % 100 > 4 && nextResults % 100 < 20 ? 2 : keys[nextResults % 10]
         
-        return String(format: formats[ending], numberOfNextResults, numberOfRemainingResults)
+        return String(format: formats[ending], nextResults, remainingResults)
     }
     
-    /// Обрабатывает событие, когда нажата кнопка фильтрации результатов
+    /// Обрабатывает событие, когда нажата кнопка фильтра
     func filterButtonPressed() {
         let filterTableViewController = FilterTableViewController(selectedCategory: category, delegate: self)
-        let presentViewController = UINavigationController(rootViewController: filterTableViewController)
-        presentViewController.modalTransitionStyle = UIModalTransitionStyle.CoverVertical
-        self.presentViewController(presentViewController, animated: true, completion: nil)
+        let viewControllerToPresent = UINavigationController(rootViewController: filterTableViewController)
+        viewControllerToPresent.modalTransitionStyle = .CoverVertical
+        presentViewController(viewControllerToPresent, animated: true, completion: nil)
     }
     
     /// MARK: - Методы FilterTableViewControllerDelegate
     
     func filterTableViewControllerDidChangeCategory(selectedCategory: Int) {
-        println("Выбрана категория: \(selectedCategory).")
+        println("Изменена категория: \(selectedCategory)")
         
-        books = [Book]()
-        sectionTitle = ""
-        setEmptyTableFooterView()
-        self.tableView.reloadData()
+        books.removeAll(keepCapacity: false)
+        sectionTitleLabel1.text = ""
+        removePreloaderView()
         activityIndicator.startAnimating()
         category = selectedCategory
+        tableView.reloadData()
         
         if searchBar.text == "" {
-            action = MisisBooksApiAction.GetPopular
-            misisBooksApi.getPopular(count: count, category: category)
+            action = .GetPopular
+            MisisBooksApi.sharedInstance.getPopular(count: count, category: category)
         } else {
             offset = 0
-            action = MisisBooksApiAction.Search
-            misisBooksApi.search(query: lastInput, count: count, offset: offset, category: category)
+            action = .Search
+            MisisBooksApi.sharedInstance.search(query: lastInput, count: count, offset: offset, category: category)
         }
     }
     
@@ -208,8 +193,15 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
     }
     
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
-        filterButton = self.navigationItem.rightBarButtonItem
-        self.navigationItem.setRightBarButtonItem(UIBarButtonItem(image: UIImage(named: "Cancel"), style: UIBarButtonItemStyle.Plain, target: self, action: Selector("searchCancelButtonClicked")), animated: true)
+        filterButton = navigationItem.rightBarButtonItem
+        
+        let cancelBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "Cancel"),
+            style: .Plain,
+            target: self,
+            action: Selector("searchCancelButtonClicked")
+        )
+        navigationItem.setRightBarButtonItem(cancelBarButtonItem, animated: true)
     }
     
     func searchCancelButtonClicked() {
@@ -218,7 +210,7 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
     
     func searchBarTextDidEndEditing(searchBar: UISearchBar) {
         searchBar.showsCancelButton = false
-        self.navigationItem.setRightBarButtonItem(filterButton, animated: true)
+        navigationItem.setRightBarButtonItem(filterButton, animated: true)
     }
     
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
@@ -238,29 +230,6 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         return CustomTableViewCell(book: books[indexPath.row], query: lastInput)
     }
-            
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 26.0
-    }
-    
-    override func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 8.0
-    }
-    
-    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let sectionTitleLabel = UILabel(frame: CGRectMake(15.0, 6.0, tableView.frame.size.width - 30.0, 20.0))
-        sectionTitleLabel.backgroundColor = UIColor.clearColor()
-        sectionTitleLabel.font = UIFont(name: "HelveticaNeue", size: 13.0)
-        sectionTitleLabel.shadowColor = UIColor.whiteColor()
-        sectionTitleLabel.shadowOffset = CGSizeMake(0.0, -1.0)
-        sectionTitleLabel.text = sectionTitle
-        sectionTitleLabel.textColor = UIColor.darkGrayColor()
-        
-        let sectionHeaderView = UIView(frame: CGRectMake(0.0, 0.0, tableView.frame.size.width, 26.0))
-        sectionHeaderView.addSubview(sectionTitleLabel)
-        
-        return sectionHeaderView
-    }
     
     /// MARK: - Методы UITableViewDelegate
     
@@ -269,71 +238,15 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        super.tableView(tableView, didSelectRowAtIndexPath: indexPath)
         
         searchBar.resignFirstResponder()
-        
-        let book = books[indexPath.row]
-        let isBookAddedToDownloads = Database.instance.isBookWithId(book.bookId!, addedToList: "Downloads")
-        let isBookAddedToFavorites = Database.instance.isBookWithId(book.bookId!, addedToList: "Favorites")
-        
-        let alertController = UIAlertController(title: book.name!, message: "Размер файла: " + book.fileSize!, preferredStyle: UIAlertControllerStyle.ActionSheet)
-        
-        if isBookAddedToDownloads {
-            alertController.addAction(UIAlertAction(title: "Просмотреть документ", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
-                let documentationInteractionController = UIDocumentInteractionController(URL: NSURL(fileURLWithPath: ControllerManager.instance.downloadsTableViewController.getFullPathToFileByBookId(book.bookId!))!)
-                documentationInteractionController.delegate = self
-                documentationInteractionController.name = book.name
-                documentationInteractionController.presentPreviewAnimated(true)
-            }))
-        } else {
-            alertController.addAction(UIAlertAction(title: "Загрузить документ", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
-                ControllerManager.instance.downloadsTableViewController.downloadBook(book)
-            }))
-        }
-        
-        if isBookAddedToFavorites {
-            alertController.addAction(UIAlertAction(title: "Удалить из избранного", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
-                ControllerManager.instance.favoritesTableViewController.deleteBookFromFavorites(book.bookId!)
-            }))
-        } else {
-            alertController.addAction(UIAlertAction(title: "Добавить в избранное", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
-                ControllerManager.instance.favoritesTableViewController.addBookToFavorites(book)
-            }))
-        }
-        
-        alertController.addAction(UIAlertAction(title: "Отмена", style: UIAlertActionStyle.Cancel, handler: nil))
-        
-        
-        if let popoverPresentationController = alertController.popoverPresentationController {
-            let sender = tableView.cellForRowAtIndexPath(indexPath)!
-            popoverPresentationController.sourceView = sender
-            popoverPresentationController.sourceRect = sender.bounds
-            popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirection.Any
-        }
-        
-        self.presentViewController(alertController, animated: true, completion: nil)
-        
-        /* if UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Phone {
-            self.presentViewController(alertController, animated: true, completion: nil)
-        } else {
-            let popup = UIPopoverController(contentViewController: alertController)
-            popup.presentPopoverFromRect(CGRectMake(UIScreen.mainScreen().bounds.size.width / 2, UIScreen.mainScreen().bounds.size.height / 2, 0, 0), inView: self.view, permittedArrowDirections: UIPopoverArrowDirection.allZeros, animated: true)
-        } */
-    }
-    
-    /// MARK: - Методы DocumentInteractionViewController
-    
-    func documentInteractionControllerViewControllerForPreview(controller: UIDocumentInteractionController) -> UIViewController {
-        return self.navigationController!
     }
     
     /// MARK: - Методы UIScrollViewDelegate
     
     override func scrollViewDidScroll(scrollView: UIScrollView) {
         preloaderView?.preloaderViewScrollViewDidScroll(scrollView)
-        
-        // [scrollView setBounces:(scrollView.contentOffset.y > 10)];
     }
     
     override func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -346,69 +259,61 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
         
     /// MARK: - Методы, вызываемые MisisBooksApi
     
-    func updateTableWithReceivedBooks(receivedBooks: [Book], allItemsCount: Int) {
+    func updateTableWithReceivedBooks(receivedBooks: [Book], totalResults: Int) {
         loadingMore = false
         activityIndicator.stopAnimating()
-        
-        informationView?.removeFromSuperview() // удаление информационного вида
+        informationView?.removeFromSuperview()
         informationView = nil
-        self.tableView.bounces = true // включение прокрутки таблицы
+        tableView.bounces = true
         
-        if offset == 0 {
+        if offset == 0 || action == MisisBooksApiAction.GetPopular {
             books = receivedBooks
             
-            // Плавное обновление таблицы
-            UIView.transitionWithView(self.tableView, duration: 0.2, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
-                self.tableView.reloadData()
-                }, completion: nil)
+            UIView.transitionWithView(
+                self.tableView,
+                duration: 0.2,
+                options: .TransitionCrossDissolve,
+                animations: {
+                    self.tableView.reloadData()
+                },
+                completion: nil
+            )
             
             if action == MisisBooksApiAction.GetPopular {
-                sectionTitle = "ПОПУЛЯРНОЕ"
-                setEmptyTableFooterView()
+                sectionTitleLabel1.text = "ПОПУЛЯРНОЕ"
+                removePreloaderView()
             } else if action == MisisBooksApiAction.Search {
-                sectionTitle = getStringForSectionHeader(allItemsCount)
-                setTableFooterView(allItemsCount)
+                sectionTitleLabel1.text = getTextForSectionHeader(totalResults)
+                updatePreloaderView(totalResults)
             }
         } else {
-            let numberOfBooks = books.count
+            let totalBooks = books.count
             var newPaths = [NSIndexPath]()
             
             for var i = 0; i < receivedBooks.count; ++i {
                 books.append(receivedBooks[i])
-                newPaths.append(NSIndexPath(forRow: numberOfBooks + i, inSection: 0))
+                newPaths.append(NSIndexPath(forRow: totalBooks + i, inSection: 0))
             }
             
-            self.tableView.beginUpdates()
-            self.tableView.insertRowsAtIndexPaths(newPaths, withRowAnimation: UITableViewRowAnimation.Automatic)
-            self.tableView.endUpdates()
-            
+            tableView.insertRowsAtIndexPaths(newPaths, withRowAnimation: .Automatic)
             preloaderView?.preloaderViewDataSourceDidFinishedLoading()
-            
-            setTableFooterView(allItemsCount)
+            updatePreloaderView(totalResults)
         }
 
     }
     
     func showInformationView(informationView: InformationView) {
         loadingMore = false
-        
-        // Возвращение поисковой строки в обычное состояние
         searchBar.resignFirstResponder()
-        
-        // Отключение анимации индикатора активности
         activityIndicator.stopAnimating()
-        
-        // Удаление старого информационного вида
         self.informationView?.removeFromSuperview()
-        
-        // Установка нового информационного вида
         self.informationView = informationView
-        
-        // Отображение информационного вида
-        self.tableView.addSubview(informationView)
-        
-        // Отключение прокрутки таблицы
-        self.tableView.bounces = false
+        sectionTitleLabel1.text = ""
+        books.removeAll(keepCapacity: false)
+        removePreloaderView()
+        tableView.reloadData()
+        tableView.addSubview(informationView)
+        tableView.bounces = false
     }
     
     /// MARK: - Методы PreloaderViewDelegate
@@ -424,7 +329,7 @@ class SearchTableViewController : UITableViewController, UISearchBarDelegate, UI
         let time = dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC)))
         dispatch_after(time, dispatch_get_main_queue()) {
             self.action = MisisBooksApiAction.Search
-            self.misisBooksApi.search(query: self.lastInput, count: self.count, offset: self.offset, category: self.category)
+            MisisBooksApi.sharedInstance.search(query: self.lastInput, count: self.count, offset: self.offset, category: self.category)
         }
     }
 }

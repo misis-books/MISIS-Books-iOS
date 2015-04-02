@@ -8,143 +8,131 @@
 
 import UIKit
 
-class DownloadsTableViewController : UITableViewController, UIDocumentInteractionControllerDelegate, UIActionSheetDelegate {
-    
-    /// Загруженные книги
-    var books = [Book]()
+class DownloadsTableViewController : BookTableViewController {
     
     /// Информационный вид
     var informationView : InformationView?
     
-    /// Поле заголовка секции
-    var sectionTitleLabel : UILabel!
-    
-    /// Загружаемые книги
-    private var downloadableBooks = [Book]()
-    
-    
-    override init() {
-        super.init(style: UITableViewStyle.Grouped)
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    override func viewDidAppear(animated: Bool) {
-        if books.count == 0 { // Если загруженных книг нет
-            // Скрытие кнопки для редактирования таблицы
-            self.navigationItem.setRightBarButtonItems(nil, animated: true)
-        } else if self.tableView.editing { // Если запущен режим редактирования таблицы
-            // Отображение кнопок для удаления докуменов и для отмены редактирования таблицы
-            showDeleteAndCancelButtons()
-        } else {
-            // Отображение кнопки для редактирования таблицы
-            showEditButton()
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.navigationItem.setLeftBarButtonItem(UIBarButtonItem(image: UIImage(named: "Menu"), style: UIBarButtonItemStyle.Plain, target: ControllerManager.instance.slideMenuController, action: Selector("openLeft")), animated: false)
-        // self.navigationItem.setLeftBarButtonItem(UIBarButtonItem(image: UIImage(named: "Menu"), style: UIBarButtonItemStyle.Plain, target: self, action: Selector("showBanner")), animated: false)
+        books = Database.sharedInstance.booksForList("Downloads")
         
-        self.tableView.allowsMultipleSelectionDuringEditing = true
-        self.tableView.backgroundColor = UIColor(red: 241 / 255.0, green: 239 / 255.0, blue: 237 / 255.0, alpha: 1.0)
-        self.tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1.0)
-        self.tableView.tableFooterView = UIView(frame: CGRectZero)
-        self.title = "Загрузки"
-        
-        books = Database.instance.booksForList("Downloads")
-        
-        println("Количество загруженных книг: " + String(books.count))
+        tableView.allowsMultipleSelectionDuringEditing = true
+        title = "Загрузки"
         
         if books.count == 0 {
-            self.showInformationView()
+            showInformationView()
+        } else {
+            showEditButton()
         }
+        
+        println("Загруженные книги (\(books.count)): [\(getAllDocuments())]")
     }
     
-    func showBanner() {
-        AlertBanner(title: "Не удалось добавить в избранное", subtitle: "Невозможно подключиться к серверу").show()
+    override func viewDidAppear(animated: Bool) {
+        updateSectionTitle()
     }
 
     /// MARK: - Методы для загрузки книги
     
-    func smartUrlForString(string: NSString) -> NSURL? {
-        var result : NSURL? = nil
-        let trimmedString : NSString? = string.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
-        var schemeMarkerRange : NSRange
-        var scheme : NSString
-        
-        if trimmedString != nil && trimmedString!.length != 0 {
-            schemeMarkerRange = trimmedString!.rangeOfString("://")
+    /// Приостанавливает загрузку книги
+    ///
+    /// :param: book
+    func pauseDownloadBook(book: Book) {
+        if let task = book.getDownloadTask() {
+            DownloadManager.pauseDownload(downloadTask: task)
             
-            if schemeMarkerRange.location == NSNotFound {
-                result = NSURL(string: "http://" + trimmedString!)
-            } else {
-                scheme = trimmedString!.substringWithRange(NSMakeRange(0, schemeMarkerRange.location))
-                
-                if scheme.compare("http", options: NSStringCompareOptions.CaseInsensitiveSearch) == NSComparisonResult.OrderedSame || scheme.compare("https", options: NSStringCompareOptions.CaseInsensitiveSearch) == NSComparisonResult.OrderedSame {
-                    result = NSURL(string: trimmedString!)
-                }
-            }
+            let fileInformation = DownloadManager.getFileInformationByTaskId(task.taskIdentifier)
+            changeDownloadProgress(Float(fileInformation.progressPercentage) / 100, text: "Пауза: \(fileInformation.progressPercentage)%", bookId: book.bookId)
         }
-        
-        return result
+    }
+    
+    /// Возобновляет загрузку книги
+    ///
+    /// :param: book
+    func resumeDownloadBook(book: Book) {
+        if let task = book.getDownloadTask() {
+            DownloadManager.resumeDownload(downloadTask: task)
+        }
+    }
+    
+    /// Отменяет загрузку книги
+    ///
+    /// :param: book
+    func cancelDownloadBook(book: Book) {
+        if let task = book.getDownloadTask() {
+            DownloadManager.cancelDownload(downloadTask: task)
+        }
     }
     
     /// Загружает книгу
     ///
     /// :param: book Книга
     func downloadBook(book: Book) {
-        if downloadableBooks.count <= 5 {
+        if DownloadManager.getCurrentDownloads().count <= 5 {
             if let accessToken = NSUserDefaults.standardUserDefaults().stringForKey("accessToken") {
-                MisisBooksApi.getLongUrlFromShortUrl(NSURL(string: "\(book.downloadUrl!)&access_token=\(accessToken)")!, completionHandler: {
-                    (success, longUrl) -> Void in
-                    if success {
-                        if let sourceUrl = self.smartUrlForString(longUrl!.absoluteString!) {
-                            self.downloadableBooks.append(book)
-                            
-                            dispatch_async(dispatch_get_main_queue()) {
-                                self.changeDownloadProgress(book, progress: 0.0)
-                            }
-                            
-                            DownloadManager.download("\(book.bookId!).pdf", sourceUrl: sourceUrl, progressBlockCompletion: {
-                                (bytesWritten, bytesExpectedToWrite, downloadFileInformation) -> Void in
+                let shortUrlString = "\(book.downloadUrl!)&access_token=\(accessToken)"
+                
+                println("Короткий URL: \(shortUrlString)")
+                
+                addDownloadableBookToDownloads(book)
+                
+                MisisBooksApi.getLongUrlFromShortUrl(NSURL(string: shortUrlString)!) {
+                    (longUrl) -> Void in
+                    if longUrl != nil {
+                        println("Длинный URL: \(longUrl!.absoluteString!)")
+                        
+                        if let sourceUrl = NSURL(string: longUrl!.absoluteString!) {
+                            DownloadManager.download("\(book.bookId).pdf", sourceUrl: sourceUrl, progressBlockCompletion: {
+                                (progressPercentage, fileInformation) -> Void in
                                 dispatch_async(dispatch_get_main_queue()) {
-                                    self.changeDownloadProgress(book, progress: Float(bytesWritten) / Float(bytesExpectedToWrite))
+                                    self.changeDownloadProgress(Float(progressPercentage) / 100, text: "Загрузка: \(progressPercentage)%", bookId: book.bookId)
                                 }
                                 }, responseBlockCompletion: {
-                                    (error, downloadFileInformation) -> Void in
-                                    for var i = 0; i < self.downloadableBooks.count; ++i {
-                                        if self.downloadableBooks[i].bookId == book.bookId {
-                                            self.downloadableBooks.removeAtIndex(i)
-                                        }
-                                    }
+                                    (error, fileInformation) -> Void in
                                     
                                     if error == nil {
-                                        println("Файл загружен: \(downloadFileInformation.pathDestination.absoluteString!)")
+                                        println("Файл загружен: \(fileInformation.pathDestination.absoluteString!)")
                                         
                                         dispatch_async(dispatch_get_main_queue()) {
+                                            self.deleteDownloadableBookToDownloads(book)
                                             self.addBookToDownloads(book)
-                                            self.changeDownloadProgress(book, progress: 1.0)
                                         }
                                     } else {
-                                        AlertBanner(title: "Не удалось загрузить документ", subtitle: "Соединение с сервером прервано").show()
+                                        dispatch_async(dispatch_get_main_queue()) {
+                                            switch error.code {
+                                            case -999:
+                                                AlertBanner(title: "Не удалось загрузить документ", subtitle: "Загрузка была отменена").show()
+                                                break
+                                            default:
+                                                AlertBanner(title: "Не удалось загрузить документ", subtitle: "Соединение с сервером прервано").show()
+                                                break
+                                            }
+                                            
+                                            self.changeDownloadProgress(0.0, text: "", bookId: book.bookId)
+                                            self.deleteDownloadableBookToDownloads(book)
+                                            
+                                            println(error.debugDescription)
+                                        }
                                     }
                             })
                         } else {
-                            AlertBanner(title: "Невозможно начать загрузку", subtitle: "Некорректный URL для загрузки").show()
+                            dispatch_async(dispatch_get_main_queue()) {
+                                AlertBanner(title: "Невозможно начать загрузку", subtitle: "Некорректный URL для загрузки").show()
+                                self.changeDownloadProgress(0.0, text: "", bookId: book.bookId)
+                                self.deleteDownloadableBookToDownloads(book)
+                            }
                         }
                     } else {
-                        AlertBanner(title: "Невозможно начать загрузку", subtitle: "Не получен длинный URL").show()
+                        dispatch_async(dispatch_get_main_queue()) {
+                            AlertBanner(title: "Невозможно начать загрузку", subtitle: "Не получен длинный URL").show()
+                            self.changeDownloadProgress(0.0, text: "", bookId: book.bookId)
+                            self.deleteDownloadableBookToDownloads(book)
+                        }
                     }
-                })
+                }
             } else {
                 AlertBanner(title: "Невозможно начать загрузку", subtitle: "Отсутствует маркер доступа").show()
             }
@@ -159,13 +147,13 @@ class DownloadsTableViewController : UITableViewController, UIDocumentInteractio
     ///
     /// :param: book Книга
     /// :param: progress Прогресс (от 0.0 до 1.0)
-    func changeDownloadProgress(book: Book, progress: Float) {
+    func changeDownloadProgress(progress: Float, text: String, bookId: Int) {
         // TODO: Сделать цикл только по инициализированным контроллерам
         
         let controllers = [
-            ControllerManager.instance.searchTableViewController,
-            ControllerManager.instance.downloadsTableViewController,
-            ControllerManager.instance.favoritesTableViewController
+            ControllerManager.sharedInstance.searchTableViewController,
+            ControllerManager.sharedInstance.downloadsTableViewController,
+            ControllerManager.sharedInstance.favoritesTableViewController
         ]
         
         for var i = 0; i < controllers.count; ++i {
@@ -176,19 +164,19 @@ class DownloadsTableViewController : UITableViewController, UIDocumentInteractio
                 let indexPath = NSIndexPath(forRow: row, inSection: 0)
                 
                 if let cell = controller.tableView.cellForRowAtIndexPath(indexPath) as? CustomTableViewCell {
-                    if cell.tag == book.bookId {
-                        let infoLabel = cell.viewWithTag(4) as? UILabel
+                    if cell.tag == bookId {
+                        let informationLabel = cell.viewWithTag(4) as? UILabel
                         let progressBar = cell.viewWithTag(5) as? UIProgressView
                         
                         if progress == 0.0 {
-                            infoLabel?.text = ""
+                            informationLabel?.text = text
                             progressBar?.setProgress(progress, animated: false)
                             progressBar?.hidden = false
                         } else if progress < 1.0 {
-                            infoLabel?.text = "Загрузка: \(Int(progress * 100))%"
+                            informationLabel?.text = text
                             progressBar?.setProgress(progress, animated: true)
                         } else if progress == 1.0 {
-                            infoLabel?.text = "Загружено"
+                            informationLabel?.text = "Загружено"
                             progressBar?.hidden = true
                         }
                     }
@@ -199,298 +187,282 @@ class DownloadsTableViewController : UITableViewController, UIDocumentInteractio
     
     /// MARK: - Методы для отладки
     
-    /* func debugPrintDocumentsList() {
-        let documentDirectory: NSString = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).objectAtIndex(0) as NSString
+    /// Возвращает список всех загруженных книг (pdf-документов)
+    ///
+    /// :returns: Список всех загруженных книг
+    func getAllDocuments() -> String {
+        let documentDirectory = NSHomeDirectory().stringByAppendingFormat("/Documents/")
+        // let listPathContent = NSFileManager.defaultManager().subpathsOfDirectoryAtPath(documentDirectory, error: nil)
+        let listPathContent = NSBundle(path: documentDirectory)!.pathsForResourcesOfType("pdf", inDirectory: nil)
         
-        let listPathContent: NSArray = NSBundle(path: documentDirectory).pathsForResourcesOfType("pdf", inDirectory: nil)
-        // NSArray *listPathContent = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:documentDirectory error:nil];
-        var documents: NSMutableArray = NSMutableArray()
-    
-        for let i = 0; i < listPathContent.count; i++ {
-            documents.addObject(listPathContent.objectAtIndex(i).lastPathComponent)
-        }
-        
-        NSLog("Все загруженные PDF-документы: [%@].", documents.componentsJoinedByString(", "))
-    } */
+        return join(", ", map(listPathContent) { $0.lastPathComponent })
+    }
     
     /// MARK: - Методы UITableViewDataSource
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return books.count
+        return section == 0 ? downloadableBooks.count : books.count
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        return CustomTableViewCell(book: books[indexPath.row], query: nil)
+        return indexPath.section == 0 ?
+            CustomTableViewCell(book: downloadableBooks[indexPath.row], query: nil) :
+            CustomTableViewCell(book: books[indexPath.row], query: nil)
     }
     
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 26.0
-    }
-    
-    override func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 8.0
-    }
-    
-    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        sectionTitleLabel = UILabel(frame: CGRectMake(15.0, 6.0, tableView.frame.size.width - 30.0, 20.0))
-        sectionTitleLabel.backgroundColor = UIColor.clearColor()
-        sectionTitleLabel.font = UIFont(name: "HelveticaNeue", size: 13.0)
-        sectionTitleLabel.shadowColor = UIColor.whiteColor()
-        sectionTitleLabel.shadowOffset = CGSizeMake(0.0, -1.0)
-        sectionTitleLabel.textColor = UIColor.darkGrayColor()
-        
-        // Обновление заголовка секции
-        updateSectionTitle()
-        
-        let sectionHeaderView = UIView(frame: CGRectMake(0.0, 0.0, tableView.frame.size.width, 26.0))
-        sectionHeaderView.addSubview(sectionTitleLabel)
-        
-        return sectionHeaderView
-    }
-    
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == UITableViewCellEditingStyle.Delete {
-            changeDownloadProgress(books[indexPath.row], progress: 0.0) // удаление статуса "Загружено"
-            NSFileManager.defaultManager().removeItemAtPath(getFullPathToFileByBookId(books[indexPath.row].bookId!), error: nil) // удаление файла загруженной книги
-            Database.instance.deleteBookWithId(books[indexPath.row].bookId!, fromList: "Downloads") // удаление загруженной книги из базы данных
-            books.removeAtIndex(indexPath.row) // удаление загруженной книги из массива
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Fade) // удаление загруженной книги из таблицы
-
-            // Обновление заголовка секции
-            updateSectionTitle()
-            
-            if books.count == 0 { // Если загруженных книг нет
-                self.showInformationView() // Отображение информационного вида
-            }
-        }
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return indexPath.section != 0
     }
     
     /// MARK: - Методы UITableViewDelegate
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
-    }
-    
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if !tableView.editing { // Если не запущен режим редактирования таблицы
-            let documentationInteractionController = UIDocumentInteractionController(URL: NSURL(fileURLWithPath: getFullPathToFileByBookId(books[indexPath.row].bookId!))!)
-            documentationInteractionController.delegate = self
-            documentationInteractionController.name = books[indexPath.row].name
-            documentationInteractionController.presentPreviewAnimated(true)
-        }/* else {
-            let selectedIndexPaths = self.tableView.indexPathsForSelectedRows()
-            var prompt : String?
-            
-            if selectedIndexPaths?.count == 1 {
-                prompt = "Выбран 1 документ"
-            } else if selectedIndexPaths?.count > 1 {
-                prompt = "Выбрано 2 документа"
-            } else if selectedIndexPaths?.count == 0 {
-                prompt = nil
-            }
-            
-            self.navigationItem.prompt = prompt
-        } */
-    }
-    
-    /// MARK: - Методы DocumentInteractionViewController
-    
-    func documentInteractionControllerViewControllerForPreview(controller: UIDocumentInteractionController) -> UIViewController {
-        return self.navigationController!
+        return indexPath.section == 0 ?
+            CustomTableViewCell.heightForRowWithBook(downloadableBooks[indexPath.row]) :
+            CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
     }
     
     /// MARK: - Методы UIActionSheetDelegate
     
-    func actionSheet(actionSheet: UIActionSheet, clickedButtonAtIndex buttonIndex: Int) {
-        if buttonIndex == 0 {
-            if var selectedIndexPaths = self.tableView.indexPathsForSelectedRows() { // Если выбраны какие-то ячейки
-                // Сортировка индексов ячеек в порядке убывания. В массиве selectedIndexPaths индексы ячеек расположены в порядке их выделения пользователем, поэтому нельзя допустить, чтобы на этапе удаления книги из массива было обращение по несуществующему индексу, потому что размер массива с каждой итерацией уменьшается
-                sort(&selectedIndexPaths, { $0.row > $1.row })
-                
-                // Удаление выбранных книг
-                for var i = 0; i < selectedIndexPaths.count; ++i {
-                    // Удаление статуса "Загружено" со всех ячеек
-                    changeDownloadProgress(books[selectedIndexPaths[i].row], progress: 0.0)
-                    
-                    // Удаление файла книги
-                    NSFileManager.defaultManager().removeItemAtPath(getFullPathToFileByBookId(books[selectedIndexPaths[i].row].bookId!), error: nil)
-                    
-                    // Удаление книги из базы данных
-                    Database.instance.deleteBookWithId(books[selectedIndexPaths[i].row].bookId!, fromList: "Downloads")
-                    
-                    // удаление книги из массива
-                    books.removeAtIndex(selectedIndexPaths[i].row)
-                }
-                
-                // Удаление выбранных книг из таблицы
-                self.tableView.deleteRowsAtIndexPaths(selectedIndexPaths, withRowAnimation: UITableViewRowAnimation.Fade)
+    override func actionSheet(actionSheet: UIActionSheet, clickedButtonAtIndex buttonIndex: Int) {
+        super.actionSheet(actionSheet, clickedButtonAtIndex: buttonIndex)
+        
+        if actionSheet.tag == 0 && buttonIndex == 0 { // Таблица редактируется
+            if let selectedIndexPaths = tableView.indexPathsForSelectedRows() {
+                deleteBooksFromDownloads(map(selectedIndexPaths, { self.books[$0.row] }))
             } else {
-                // Удаление всех книг
-                for var i = 0; i < books.count; ++i {
-                    // Удаление статуса "Загружено" со всех ячеек
-                    changeDownloadProgress(books[i], progress: 0.0)
-                    
-                    // Удаление файла книги
-                    NSFileManager.defaultManager().removeItemAtPath(getFullPathToFileByBookId(books[i].bookId!), error: nil)
-                    
-                    // Удаление книги из базы данных
-                    Database.instance.deleteBookWithId(books[i].bookId!, fromList: "Downloads")
-                }
-                
-                // Удаление всех книг из массива
-                books.removeAll()
-                
-                // Удаление всех книг из таблицы
-                self.tableView.reloadSections(NSIndexSet(index: 0), withRowAnimation: UITableViewRowAnimation.Fade)
+                deleteAllBooksFromDownloads()
             }
-        }
-        
-        // Отключение режима редактирования таблицы
-        self.tableView.setEditing(false, animated: true)
-        
-        // Обновление заголовка секции
-        updateSectionTitle()
-        
-        if books.count == 0 { // Если книг нет
-            // Отображение информационного вида
-            showInformationView()
-        } else {
-            // Отображение кнопки редактирования
-            showEditButton()
         }
     }
     
     /// MARK: - Вспомогательные методы
     
+    /// Обновляет заголовок секции
     func updateSectionTitle() {
-        let numberOfBooks = books.count
-        let formats = ["ДОКУМЕНТ", "ДОКУМЕНТА", "ДОКУМЕНТОВ"]
+        let totalBooks = books.count
+        let totalDownloadableBooks = downloadableBooks.count
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
+        let words1 = ["ЗАГРУЖАЕМЫЙ ДОКУМЕНТ", "ЗАГРУЖАЕМЫХ ДОКУМЕНТА", "ЗАГРУЖАЕМЫХ ДОКУМЕНТОВ"]
+        let word1 = words1[totalDownloadableBooks % 100 > 4 && totalDownloadableBooks % 100 < 20 ? 2 : keys[totalDownloadableBooks % 10]]
+        let words2 = ["ЗАГРУЖЕННЫЙ ДОКУМЕНТ", "ЗАГРУЖЕННЫХ ДОКУМЕНТА", "ЗАГРУЖЕННЫХ ДОКУМЕНТОВ"]
+        let word2 = words2[totalBooks % 100 > 4 && totalBooks % 100 < 20 ? 2 : keys[totalBooks % 10]]
         
-        sectionTitleLabel.text = numberOfBooks == 0 ? "" : "\(numberOfBooks) \(formats[numberOfBooks % 100 > 4 && numberOfBooks % 100 < 20 ? 2 : keys[numberOfBooks % 10]])"
+        sectionTitleLabel1.text = totalDownloadableBooks == 0 ? "" : "\(totalDownloadableBooks) \(word1)"
+        sectionTitleLabel2.text = totalBooks == 0 ? "" : "\(totalBooks) \(word2)"
     }
-    
-    /// Загружает файлы из директории с документами
-    /*- (void)loadFilesFromDocumentDirectory {
-    _downloadedBooks = nil;
-    
-    NSString *documentDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    NSArray *listPathContent = [[NSBundle bundleWithPath:documentDirectory] pathsForResourcesOfType:@"pdf" inDirectory:nil];
-    
-    _downloadedBooks = [NSMutableArray new];
-    
-    for (NSInteger i = 0; i < listPathContent.count; i++) {
-    NSString *fileName = [[listPathContent objectAtIndex:i] lastPathComponent];
-    
-    [_downloadedBooks addObject:fileName];
-    }
-    }*/
     
     /// Показывает кнопку для редактирования таблицы
     func showEditButton() {
-        // Отключение режима редактирования таблицы
-        self.tableView.setEditing(false, animated: true)
+        tableView.setEditing(false, animated: true)
         
-        // Создание и добавление кнопки для редактирования таблицы
-        self.navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Edit"), style: UIBarButtonItemStyle.Plain, target: self, action: Selector("showDeleteAndCancelButtons"))], animated: true)
-        
-        // self.navigationItem.prompt = nil
+        let editBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "Edit"),
+            style: .Plain,
+            target: self,
+            action: Selector("showDeleteAndCancelButtons")
+        )
+        navigationItem.setRightBarButtonItems([editBarButtonItem], animated: true)
     }
     
     /// Показывает кнопку для удаления документов и кнопку для отмены редактирования таблицы
     func showDeleteAndCancelButtons() {
-        // Включение режима редактирования таблицы
-        self.tableView.setEditing(true, animated: true)
+        tableView.setEditing(true, animated: true)
         
         // Создание и добавление кнопок
-        let cancelBarButtonItem = UIBarButtonItem(image: UIImage(named: "Cancel"), style: UIBarButtonItemStyle.Plain, target: self, action: Selector("showEditButton"))
-        let deleteBarButtonItem = UIBarButtonItem(image: UIImage(named: "Trash"), style: UIBarButtonItemStyle.Plain, target: self, action: Selector("deleteButtonPressed"))
-        self.navigationItem.setRightBarButtonItems([cancelBarButtonItem, deleteBarButtonItem], animated: true)
+        let cancelBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "Cancel"),
+            style: .Plain,
+            target: self,
+            action: Selector("showEditButton")
+        )
+        let deleteBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "Trash"),
+            style: .Plain,
+            target: self,
+            action: Selector("deleteButtonPressed")
+        )
+        navigationItem.setRightBarButtonItems([cancelBarButtonItem, deleteBarButtonItem], animated: true)
     }
     
-    /// Обрабатывает событие, когда нажата кнопка для удаления
+    /// Обрабатывает событие, когда нажата кнопка удаления
     func deleteButtonPressed() {
-        let selectedIndexPaths = self.tableView.indexPathsForSelectedRows()
-        var actionTitle : String
+        let selectedIndexPaths = tableView.indexPathsForSelectedRows()
+        var actionTitleSubstring : String
+        var numberOfBooksToDelete : Int
         
         if selectedIndexPaths?.count == 1 {
-            actionTitle = "Вы действительно хотите удалить из загрузок этот документ?"
+            actionTitleSubstring = "этот документ"
+            numberOfBooksToDelete = 1
         } else if selectedIndexPaths?.count > 1 {
-            actionTitle = "Вы действительно хотите удалить из загрузок эти документы?"
+            actionTitleSubstring = "эти документы"
+            numberOfBooksToDelete = selectedIndexPaths!.count
         } else {
-            actionTitle = "Вы действительно хотите удалить из загрузок все документы?"
+            actionTitleSubstring = "все документы"
+            numberOfBooksToDelete = books.count
         }
         
-        let actionSheet = UIActionSheet(title: actionTitle, delegate: self, cancelButtonTitle: "Отмена", destructiveButtonTitle: "Удалить")
-        actionSheet.actionSheetStyle = UIActionSheetStyle.Default
-        actionSheet.showInView(self.view)
+        if numberOfBooksToDelete == 0 {
+            return
+        }
+        
+        let actionSheet = UIActionSheet(
+            title: "Вы действительно хотите удалить из загрузок \(actionTitleSubstring)?",
+            delegate: self,
+            cancelButtonTitle: "Отмена",
+            destructiveButtonTitle: "Удалить (\(numberOfBooksToDelete))"
+        )
+        actionSheet.actionSheetStyle = .Default
+        actionSheet.tag = 0
+        actionSheet.showInView(view)
     }
     
     /// Показывает информационный вид
     func showInformationView() {
-        // Отключение режима редактирования таблицы (он мог быть запущен)
-        self.tableView.setEditing(false, animated: true)
-        
-        // Отключение прокрутки таблицы
-        self.tableView.bounces = false
-        
-        // Скрытие кнопки для редактирования таблицы
-        self.navigationItem.setRightBarButtonItems(nil, animated: true)
-        
-        // Создание и добавление информационного вида
-        informationView = InformationView(viewController: self, title: "Нет документов", subtitle: "Здесь будут храниться\nзагруженные документы", linkButtonText: "Начать поиск") {
-            self.showSearchController()
+        tableView.setEditing(false, animated: true)
+        tableView.bounces = false
+        navigationItem.setRightBarButtonItems(nil, animated: true)
+        informationView?.removeFromSuperview()
+        informationView = InformationView(
+            viewController: self,
+            title: "Нет документов",
+            subtitle: "Здесь будут храниться\nзагруженные документы",
+            buttonText: "Начать поиск") {
+                self.showSearchController()
         }
-        self.tableView.addSubview(informationView!)
+        tableView.addSubview(informationView!)
     }
     
     func showSearchController() {
-        ControllerManager.instance.slideMenuController.changeMainViewController(ControllerManager.instance.menuTableViewController.searchTableViewController, close: true)
-        ControllerManager.instance.menuTableViewController.highlightRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))
+        ControllerManager.sharedInstance.slideMenuController.changeMainViewController(ControllerManager.sharedInstance.menuTableViewController.searchTableViewController, close: true)
+        ControllerManager.sharedInstance.menuTableViewController.highlightRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))
     }
     
     /// Скрывает информационный вид
     func hideInformationView() {
-        // Включение прокрутки таблицы
-        self.tableView.bounces = true
-        
-        // Удаление информационного вида
+        tableView.bounces = true
         informationView?.removeFromSuperview()
     }
     
-    /// Добавляет загруженную книгу в таблицу и базу данных
+    /// Добавляет загружаемую книгу в таблицу
     ///
     /// :param: book Книга
-    func addBookToDownloads(book: Book) {
-        // Добавление книги в базу данных
-        Database.instance.addBook(book, toList: "Downloads")
-        
-        // Добавление книги в массив
-        books.append(book)
-        
-        // Скрытие информационного вида
+    func addDownloadableBookToDownloads(book: Book) {
+        println(book)
+        changeDownloadProgress(0.0, text: "Подготовка", bookId: book.bookId)
+        downloadableBooks.append(book)
         hideInformationView()
         
-        // Обновление данных таблицы
-        let indexPathOfNewItem = NSIndexPath(forRow: books.count - 1, inSection: 0)
-        self.tableView.beginUpdates()
-        self.tableView.insertRowsAtIndexPaths([indexPathOfNewItem], withRowAnimation: UITableViewRowAnimation.Automatic)
-        self.tableView.endUpdates()
-        // self.tableView.scrollToRowAtIndexPath(indexPathOfNewItem, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
+        let indexPathOfNewItem = NSIndexPath(forRow: downloadableBooks.count - 1, inSection: 0)
+        tableView.insertRowsAtIndexPaths([indexPathOfNewItem], withRowAnimation: .Automatic)
         
-        // Обновление заголовка секции
         updateSectionTitle()
     }
     
-    /// Возвращает полный путь к файлу с заданным идентификатором книги
+    /// Удалает загружаемую книгу из таблицу
+    ///
+    /// :param: book Книга
+    func deleteDownloadableBookToDownloads(book: Book) {
+        for var i = 0; i < downloadableBooks.count; ++i {
+            if downloadableBooks[i].bookId == book.bookId {
+                downloadableBooks.removeAtIndex(i)
+                
+                let indexPathForDeletion = NSIndexPath(forRow: i, inSection: 0)
+                tableView.deleteRowsAtIndexPaths([indexPathForDeletion], withRowAnimation: .Fade)
+                
+                break
+            }
+        }
+        
+        updateSectionTitle()
+        
+        if books.count == 0 && downloadableBooks.count == 0 {
+            showInformationView()
+        } else if books.count == 0 {
+            tableView.setEditing(false, animated: true)
+            navigationItem.setRightBarButtonItems(nil, animated: true)
+        } else {
+            showEditButton()
+        }
+    }
+    
+    /// Добавляет загруженную книгу в таблицу
+    ///
+    /// :param: book Книга
+    func addBookToDownloads(book: Book) {
+        changeDownloadProgress(1.0, text: "Загружено", bookId: book.bookId)
+        books.append(book)
+        hideInformationView()
+        Database.sharedInstance.addBook(book, toList: "Downloads")
+        updateSectionTitle()
+        showEditButton()
+        
+        let indexPathOfNewItem = NSIndexPath(forRow: books.count - 1, inSection: 1)
+        tableView.insertRowsAtIndexPaths([indexPathOfNewItem], withRowAnimation: .Automatic)
+    }
+    
+    /// Удаляет книги из загрузок
+    ///
+    /// :param: books Книги для удаления
+    func deleteBooksFromDownloads(booksForDeletion: [Book]) {
+        for var i = 0; i < booksForDeletion.count; ++i {
+            for var j = 0; j < books.count; ++j {
+                if books[j].bookId == booksForDeletion[i].bookId {
+                    changeDownloadProgress(0.0, text: "", bookId: books[j].bookId)
+                    NSFileManager.defaultManager().removeItemAtPath(getLocalBookUrl(books[j].bookId).path!, error: nil)
+                    books.removeAtIndex(j)
+                    
+                    let indexPathForDeletion = NSIndexPath(forRow: j, inSection: 1)
+                    tableView.deleteRowsAtIndexPaths([indexPathForDeletion], withRowAnimation: .Fade)
+                    
+                    break
+                }
+            }
+            
+            Database.sharedInstance.deleteBookWithId(booksForDeletion[i].bookId, fromList: "Downloads")
+        }
+        
+        updateSectionTitle()
+        
+        if books.count == 0 && downloadableBooks.count == 0 {
+            showInformationView()
+        } else if books.count == 0 {
+            tableView.setEditing(false, animated: true)
+            navigationItem.setRightBarButtonItems(nil, animated: true)
+        } else {
+            showEditButton()
+        }
+    }
+    
+    /// Удаляет все книги из загрузок
+    func deleteAllBooksFromDownloads() {
+        for var i = books.count - 1; i >= 0; --i {
+            changeDownloadProgress(0.0, text: "", bookId: books[i].bookId)
+            NSFileManager.defaultManager().removeItemAtPath(getLocalBookUrl(books[i].bookId).path!, error: nil)
+        }
+        
+        books.removeAll(keepCapacity: false)
+        tableView.reloadSections(NSIndexSet(index: 1), withRowAnimation: .Fade)
+        Database.sharedInstance.deleteAllBooksFromList("Downloads")
+        updateSectionTitle()
+        
+        if downloadableBooks.count == 0 {
+            showInformationView()
+        } else {
+            tableView.setEditing(false, animated: true)
+            navigationItem.setRightBarButtonItems(nil, animated: true)
+        }
+    }
+    
+    /// Возвращает локальный URL книги
     ///
     /// :param: bookId Идентификатор книги
-    /// :returns: Полный путь к файлу
-    func getFullPathToFileByBookId(bookId: Int) -> String {
-        return NSHomeDirectory().stringByAppendingFormat("/Documents/" + String(bookId) + ".pdf") // NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)[0].stringByAppendingPathComponent(String(bookId) + ".pdf")
+    /// :returns: Локальный URL книги
+    func getLocalBookUrl(bookId: Int) -> NSURL {
+        return NSURL(fileURLWithPath: NSHomeDirectory().stringByAppendingFormat("/Documents/\(bookId).pdf"))!
     }
 }

@@ -18,23 +18,24 @@ class Database {
     private let database : COpaquePointer = nil
     
     
-    /// Возвращает экземпляр класса базы данных
+    /// Возвращает экземпляр класса
     ///
-    /// :returns: Экземпляр класса базы данных
-    class var instance : Database {
+    /// :returns: Экземпляр класса
+    class var sharedInstance : Database {
         
         struct Singleton {
-            static let instance = Database()
+            static let sharedInstance = Database()
         }
         
-        return Singleton.instance
+        return Singleton.sharedInstance
     }
     
     /// Возвращает полный путь к файлу базы данных из директории документов
     ///
     /// :returns: Полный путь к файлу базы данных из директории документов
     private func databasePath() -> String {
-        return NSHomeDirectory().stringByAppendingFormat("/Documents/" + databaseName) // NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)[0].stringByAppendingPathComponent(databaseName)
+        return NSHomeDirectory().stringByAppendingFormat("/Documents/" + databaseName)
+        // NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0].stringByAppendingPathComponent(databaseName)
     }
     
     /// Проверяет существование файлы базы данных в директории документов, и если он отсутствует, копирует его туда
@@ -44,13 +45,12 @@ class Database {
         let fileManager = NSFileManager.defaultManager()
         if !fileManager.fileExistsAtPath(databasePath()) {
             if let sourceDatabasePath = NSBundle.mainBundle().pathForResource(databaseName, ofType: nil) {
-                // FIXME: копирует файл, даже если он отстутствует в онсовной директории. Конечный получается пустым, из-за чего невозможно выполнить запрос. Ошибка наблюдается в том случае, если приложение не содержит файл Database.sqlite.
+                // FIXME: копирует файл, даже если он отстутствует в основной директории. Конечный получается пустым, из-за чего невозможно выполнить запрос. Ошибка наблюдается в том случае, если приложение не содержит файл Database.sqlite.
                 if !(fileManager.copyItemAtPath(sourceDatabasePath, toPath: databasePath(), error: nil)) {
                     return false
                 }
             }
         }
-        // println(fm.attributesOfItemAtPath(databasePath(), error: nil)?.debugDescription)
         
         return true
     }
@@ -78,10 +78,10 @@ class Database {
         var books = [Book]()
         let query = "SELECT * FROM `Books` WHERE `list` = '\(list)'"
         
-        if sqlite3_prepare_v2(self.database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, &statement, nil) != SQLITE_OK {
+        if sqlite3_prepare_v2(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, &statement, nil) != SQLITE_OK {
             println(statement.debugDescription)
             sqlite3_finalize(statement)
-            if let error = String.fromCString(sqlite3_errmsg(self.database)) {
+            if let error = String.fromCString(sqlite3_errmsg(database)) {
                 println("База данных - не удалось подготовить SQL-запрос: \(query), описание ошибки: \(error)")
             }
             
@@ -89,7 +89,8 @@ class Database {
         }
         
         while sqlite3_step(statement) == SQLITE_ROW {
-            books.append(Book(bookId: Int(sqlite3_column_int(statement, 0)),
+            books.append(Book(
+                bookId: Int(sqlite3_column_int(statement, 0)),
                 name: String.fromCString(UnsafePointer<CChar>(sqlite3_column_text(statement, 1)))!,
                 authors: String.fromCString(UnsafePointer<CChar>(sqlite3_column_text(statement, 6)))!,
                 category: Int(sqlite3_column_int(statement, 7)),
@@ -110,7 +111,7 @@ class Database {
     /// :param: bookId Идентификатор книги
     /// :param: list Список
     /// :returns: Истина, если книга добавлена, или ложь, если нет
-    func isBookWithId(bookId: NSInteger, addedToList list: String) -> Bool {
+    func isBookWithId(bookId: Int, addedToList list: String) -> Bool {
         var statement : COpaquePointer = nil
         var isBookAdded = false
         let query = "SELECT * FROM `Books` WHERE `id` = \(bookId) AND `list` = '\(list)'"
@@ -127,7 +128,7 @@ class Database {
         return isBookAdded
     }
     
-    /// Добавляет книгу в заданный список.
+    /// Добавляет книгу в заданный список
     ///
     /// :param: book Книга
     /// :param: list Список
@@ -139,8 +140,8 @@ class Database {
             let transientPointer = COpaquePointer(UnsafeMutablePointer<Int>(bitPattern: -1))
             let transient = CFunctionPointer<((UnsafeMutablePointer<()>) -> Void)>(transientPointer)
             
-            sqlite3_bind_int(statement, 1, CInt(book.bookId!))
-            sqlite3_bind_text(statement, 2, book.name!.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
+            sqlite3_bind_int(statement, 1, CInt(book.bookId))
+            sqlite3_bind_text(statement, 2, book.name.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
             sqlite3_bind_text(statement, 3, book.downloadUrl!.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
             sqlite3_bind_text(statement, 4, book.fileSize!.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
             sqlite3_bind_text(statement, 5, book.bigPhotoUrl!.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
@@ -150,7 +151,7 @@ class Database {
             sqlite3_bind_text(statement, 9, list.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
             
             if sqlite3_step(statement) != SQLITE_DONE {
-                // NSAssert1(0, "Ошибка при добавлении утвержедения. Описание: '%s'", sqlite3_errmsg(self.database))
+                // NSAssert1(0, "Ошибка при добавлении утвержедения. Описание: '%s'", sqlite3_errmsg(database))
             }
         }
         
@@ -164,6 +165,15 @@ class Database {
     /// :param: list Список
     func deleteBookWithId(bookId: Int, fromList list: String) {
         let query = "DELETE FROM `Books` WHERE `id` = \(bookId) AND `list` = '\(list)'"
+        
+        sqlite3_exec(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, nil, nil, nil)
+    }
+    
+    /// Удаляет все книги из заданного списка
+    ///
+    /// :param: list Список
+    func deleteAllBooksFromList(list: String) {
+        let query = "DELETE FROM `Books` WHERE `list` = '\(list)'"
         
         sqlite3_exec(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, nil, nil, nil)
     }

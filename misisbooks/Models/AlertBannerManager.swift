@@ -9,20 +9,13 @@
 import UIKit
 
 class AlertBannerManager : NSObject, AlertBannerDelegate {
+    
     var topPositionSemaphore : dispatch_semaphore_t
     var bottomPositionSemaphore : dispatch_semaphore_t
     var navBarPositionSemaphore : dispatch_semaphore_t
     var bannerViews : NSMutableArray
     var alertBanners : NSMutableArray
     
-    class var sharedManager : AlertBannerManager {
-        
-        struct Singleton {
-            static let sharedManager = AlertBannerManager()
-        }
-        
-        return Singleton.sharedManager
-    }
     
     override init() {
         topPositionSemaphore = dispatch_semaphore_create(0)
@@ -44,17 +37,29 @@ class AlertBannerManager : NSObject, AlertBannerDelegate {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("didRotate:"), name: UIDeviceOrientationDidChangeNotification, object: nil)
     }
     
+    /// Возвращает экземпляр класса
+    ///
+    /// :returns: Экземпляр класса
+    class var sharedInstance : AlertBannerManager {
+        
+        struct Singleton {
+            static let sharedInstance = AlertBannerManager()
+        }
+        
+        return Singleton.sharedInstance
+    }
+    
     func showAlertBanner(alertBanner: AlertBanner, hideAfter delay: NSTimeInterval) {
         var semaphore : dispatch_semaphore_t
         
         switch alertBanner.position {
-        case AlertBannerPosition.Top:
+        case .Top:
             semaphore = topPositionSemaphore
             break
-        case AlertBannerPosition.Bottom:
+        case .Bottom:
             semaphore = bottomPositionSemaphore
             break
-        case AlertBannerPosition.UnderNavBar:
+        case .UnderNavBar:
             semaphore = navBarPositionSemaphore
             break
         }
@@ -92,13 +97,13 @@ class AlertBannerManager : NSObject, AlertBannerDelegate {
             var semaphore : dispatch_semaphore_t
             
             switch alertBanner.position {
-            case AlertBannerPosition.Top:
+            case .Top:
                 semaphore = topPositionSemaphore
                 break
-            case AlertBannerPosition.Bottom:
+            case .Bottom:
                 semaphore = bottomPositionSemaphore
                 break
-            case AlertBannerPosition.UnderNavBar:
+            case .UnderNavBar:
                 semaphore = navBarPositionSemaphore
                 break
             }
@@ -136,13 +141,13 @@ class AlertBannerManager : NSObject, AlertBannerDelegate {
         var semaphore : dispatch_semaphore_t
         
         switch alertBanner.position {
-        case AlertBannerPosition.Top:
+        case .Top:
             semaphore = topPositionSemaphore
             break
-        case AlertBannerPosition.Bottom:
+        case .Bottom:
             semaphore = bottomPositionSemaphore
             break
-        case AlertBannerPosition.UnderNavBar:
+        case .UnderNavBar:
             semaphore = navBarPositionSemaphore
             break
         }
@@ -176,20 +181,20 @@ class AlertBannerManager : NSObject, AlertBannerDelegate {
         bannersArray.removeObject(alertBanner)
         
         if bannersArray.count == 0 {
-            self.bannerViews.removeObject(view)
+            bannerViews.removeObject(view)
         }
         
         if !alertBanner.shouldForceHide {
             var semaphore : dispatch_semaphore_t
             
             switch alertBanner.position {
-            case AlertBannerPosition.Top:
+            case .Top:
                 semaphore = topPositionSemaphore
                 break
-            case AlertBannerPosition.Bottom:
+            case .Bottom:
                 semaphore = bottomPositionSemaphore
                 break
-            case AlertBannerPosition.UnderNavBar:
+            case .UnderNavBar:
                 semaphore = navBarPositionSemaphore
                 break
             }
@@ -209,7 +214,7 @@ class AlertBannerManager : NSObject, AlertBannerDelegate {
     }
     
     func hideAllAlertBanners() {
-        for view in self.bannerViews {
+        for view in bannerViews {
             hideAlertBannersInView(view as UIView)
         }
     }
@@ -221,7 +226,7 @@ class AlertBannerManager : NSObject, AlertBannerDelegate {
     }
     
     func didRotate(note: NSNotification) {
-        for view in self.bannerViews {
+        for view in bannerViews {
             let topBanners = alertBanners.filteredArrayUsingPredicate(NSPredicate(format: "SELF.position == %i", AlertBannerPosition.Top.rawValue)!) as NSArray
             var topYCoord = CGFloat(0.0)
             

@@ -12,10 +12,10 @@ import Foundation
 class Book {
     
     /// Идентификатор книги
-    var bookId : Int?
+    var bookId : Int
     
     /// Название книги
-    var name : String?
+    var name : String
     
     /// Автор (авторы) книги
     var authors : String?
@@ -55,5 +55,66 @@ class Book {
         self.smallPhotoUrl = smallPhotoUrl
         self.bigPhotoUrl = bigPhotoUrl
         self.downloadUrl = downloadUrl
+    }
+    
+    /// MARK: - Вспомогательные методы
+    
+    /// Определяет, добавлена ли книга в избранное
+    ///
+    /// :returns: Флаг наличия книги в избранном
+    func isAddedToFavorites() -> Bool {
+        return Database.sharedInstance.isBookWithId(bookId, addedToList: "Favorites")
+    }
+    
+    /// Определяет, добавлена ли книга в загрузки
+    ///
+    /// :returns: Флаг наличия книги в загрузках
+    func isAddedToDownloads() -> Bool {
+        return Database.sharedInstance.isBookWithId(bookId, addedToList: "Downloads")
+    }
+    
+    /// Определяет, существует ли книга в текущих загрузках
+    ///
+    /// :returns: Флаг наличия книги в текущих загрузках
+    func isExistsInCurrentDownloads() -> Bool {
+        let currentDownloads = DownloadManager.getCurrentDownloads()
+        
+        for currentDownload in currentDownloads {
+            if currentDownload.fileName == "\(bookId).pdf" {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    /// Определяет, загружается ли книга в данный момент
+    ///
+    /// :returns: Флаг состояния загрузки книги в данный момент
+    func isDownloading() -> Bool! {
+        let currentDownloads = DownloadManager.getCurrentDownloads()
+        
+        for currentDownload in currentDownloads {
+            if currentDownload.fileName == "\(bookId).pdf" {
+                return currentDownload.isDownloading
+            }
+        }
+        
+        return nil
+    }
+    
+    /// Возвращает задание загрузки
+    ///
+    /// :returns: Задание загрузки
+    func getDownloadTask() -> NSURLSessionDownloadTask! {
+        let currentDownloads = DownloadManager.getCurrentDownloads()
+        
+        for currentDownload in currentDownloads {
+            if currentDownload.fileName == "\(bookId).pdf" {
+                return currentDownload.task
+            }
+        }
+        
+        return nil
     }
 }

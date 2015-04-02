@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		841FD8361ACCA80E00C28032 /* BookTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841FD8351ACCA80E00C28032 /* BookTableViewController.swift */; };
 		84B4152C1A80FAFD00A7E68A /* ControllerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B4152B1A80FAFD00A7E68A /* ControllerManager.swift */; };
-		84B4DA951A77A4B300B79E82 /* VkLogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B4DA941A77A4B300B79E82 /* VkLogInViewController.swift */; };
+		84B4DA951A77A4B300B79E82 /* VkAuthorizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B4DA941A77A4B300B79E82 /* VkAuthorizationViewController.swift */; };
 		84B73EFD1A334B98009313FB /* Database.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 84B73EFC1A334B98009313FB /* Database.sqlite */; };
 		84B73EFE1A3354A9009313FB /* Database.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 84B73EFC1A334B98009313FB /* Database.sqlite */; };
 		84B73F011A335BA5009313FB /* MisisBooksApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73F001A335BA5009313FB /* MisisBooksApi.swift */; };
@@ -30,6 +31,7 @@
 		84BFE44A1A2CBAFB00A88B7B /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE4491A2CBAFB00A88B7B /* Database.swift */; };
 		84BFE44C1A2CBBB200A88B7B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BFE44B1A2CBBB200A88B7B /* libsqlite3.dylib */; };
 		84BFE44E1A2CCA3600A88B7B /* FilterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BFE44D1A2CCA3600A88B7B /* FilterTableViewController.swift */; };
+		84C82EA61AC3382D009731FD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C82EA51AC3382D009731FD /* CustomButton.swift */; };
 		84E6937F1AB5D30C00F57DF6 /* AlertBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E6937E1AB5D30C00F57DF6 /* AlertBanner.swift */; };
 		84E693811AB6093700F57DF6 /* AlertBannerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E693801AB6093700F57DF6 /* AlertBannerManager.swift */; };
 /* End PBXBuildFile section */
@@ -45,8 +47,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		841FD8351ACCA80E00C28032 /* BookTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BookTableViewController.swift; sourceTree = "<group>"; };
 		84B4152B1A80FAFD00A7E68A /* ControllerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerManager.swift; sourceTree = "<group>"; };
-		84B4DA941A77A4B300B79E82 /* VkLogInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VkLogInViewController.swift; sourceTree = "<group>"; };
+		84B4DA941A77A4B300B79E82 /* VkAuthorizationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VkAuthorizationViewController.swift; sourceTree = "<group>"; };
 		84B73EFC1A334B98009313FB /* Database.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = Database.sqlite; path = misisbooks/Database.sqlite; sourceTree = "<group>"; };
 		84B73F001A335BA5009313FB /* MisisBooksApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MisisBooksApi.swift; sourceTree = "<group>"; };
 		84B73F021A3374BC009313FB /* FavoritesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesTableViewController.swift; sourceTree = "<group>"; };
@@ -72,6 +75,7 @@
 		84BFE4491A2CBAFB00A88B7B /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		84BFE44B1A2CBBB200A88B7B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		84BFE44D1A2CCA3600A88B7B /* FilterTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterTableViewController.swift; sourceTree = "<group>"; };
+		84C82EA51AC3382D009731FD /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		84E6937E1AB5D30C00F57DF6 /* AlertBanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertBanner.swift; sourceTree = "<group>"; };
 		84E693801AB6093700F57DF6 /* AlertBannerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertBannerManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -111,13 +115,14 @@
 		84B650941A7FDAFF00BF0366 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				841FD8351ACCA80E00C28032 /* BookTableViewController.swift */,
 				84BFE4451A2C976E00A88B7B /* DownloadsTableViewController.swift */,
 				84B73F021A3374BC009313FB /* FavoritesTableViewController.swift */,
 				84BFE44D1A2CCA3600A88B7B /* FilterTableViewController.swift */,
 				84BD19CC1A76C8A400F9CCA2 /* MenuTableViewController.swift */,
 				84B73F041A337A59009313FB /* SearchTableViewController.swift */,
 				84BD19CA1A76C47900F9CCA2 /* SlideMenuController.swift */,
-				84B4DA941A77A4B300B79E82 /* VkLogInViewController.swift */,
+				84B4DA941A77A4B300B79E82 /* VkAuthorizationViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -126,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				84E6937E1AB5D30C00F57DF6 /* AlertBanner.swift */,
+				84C82EA51AC3382D009731FD /* CustomButton.swift */,
 				84BFE4411A2C951400A88B7B /* CustomLabel.swift */,
 				84BFE4431A2C958B00A88B7B /* CustomTableViewCell.swift */,
 				84BFE4471A2CAE5300A88B7B /* InformationView.swift */,
@@ -299,6 +305,7 @@
 				84BFE4441A2C958B00A88B7B /* CustomTableViewCell.swift in Sources */,
 				84BD19CB1A76C47900F9CCA2 /* SlideMenuController.swift in Sources */,
 				84B4152C1A80FAFD00A7E68A /* ControllerManager.swift in Sources */,
+				84C82EA61AC3382D009731FD /* CustomButton.swift in Sources */,
 				84B73F031A3374BC009313FB /* FavoritesTableViewController.swift in Sources */,
 				84E6937F1AB5D30C00F57DF6 /* AlertBanner.swift in Sources */,
 				84BFE4481A2CAE5300A88B7B /* InformationView.swift in Sources */,
@@ -307,13 +314,14 @@
 				84BFE4401A2C941600A88B7B /* Book.swift in Sources */,
 				84BA0C291A35EF3A00B102D6 /* PreloaderView.swift in Sources */,
 				84B9B5C51ABC95C3001F5877 /* DownloadManager.swift in Sources */,
+				841FD8361ACCA80E00C28032 /* BookTableViewController.swift in Sources */,
 				84BD19CD1A76C8A400F9CCA2 /* MenuTableViewController.swift in Sources */,
 				84BFE44A1A2CBAFB00A88B7B /* Database.swift in Sources */,
 				84B73F051A337A59009313FB /* SearchTableViewController.swift in Sources */,
 				84E693811AB6093700F57DF6 /* AlertBannerManager.swift in Sources */,
 				84B73F011A335BA5009313FB /* MisisBooksApi.swift in Sources */,
 				84BFE4421A2C951400A88B7B /* CustomLabel.swift in Sources */,
-				84B4DA951A77A4B300B79E82 /* VkLogInViewController.swift in Sources */,
+				84B4DA951A77A4B300B79E82 /* VkAuthorizationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

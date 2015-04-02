@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Изменение атрибутов текста заголовка навигационной панели
         UINavigationBar.appearance().titleTextAttributes = [
-            // NSFontAttributeName: UIFont(name: "HelveticaNeue", size: 16.0)!,
+            NSFontAttributeName: UIFont(name: "HelveticaNeue", size: 16.0)!,
             NSForegroundColorAttributeName: mainColor
         ]
         
@@ -30,17 +30,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().tintColor = mainColor
         
         // Скрытие стандартной кнопки "Back" ("Назад")
-        UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffsetMake(-1000.0, -1000.0), forBarMetrics: UIBarMetrics.Default)
+        UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffsetMake(-1000.0, -1000.0), forBarMetrics: .Default)
         
-        let menuTableViewController = ControllerManager.instance.menuTableViewController
-        let downloadsTableViewController = UINavigationController(rootViewController: ControllerManager.instance.downloadsTableViewController)
+        let menuTableViewController = ControllerManager.sharedInstance.menuTableViewController
+        let downloadsTableViewController = UINavigationController(rootViewController: ControllerManager.sharedInstance.downloadsTableViewController)
         menuTableViewController.downloadsTableViewController = downloadsTableViewController
         
-        ControllerManager.instance.slideMenuController = SlideMenuController(mainViewController: downloadsTableViewController, leftMenuViewController: menuTableViewController)
+        ControllerManager.sharedInstance.slideMenuController = SlideMenuController(
+            mainViewController: downloadsTableViewController,
+            leftMenuViewController: menuTableViewController
+        )
         
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         window?.backgroundColor = UIColor(red: 241 / 255.0, green: 239 / 255.0, blue: 237 / 255.0, alpha: 1.0)
-        window?.rootViewController = ControllerManager.instance.slideMenuController
+        window?.rootViewController = ControllerManager.sharedInstance.slideMenuController
         window?.makeKeyAndVisible()
         
         return true
