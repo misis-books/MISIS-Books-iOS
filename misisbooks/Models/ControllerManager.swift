@@ -8,34 +8,43 @@
 
 import UIKit
 
-/// Класс для хранения контроллеров
+/// Класс для управления контроллерами
 class ControllerManager {
     
+    /// Контроллер загрузок
+    let downloadsTableViewController = DownloadsTableViewController(style: .Grouped)
+    
+    /// Контроллер избранного
+    let favoritesTableViewController = FavoritesTableViewController(style: .Grouped)
+    
+    /// Контроллер меню
+    let menuTableViewController = MenuTableViewController()
+    
+    /// Контроллер поиска
+    let searchTableViewController = SearchTableViewController(style: .Grouped)
+    
     /// Корневой контроллер
-    var slideMenuController : SlideMenuController!
-    
-    /// Контроллер "Меню"
-    var menuTableViewController = MenuTableViewController()
-    
-    /// Контроллер "Поиск"
-    var searchTableViewController = SearchTableViewController()
-    
-    /// Контроллер "Загрузки"
-    var downloadsTableViewController = DownloadsTableViewController()
-    
-    /// Контроллер "Избранное"
-    var favoritesTableViewController = FavoritesTableViewController()
-    
+    var slideMenuController: SlideMenuController!
     
     /// Возвращает экземпляр класса
     ///
     /// :returns: Экземпляр класса
-    class var sharedInstance : ControllerManager {
+    class var instance: ControllerManager {
         
         struct Singleton {
-            static let sharedInstance = ControllerManager()
+            
+            static let instance = ControllerManager()
         }
         
-        return Singleton.sharedInstance
+        return Singleton.instance
+    }
+    
+    init() {
+        let downloadsTableViewNavigationController = UINavigationController(rootViewController: downloadsTableViewController)
+        
+        menuTableViewController.downloadsTableViewNavigationController = downloadsTableViewNavigationController
+        
+        slideMenuController = SlideMenuController(mainViewController: downloadsTableViewNavigationController,
+            leftMenuViewController: menuTableViewController)
     }
 }

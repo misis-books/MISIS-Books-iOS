@@ -9,7 +9,7 @@
 import UIKit
 
 /// Класс для представления настраиваемой кнопки
-class CustomButton : UIButton {
+class CustomButton: UIButton {
     
     init(title: String, color: UIColor) {
         super.init(frame: CGRectZero)
@@ -20,11 +20,11 @@ class CustomButton : UIButton {
         setTitle(title, forState: .Normal)
         setTitleColor(color, forState: .Normal)
         backgroundColor = UIColor.clearColor()
-        contentEdgeInsets = UIEdgeInsetsMake(6.0, 8.0, 6.0, 8.0)
-        titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
-        layer.borderWidth = 1.0
+        contentEdgeInsets = UIEdgeInsetsMake(6, 8, 6, 8)
+        layer.borderWidth = 1
         layer.borderColor = color.CGColor
-        layer.cornerRadius = 2.0
+        layer.cornerRadius = 2
+        titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14)
         sizeToFit()
     }
     
@@ -35,7 +35,7 @@ class CustomButton : UIButton {
     /// Делает кнопку неактивной
     func makeInactive() {
         UIView.animateWithDuration(0.25) {
-            self.layer.opacity = 1.0
+            self.layer.opacity = 1
         }
     }
     

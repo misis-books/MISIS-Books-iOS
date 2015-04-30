@@ -22,48 +22,47 @@ protocol PreloaderViewDelegate {
 }
 
 /// Класс для представления подгрузчика
-class PreloaderView : UIView {
+class PreloaderView: UIView {
     
     /// Делегат
-    var delegate : PreloaderViewDelegate!
+    private var delegate: PreloaderViewDelegate!
     
     /// Текстовое поле
-    var label : UILabel!
+    var label: UILabel!
     
     /// Сохраненный текст
-    private var savedText : String?
+    private var savedText: String?
     
     /// Состояние загрузки
-    private var loadState : PreloaderViewState?
+    private var loadState: PreloaderViewState?
     
     /// Индикатор загрузки
-    private var loadingIndicator : UIActivityIndicatorView!
+    private var loadingIndicator: UIActivityIndicatorView!
     
     /// Изображение стрелки
-    private var arrowImage : CALayer!
-    
+    private var arrowImage: CALayer!
     
     init(text: String, delegate: PreloaderViewDelegate) {
         self.delegate = delegate
         
-        super.init(frame: CGRectMake(0.0, 0.0, UIScreen.mainScreen().bounds.size.width, 44.0))
+        super.init(frame: CGRectMake(0, 0, UIScreen.mainScreen().bounds.size.width, 44))
         
-        let contentColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1.0)
+        let contentColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
         
-        label = UILabel(frame: CGRectMake(0.0, 0.0, frame.size.width, 34.0))
+        label = UILabel()
         label.backgroundColor = UIColor.clearColor()
-        label.font = UIFont(name: "HelveticaNeue-Light", size: 13.0)
+        label.font = UIFont(name: "HelveticaNeue-Light", size: 13)
         label.lineBreakMode = .ByWordWrapping
         label.numberOfLines = 0
         label.shadowColor = UIColor.whiteColor()
-        label.shadowOffset = CGSizeMake(0.0, -1.0)
+        label.shadowOffset = CGSizeMake(0, -1)
         label.text = text
         label.textAlignment = .Center
         label.textColor = contentColor
         addSubview(label)
         
         arrowImage = CALayer()
-        arrowImage.frame = CGRectMake(10.0, 6.0, 24.0, 20.0)
+        arrowImage.frame = CGRectMake(10, 6, 24, 20)
         arrowImage.mask = {
             let mask = CALayer()
             mask.frame = self.arrowImage.bounds
@@ -77,17 +76,55 @@ class PreloaderView : UIView {
         layer.addSublayer(arrowImage)
         
         loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-        loadingIndicator.frame = CGRectMake(12.0, 8.0, 22.0, 18.0)
+        loadingIndicator.frame = CGRectMake(12, 8, 22, 18)
         addSubview(loadingIndicator)
         
         loadState = .Normal
     }
-
+    
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
-    func setLoadState(state: PreloaderViewState) {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        frame = CGRectMake(frame.origin.x, frame.origin.y, UIScreen.mainScreen().bounds.size.width, 44)
+        label.frame = CGRectMake(0, 0, frame.size.width, 34)
+    }
+    
+    func preloaderViewScrollViewDidScroll(scrollView: UIScrollView) {
+        if loadState != .Loading && scrollView.dragging {
+            let offset = scrollView.contentOffset.y + scrollView.frame.size.height
+            let boundery = scrollView.contentSize.height + 64
+            let loading = delegate.preloaderViewDataSourceIsLoading()
+            
+            if loadState == .Pulling && offset < boundery && offset > scrollView.contentSize.height && !loading {
+                setLoadState(.Normal)
+            } else if loadState == .Normal && offset > boundery && !loading {
+                setLoadState(.Pulling)
+            }
+        }
+    }
+    
+    func preloaderViewScrollViewDidEndDragging(scrollView: UIScrollView) {
+        if loadState != .Loading {
+            let offset = scrollView.contentOffset.y + scrollView.frame.size.height
+            let boundery = scrollView.contentSize.height + 64
+            let loading = delegate.preloaderViewDataSourceIsLoading()
+            
+            if offset >= boundery && !loading {
+                delegate.preloaderViewDidTriggerRefresh()
+                setLoadState(.Loading)
+            }
+        }
+    }
+    
+    func preloaderViewDataSourceDidFinishedLoading() {
+        setLoadState(.Normal)
+    }
+    
+    private func setLoadState(state: PreloaderViewState) {
         label.layer.addAnimation({
             let animation = CATransition()
             animation.type = kCATransitionFade
@@ -124,7 +161,7 @@ class PreloaderView : UIView {
             
             CATransaction.begin()
             CATransaction.setAnimationDuration(0.2)
-            arrowImage.transform = CATransform3DMakeRotation(CGFloat(M_PI), 0.0, 0.0, 1.0)
+            arrowImage.transform = CATransform3DMakeRotation(CGFloat(M_PI), 0, 0, 1)
             CATransaction.commit()
             break
         case .Loading:
@@ -140,36 +177,5 @@ class PreloaderView : UIView {
         }
         
         loadState = state
-    }
-    
-    func preloaderViewScrollViewDidScroll(scrollView: UIScrollView) {
-        if loadState != .Loading && scrollView.dragging {
-            var loading = delegate.preloaderViewDataSourceIsLoading()
-            let offset = scrollView.contentOffset.y + scrollView.frame.size.height
-            let boundery = scrollView.contentSize.height + 64.0
-            
-            if loadState == .Pulling && offset < boundery && offset > scrollView.contentSize.height && !loading {
-                setLoadState(.Normal)
-            } else if loadState == .Normal && offset > boundery && !loading {
-                setLoadState(PreloaderViewState.Pulling)
-            }
-        }
-    }
-    
-    func preloaderViewScrollViewDidEndDragging(scrollView: UIScrollView) {
-        if loadState != .Loading {
-            var loading = delegate.preloaderViewDataSourceIsLoading()
-            let offset = scrollView.contentOffset.y + scrollView.frame.size.height
-            let boundery = scrollView.contentSize.height + 64.0
-            
-            if offset >= boundery && !loading {
-                delegate.preloaderViewDidTriggerRefresh()
-                setLoadState(.Loading)
-            }
-        }
-    }
-    
-    func preloaderViewDataSourceDidFinishedLoading() {
-        setLoadState(PreloaderViewState.Normal)
     }
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BookTableViewController : UITableViewController, UIActionSheetDelegate, UIDocumentInteractionControllerDelegate {
+class BookTableViewController: UITableViewController, UIActionSheetDelegate, UIDocumentInteractionControllerDelegate {
     
     /// Книги
     var books = [Book]()
@@ -16,18 +16,17 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
     /// Загружаемые книги
     var downloadableBooks = [Book]()
     
+    /// Поле заголовка первой секции
+    var sectionTitleLabel1: UILabel!
+    
+    /// Поле заголовка второй секции
+    var sectionTitleLabel2: UILabel!
+    
     /// Выбранная книга
-    var selectedBook : Book!
+    var selectedBook: Book!
     
-    /// Поле заголовка первой секции
-    var sectionTitleLabel1 : UILabel!
-    
-    /// Поле заголовка первой секции
-    var sectionTitleLabel2 : UILabel!
-    
-    
-    override init() {
-        super.init(style: .Grouped)
+    override init(style: UITableViewStyle) {
+        super.init(style: style)
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -41,46 +40,31 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.registerClass(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseIdentifier)
-        
-        let menuBarButtonItem = UIBarButtonItem(
-            image: UIImage(named: "Menu"),
-            style: .Plain,
-            target: ControllerManager.sharedInstance.slideMenuController,
-            action: Selector("openLeft")
-        )
+        let menuBarButtonItem = UIBarButtonItem(image: UIImage(named: "Menu"), style: .Plain,
+            target: ControllerManager.instance.slideMenuController, action: Selector("openLeft"))
         navigationItem.setLeftBarButtonItem(menuBarButtonItem, animated: false)
         
-        tableView.backgroundColor = UIColor(red: 241 / 255.0, green: 239 / 255.0, blue: 237 / 255.0, alpha: 1.0)
-        tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1.0)
+        tableView.backgroundColor = UIColor(red: 241 / 255.0, green: 239 / 255.0, blue: 237 / 255.0, alpha: 1)
+        tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1)
         tableView.tableFooterView = UIView(frame: CGRectZero)
+        tableView.registerClass(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseId)
         
-        sectionTitleLabel1 = UILabel(frame: CGRectMake(15.0, 6.0, tableView.frame.size.width - 30.0, 20.0))
+        sectionTitleLabel1 = UILabel(frame: CGRectMake(15, 6, tableView.frame.size.width - 30, 20))
         sectionTitleLabel1.backgroundColor = UIColor.clearColor()
-        sectionTitleLabel1.font = UIFont(name: "HelveticaNeue", size: 13.0)
+        sectionTitleLabel1.font = UIFont(name: "HelveticaNeue", size: 13)
         sectionTitleLabel1.shadowColor = UIColor.whiteColor()
-        sectionTitleLabel1.shadowOffset = CGSizeMake(0.0, -1.0)
-        sectionTitleLabel1.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1.0)
+        sectionTitleLabel1.shadowOffset = CGSizeMake(0, -1)
+        sectionTitleLabel1.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
         
-        sectionTitleLabel2 = UILabel(frame: CGRectMake(15.0, 6.0, tableView.frame.size.width - 30.0, 20.0))
+        sectionTitleLabel2 = UILabel(frame: CGRectMake(15, 6, tableView.frame.size.width - 30, 20))
         sectionTitleLabel2.backgroundColor = UIColor.clearColor()
-        sectionTitleLabel2.font = UIFont(name: "HelveticaNeue", size: 13.0)
+        sectionTitleLabel2.font = UIFont(name: "HelveticaNeue", size: 13)
         sectionTitleLabel2.shadowColor = UIColor.whiteColor()
-        sectionTitleLabel2.shadowOffset = CGSizeMake(0.0, -1.0)
-        sectionTitleLabel2.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1.0)
+        sectionTitleLabel2.shadowOffset = CGSizeMake(0, -1)
+        sectionTitleLabel2.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
     }
     
     /// MARK: - Методы UITableViewDataSource
-    
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if numberOfSectionsInTableView(tableView) == 2 {
-            if section == 0 && downloadableBooks.count == 0 || section == 1 && books.count == 0 {
-                return CGFloat.min
-            }
-        }
-        
-        return 26.0
-    }
     
     override func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         if numberOfSectionsInTableView(tableView) == 2 {
@@ -89,7 +73,17 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
             }
         }
         
-        return 8.0
+        return 8
+    }
+    
+    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if numberOfSectionsInTableView(tableView) == 2 {
+            if section == 0 && downloadableBooks.count == 0 || section == 1 && books.count == 0 {
+                return CGFloat.min
+            }
+        }
+        
+        return 26
     }
     
     override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -99,7 +93,7 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
             }
         }
         
-        let sectionHeaderView = UIView(frame: CGRectMake(0.0, 0.0, tableView.frame.size.width, 26.0))
+        let sectionHeaderView = UIView(frame: CGRectMake(0, 0, tableView.frame.size.width, 26))
         sectionHeaderView.addSubview(section == 0 ? sectionTitleLabel1 : sectionTitleLabel2)
         
         return sectionHeaderView
@@ -109,26 +103,24 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if tableView.editing {
-            return
+            if numberOfSectionsInTableView(tableView) == 2 && indexPath.section == 1 {
+                return
+            } else if numberOfSectionsInTableView(tableView) == 1 && indexPath.section == 0 {
+                return
+            }
         }
         
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
         selectedBook = indexPath.section == 0 && numberOfSectionsInTableView(tableView) == 2 ?
-            downloadableBooks[indexPath.row] :
-            books[indexPath.row]
+            downloadableBooks[indexPath.row] : books[indexPath.row]
         
         let titleForFavorites = selectedBook.isAddedToFavorites() ? "Удалить из избранного" : "Добавить в избранное"
-        var actionSheet : UIActionSheet!
+        let actionSheet: UIActionSheet!
         
         if selectedBook.isAddedToDownloads() { // Документ загружен
-            actionSheet = UIActionSheet(
-                title: selectedBook.name,
-                delegate: self,
-                cancelButtonTitle: "Отмена",
-                destructiveButtonTitle: nil,
-                otherButtonTitles: "Просмотреть", titleForFavorites, "Удалить файл"
-            )
+            actionSheet = UIActionSheet(title: selectedBook.name, delegate: self, cancelButtonTitle: "Отмена",
+                destructiveButtonTitle: nil, otherButtonTitles: "Просмотреть", titleForFavorites, "Удалить файл")
             actionSheet.destructiveButtonIndex = 3
             actionSheet.tag = 1
         } else if selectedBook.isExistsInCurrentDownloads() { // Документ загружается
@@ -138,27 +130,17 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
                 titleForManageDownload = isBookDownloading ? "Приостановить загрузку" : "Возобновить загрузку"
             }
             
-            actionSheet = UIActionSheet(
-                title: selectedBook.name,
-                delegate: self,
-                cancelButtonTitle: "Отмена",
-                destructiveButtonTitle: nil,
-                otherButtonTitles: titleForManageDownload, "Отменить загрузку", titleForFavorites
-            )
+            actionSheet = UIActionSheet(title: selectedBook.name, delegate: self, cancelButtonTitle: "Отмена",
+                destructiveButtonTitle: nil, otherButtonTitles: titleForManageDownload, "Отменить загрузку", titleForFavorites)
             actionSheet.tag = 2
         } else { // Документ не загружен
-            actionSheet = UIActionSheet(
-                title: selectedBook.name,
-                delegate: self,
-                cancelButtonTitle: "Отмена",
-                destructiveButtonTitle: nil,
-                otherButtonTitles: "Загрузить (\(selectedBook.fileSize!))", titleForFavorites
-            )
+            actionSheet = UIActionSheet(title: selectedBook.name, delegate: self, cancelButtonTitle: "Отмена",
+                destructiveButtonTitle: nil, otherButtonTitles: "Загрузить (\(selectedBook.fileSize))", titleForFavorites)
             actionSheet.tag = 3
         }
         
         actionSheet.actionSheetStyle = .Default
-        actionSheet.showInView(UIApplication.sharedApplication().delegate?.window!)
+        actionSheet.showInView(view)
     }
     
     /// MARK: - Методы UIActionSheetDelegate
@@ -170,21 +152,20 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
         case 1: // Документ загружен
             switch buttonIndex {
             case 1: // "Просмотреть"
-                let localBookUrl = ControllerManager.sharedInstance.downloadsTableViewController.getLocalBookUrl(selectedBook.bookId)
-                let documentationInteractionController = UIDocumentInteractionController(URL: localBookUrl)
+                let documentationInteractionController = UIDocumentInteractionController(URL: selectedBook.localUrl())
                 documentationInteractionController.delegate = self
                 documentationInteractionController.name = selectedBook.name
                 documentationInteractionController.presentPreviewAnimated(true)
                 break
             case 2: // "Добавить/удалить из избранного"
                 if selectedBook.isAddedToFavorites() {
-                    MisisBooksApi.sharedInstance.deleteBooksFromFavorites([selectedBook])
+                    MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
                 } else {
-                    MisisBooksApi.sharedInstance.addBookToFavorites(selectedBook)
+                    MisisBooksApi.instance.addBookToFavorites(selectedBook)
                 }
                 break
             case 3: // "Удалить файл"
-                ControllerManager.sharedInstance.downloadsTableViewController.deleteBooksFromDownloads([selectedBook])
+                ControllerManager.instance.downloadsTableViewController.deleteBooks([selectedBook])
                 break
             default:
                 break
@@ -195,20 +176,20 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
             case 1: // "Приостановить/возобновить загрузку"
                 if let isBookDownloading = selectedBook.isDownloading() {
                     if isBookDownloading {
-                        ControllerManager.sharedInstance.downloadsTableViewController.pauseDownloadBook(selectedBook)
+                        ControllerManager.instance.downloadsTableViewController.pauseDownloadBook(selectedBook)
                     } else {
-                        ControllerManager.sharedInstance.downloadsTableViewController.resumeDownloadBook(selectedBook)
+                        ControllerManager.instance.downloadsTableViewController.resumeDownloadBook(selectedBook)
                     }
                 }
                 break
             case 2: // "Отменить загрузку"
-                ControllerManager.sharedInstance.downloadsTableViewController.cancelDownloadBook(selectedBook)
+                ControllerManager.instance.downloadsTableViewController.cancelDownloadBook(selectedBook)
                 break
             case 3: // "Добавить/удалить из избранного"
                 if selectedBook.isAddedToFavorites() {
-                    MisisBooksApi.sharedInstance.deleteBooksFromFavorites([selectedBook])
+                    MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
                 } else {
-                    MisisBooksApi.sharedInstance.addBookToFavorites(selectedBook)
+                    MisisBooksApi.instance.addBookToFavorites(selectedBook)
                 }
                 break
             default:
@@ -218,13 +199,13 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
         case 3: // Документ не загружен
             switch buttonIndex {
             case 1: // "Загрузить"
-                ControllerManager.sharedInstance.downloadsTableViewController.downloadBook(selectedBook)
+                ControllerManager.instance.downloadsTableViewController.downloadBook(selectedBook)
                 break
             case 2: // "Добавить/удалить из избранного"
                 if selectedBook.isAddedToFavorites() {
-                    MisisBooksApi.sharedInstance.deleteBooksFromFavorites([selectedBook])
+                    MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
                 } else {
-                    MisisBooksApi.sharedInstance.addBookToFavorites(selectedBook)
+                    MisisBooksApi.instance.addBookToFavorites(selectedBook)
                 }
                 break
             default:
@@ -236,7 +217,7 @@ class BookTableViewController : UITableViewController, UIActionSheetDelegate, UI
         }
     }
     
-    /// MARK: - Методы DocumentInteractionViewController
+    /// MARK: - Методы UIDocumentInteractionControllerDelegate
     
     func documentInteractionControllerViewControllerForPreview(controller: UIDocumentInteractionController) -> UIViewController {
         return navigationController!
