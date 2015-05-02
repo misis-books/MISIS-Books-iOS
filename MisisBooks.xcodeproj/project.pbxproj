@@ -1,0 +1,538 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 47;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		84CF493C1AF4EF380099A3AF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF493B1AF4EF380099A3AF /* AppDelegate.swift */; };
+		84CF49431AF4EF380099A3AF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84CF49421AF4EF380099A3AF /* Images.xcassets */; };
+		84CF49461AF4EF380099A3AF /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84CF49441AF4EF380099A3AF /* LaunchScreen.xib */; };
+		84CF49521AF4EF380099A3AF /* MisisBooksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49511AF4EF380099A3AF /* MisisBooksTests.swift */; };
+		84CF49661AF4F11E0099A3AF /* BookTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF495E1AF4F11E0099A3AF /* BookTableViewController.swift */; };
+		84CF49671AF4F11E0099A3AF /* DownloadsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF495F1AF4F11E0099A3AF /* DownloadsTableViewController.swift */; };
+		84CF49681AF4F11E0099A3AF /* FavoritesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49601AF4F11E0099A3AF /* FavoritesTableViewController.swift */; };
+		84CF49691AF4F11E0099A3AF /* FilterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49611AF4F11E0099A3AF /* FilterTableViewController.swift */; };
+		84CF496A1AF4F11E0099A3AF /* MenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49621AF4F11E0099A3AF /* MenuTableViewController.swift */; };
+		84CF496B1AF4F11E0099A3AF /* SearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49631AF4F11E0099A3AF /* SearchTableViewController.swift */; };
+		84CF496C1AF4F11E0099A3AF /* SlideMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49641AF4F11E0099A3AF /* SlideMenuController.swift */; };
+		84CF496D1AF4F11E0099A3AF /* VkAuthorizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49651AF4F11E0099A3AF /* VkAuthorizationViewController.swift */; };
+		84CF49741AF4F1690099A3AF /* AlertBannerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF496E1AF4F1690099A3AF /* AlertBannerManager.swift */; };
+		84CF49751AF4F1690099A3AF /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF496F1AF4F1690099A3AF /* Book.swift */; };
+		84CF49761AF4F1690099A3AF /* ControllerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49701AF4F1690099A3AF /* ControllerManager.swift */; };
+		84CF49771AF4F1690099A3AF /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49711AF4F1690099A3AF /* Database.swift */; };
+		84CF49781AF4F1690099A3AF /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49721AF4F1690099A3AF /* DownloadManager.swift */; };
+		84CF49791AF4F1690099A3AF /* MisisBooksApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49731AF4F1690099A3AF /* MisisBooksApi.swift */; };
+		84CF49811AF4F1990099A3AF /* AlertBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497A1AF4F1990099A3AF /* AlertBanner.swift */; };
+		84CF49821AF4F1990099A3AF /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497B1AF4F1990099A3AF /* CustomButton.swift */; };
+		84CF49831AF4F1990099A3AF /* CustomLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497C1AF4F1990099A3AF /* CustomLabel.swift */; };
+		84CF49841AF4F1990099A3AF /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497D1AF4F1990099A3AF /* CustomTableViewCell.swift */; };
+		84CF49851AF4F1990099A3AF /* PlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497E1AF4F1990099A3AF /* PlaceholderView.swift */; };
+		84CF49861AF4F1990099A3AF /* PreloaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497F1AF4F1990099A3AF /* PreloaderView.swift */; };
+		84CF49871AF4F1990099A3AF /* RoundProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49801AF4F1990099A3AF /* RoundProgressView.swift */; };
+		84CF49891AF4F6D00099A3AF /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 84CF49881AF4F6D00099A3AF /* libsqlite3.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		84CF494C1AF4EF380099A3AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84CF492E1AF4EF380099A3AF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 84CF49351AF4EF380099A3AF;
+			remoteInfo = MisisBooks;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		84CF49361AF4EF380099A3AF /* MisisBooks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MisisBooks.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		84CF493A1AF4EF380099A3AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		84CF493B1AF4EF380099A3AF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		84CF49421AF4EF380099A3AF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		84CF49451AF4EF380099A3AF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		84CF494B1AF4EF380099A3AF /* MisisBooksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MisisBooksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		84CF49501AF4EF380099A3AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		84CF49511AF4EF380099A3AF /* MisisBooksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MisisBooksTests.swift; sourceTree = "<group>"; };
+		84CF495E1AF4F11E0099A3AF /* BookTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BookTableViewController.swift; path = Controllers/BookTableViewController.swift; sourceTree = "<group>"; };
+		84CF495F1AF4F11E0099A3AF /* DownloadsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DownloadsTableViewController.swift; path = Controllers/DownloadsTableViewController.swift; sourceTree = "<group>"; };
+		84CF49601AF4F11E0099A3AF /* FavoritesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FavoritesTableViewController.swift; path = Controllers/FavoritesTableViewController.swift; sourceTree = "<group>"; };
+		84CF49611AF4F11E0099A3AF /* FilterTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FilterTableViewController.swift; path = Controllers/FilterTableViewController.swift; sourceTree = "<group>"; };
+		84CF49621AF4F11E0099A3AF /* MenuTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MenuTableViewController.swift; path = Controllers/MenuTableViewController.swift; sourceTree = "<group>"; };
+		84CF49631AF4F11E0099A3AF /* SearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SearchTableViewController.swift; path = Controllers/SearchTableViewController.swift; sourceTree = "<group>"; };
+		84CF49641AF4F11E0099A3AF /* SlideMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SlideMenuController.swift; path = Controllers/SlideMenuController.swift; sourceTree = "<group>"; };
+		84CF49651AF4F11E0099A3AF /* VkAuthorizationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VkAuthorizationViewController.swift; path = Controllers/VkAuthorizationViewController.swift; sourceTree = "<group>"; };
+		84CF496E1AF4F1690099A3AF /* AlertBannerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlertBannerManager.swift; path = Models/AlertBannerManager.swift; sourceTree = "<group>"; };
+		84CF496F1AF4F1690099A3AF /* Book.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Book.swift; path = Models/Book.swift; sourceTree = "<group>"; };
+		84CF49701AF4F1690099A3AF /* ControllerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ControllerManager.swift; path = Models/ControllerManager.swift; sourceTree = "<group>"; };
+		84CF49711AF4F1690099A3AF /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Database.swift; path = Models/Database.swift; sourceTree = "<group>"; };
+		84CF49721AF4F1690099A3AF /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DownloadManager.swift; path = Models/DownloadManager.swift; sourceTree = "<group>"; };
+		84CF49731AF4F1690099A3AF /* MisisBooksApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MisisBooksApi.swift; path = Models/MisisBooksApi.swift; sourceTree = "<group>"; };
+		84CF497A1AF4F1990099A3AF /* AlertBanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlertBanner.swift; path = Views/AlertBanner.swift; sourceTree = "<group>"; };
+		84CF497B1AF4F1990099A3AF /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomButton.swift; path = Views/CustomButton.swift; sourceTree = "<group>"; };
+		84CF497C1AF4F1990099A3AF /* CustomLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomLabel.swift; path = Views/CustomLabel.swift; sourceTree = "<group>"; };
+		84CF497D1AF4F1990099A3AF /* CustomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomTableViewCell.swift; path = Views/CustomTableViewCell.swift; sourceTree = "<group>"; };
+		84CF497E1AF4F1990099A3AF /* PlaceholderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PlaceholderView.swift; path = Views/PlaceholderView.swift; sourceTree = "<group>"; };
+		84CF497F1AF4F1990099A3AF /* PreloaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PreloaderView.swift; path = Views/PreloaderView.swift; sourceTree = "<group>"; };
+		84CF49801AF4F1990099A3AF /* RoundProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RoundProgressView.swift; path = Views/RoundProgressView.swift; sourceTree = "<group>"; };
+		84CF49881AF4F6D00099A3AF /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		84CF498A1AF4F7420099A3AF /* MisisBooks-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MisisBooks-Bridging-Header.h"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		84CF49331AF4EF380099A3AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84CF49891AF4F6D00099A3AF /* libsqlite3.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84CF49481AF4EF380099A3AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		84CF492D1AF4EF380099A3AF = {
+			isa = PBXGroup;
+			children = (
+				84CF49381AF4EF380099A3AF /* MisisBooks */,
+				84CF494E1AF4EF380099A3AF /* MisisBooksTests */,
+				84CF49371AF4EF380099A3AF /* Products */,
+				84CF49881AF4F6D00099A3AF /* libsqlite3.dylib */,
+				84CF498A1AF4F7420099A3AF /* MisisBooks-Bridging-Header.h */,
+			);
+			sourceTree = "<group>";
+		};
+		84CF49371AF4EF380099A3AF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				84CF49361AF4EF380099A3AF /* MisisBooks.app */,
+				84CF494B1AF4EF380099A3AF /* MisisBooksTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		84CF49381AF4EF380099A3AF /* MisisBooks */ = {
+			isa = PBXGroup;
+			children = (
+				84CF493B1AF4EF380099A3AF /* AppDelegate.swift */,
+				84CF49421AF4EF380099A3AF /* Images.xcassets */,
+				84CF49441AF4EF380099A3AF /* LaunchScreen.xib */,
+				84CF495B1AF4EFE50099A3AF /* Models */,
+				84CF495C1AF4F0060099A3AF /* Views */,
+				84CF495D1AF4F0190099A3AF /* Controllers */,
+				84CF49391AF4EF380099A3AF /* Supporting Files */,
+			);
+			path = MisisBooks;
+			sourceTree = "<group>";
+		};
+		84CF49391AF4EF380099A3AF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				84CF493A1AF4EF380099A3AF /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		84CF494E1AF4EF380099A3AF /* MisisBooksTests */ = {
+			isa = PBXGroup;
+			children = (
+				84CF49511AF4EF380099A3AF /* MisisBooksTests.swift */,
+				84CF494F1AF4EF380099A3AF /* Supporting Files */,
+			);
+			path = MisisBooksTests;
+			sourceTree = "<group>";
+		};
+		84CF494F1AF4EF380099A3AF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				84CF49501AF4EF380099A3AF /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		84CF495B1AF4EFE50099A3AF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				84CF496E1AF4F1690099A3AF /* AlertBannerManager.swift */,
+				84CF496F1AF4F1690099A3AF /* Book.swift */,
+				84CF49701AF4F1690099A3AF /* ControllerManager.swift */,
+				84CF49711AF4F1690099A3AF /* Database.swift */,
+				84CF49721AF4F1690099A3AF /* DownloadManager.swift */,
+				84CF49731AF4F1690099A3AF /* MisisBooksApi.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		84CF495C1AF4F0060099A3AF /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				84CF497A1AF4F1990099A3AF /* AlertBanner.swift */,
+				84CF497B1AF4F1990099A3AF /* CustomButton.swift */,
+				84CF497C1AF4F1990099A3AF /* CustomLabel.swift */,
+				84CF497D1AF4F1990099A3AF /* CustomTableViewCell.swift */,
+				84CF497E1AF4F1990099A3AF /* PlaceholderView.swift */,
+				84CF497F1AF4F1990099A3AF /* PreloaderView.swift */,
+				84CF49801AF4F1990099A3AF /* RoundProgressView.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		84CF495D1AF4F0190099A3AF /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				84CF495E1AF4F11E0099A3AF /* BookTableViewController.swift */,
+				84CF495F1AF4F11E0099A3AF /* DownloadsTableViewController.swift */,
+				84CF49601AF4F11E0099A3AF /* FavoritesTableViewController.swift */,
+				84CF49611AF4F11E0099A3AF /* FilterTableViewController.swift */,
+				84CF49621AF4F11E0099A3AF /* MenuTableViewController.swift */,
+				84CF49631AF4F11E0099A3AF /* SearchTableViewController.swift */,
+				84CF49641AF4F11E0099A3AF /* SlideMenuController.swift */,
+				84CF49651AF4F11E0099A3AF /* VkAuthorizationViewController.swift */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		84CF49351AF4EF380099A3AF /* MisisBooks */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84CF49551AF4EF380099A3AF /* Build configuration list for PBXNativeTarget "MisisBooks" */;
+			buildPhases = (
+				84CF49321AF4EF380099A3AF /* Sources */,
+				84CF49331AF4EF380099A3AF /* Frameworks */,
+				84CF49341AF4EF380099A3AF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MisisBooks;
+			productName = MisisBooks;
+			productReference = 84CF49361AF4EF380099A3AF /* MisisBooks.app */;
+			productType = "com.apple.product-type.application";
+		};
+		84CF494A1AF4EF380099A3AF /* MisisBooksTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84CF49581AF4EF380099A3AF /* Build configuration list for PBXNativeTarget "MisisBooksTests" */;
+			buildPhases = (
+				84CF49471AF4EF380099A3AF /* Sources */,
+				84CF49481AF4EF380099A3AF /* Frameworks */,
+				84CF49491AF4EF380099A3AF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				84CF494D1AF4EF380099A3AF /* PBXTargetDependency */,
+			);
+			name = MisisBooksTests;
+			productName = MisisBooksTests;
+			productReference = 84CF494B1AF4EF380099A3AF /* MisisBooksTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		84CF492E1AF4EF380099A3AF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = "Maxim Loskov";
+				TargetAttributes = {
+					84CF49351AF4EF380099A3AF = {
+						CreatedOnToolsVersion = 6.3;
+						DevelopmentTeam = GZS64MHF8K;
+					};
+					84CF494A1AF4EF380099A3AF = {
+						CreatedOnToolsVersion = 6.3;
+						TestTargetID = 84CF49351AF4EF380099A3AF;
+					};
+				};
+			};
+			buildConfigurationList = 84CF49311AF4EF380099A3AF /* Build configuration list for PBXProject "MisisBooks" */;
+			compatibilityVersion = "Xcode 6.3";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 84CF492D1AF4EF380099A3AF;
+			productRefGroup = 84CF49371AF4EF380099A3AF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				84CF49351AF4EF380099A3AF /* MisisBooks */,
+				84CF494A1AF4EF380099A3AF /* MisisBooksTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		84CF49341AF4EF380099A3AF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84CF49461AF4EF380099A3AF /* LaunchScreen.xib in Resources */,
+				84CF49431AF4EF380099A3AF /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84CF49491AF4EF380099A3AF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		84CF49321AF4EF380099A3AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84CF49741AF4F1690099A3AF /* AlertBannerManager.swift in Sources */,
+				84CF49781AF4F1690099A3AF /* DownloadManager.swift in Sources */,
+				84CF49831AF4F1990099A3AF /* CustomLabel.swift in Sources */,
+				84CF49861AF4F1990099A3AF /* PreloaderView.swift in Sources */,
+				84CF49821AF4F1990099A3AF /* CustomButton.swift in Sources */,
+				84CF49851AF4F1990099A3AF /* PlaceholderView.swift in Sources */,
+				84CF49811AF4F1990099A3AF /* AlertBanner.swift in Sources */,
+				84CF49841AF4F1990099A3AF /* CustomTableViewCell.swift in Sources */,
+				84CF496A1AF4F11E0099A3AF /* MenuTableViewController.swift in Sources */,
+				84CF49691AF4F11E0099A3AF /* FilterTableViewController.swift in Sources */,
+				84CF49661AF4F11E0099A3AF /* BookTableViewController.swift in Sources */,
+				84CF496C1AF4F11E0099A3AF /* SlideMenuController.swift in Sources */,
+				84CF493C1AF4EF380099A3AF /* AppDelegate.swift in Sources */,
+				84CF49681AF4F11E0099A3AF /* FavoritesTableViewController.swift in Sources */,
+				84CF49751AF4F1690099A3AF /* Book.swift in Sources */,
+				84CF496D1AF4F11E0099A3AF /* VkAuthorizationViewController.swift in Sources */,
+				84CF49791AF4F1690099A3AF /* MisisBooksApi.swift in Sources */,
+				84CF49761AF4F1690099A3AF /* ControllerManager.swift in Sources */,
+				84CF49671AF4F11E0099A3AF /* DownloadsTableViewController.swift in Sources */,
+				84CF49771AF4F1690099A3AF /* Database.swift in Sources */,
+				84CF496B1AF4F11E0099A3AF /* SearchTableViewController.swift in Sources */,
+				84CF49871AF4F1990099A3AF /* RoundProgressView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84CF49471AF4EF380099A3AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84CF49521AF4EF380099A3AF /* MisisBooksTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		84CF494D1AF4EF380099A3AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 84CF49351AF4EF380099A3AF /* MisisBooks */;
+			targetProxy = 84CF494C1AF4EF380099A3AF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		84CF49441AF4EF380099A3AF /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				84CF49451AF4EF380099A3AF /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		84CF49531AF4EF380099A3AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		84CF49541AF4EF380099A3AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		84CF49561AF4EF380099A3AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = MisisBooks/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "MisisBooks-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		84CF49571AF4EF380099A3AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = MisisBooks/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "MisisBooks-Bridging-Header.h";
+			};
+			name = Release;
+		};
+		84CF49591AF4EF380099A3AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = MisisBooksTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MisisBooks.app/MisisBooks";
+			};
+			name = Debug;
+		};
+		84CF495A1AF4EF380099A3AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = MisisBooksTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MisisBooks.app/MisisBooks";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		84CF49311AF4EF380099A3AF /* Build configuration list for PBXProject "MisisBooks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84CF49531AF4EF380099A3AF /* Debug */,
+				84CF49541AF4EF380099A3AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84CF49551AF4EF380099A3AF /* Build configuration list for PBXNativeTarget "MisisBooks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84CF49561AF4EF380099A3AF /* Debug */,
+				84CF49571AF4EF380099A3AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84CF49581AF4EF380099A3AF /* Build configuration list for PBXNativeTarget "MisisBooksTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84CF49591AF4EF380099A3AF /* Debug */,
+				84CF495A1AF4EF380099A3AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 84CF492E1AF4EF380099A3AF /* Project object */;
+}
