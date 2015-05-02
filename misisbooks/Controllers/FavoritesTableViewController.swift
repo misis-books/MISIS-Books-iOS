@@ -1,9 +1,9 @@
 //
 //  FavoritesTableViewController.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 06.12.14.
-//  Copyright (c) 2014 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
@@ -20,7 +20,7 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
     private var count = 20
     
     /// Флаг состояния готовности контроллера
-    private var isControllerReady = false
+    var isControllerReady = false
     
     /// Флаг состояния подгрузки
     private var loadingMore = false
@@ -37,6 +37,11 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
     /// Общее количество разультатов
     private var totalResults = 0
     
+    override func viewDidAppear(animated: Bool) {
+        updateSectionTitle()
+        isControllerReady = true
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -52,9 +57,15 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         MisisBooksApi.instance.getFavorites(count: count, offset: offset)
     }
     
-    override func viewDidAppear(animated: Bool) {
-        updateSectionTitle()
-        isControllerReady = true
+    override func willAnimateRotationToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation,
+        duration: NSTimeInterval) {
+            if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
+                placeholderView?.setNeedsLayout()
+            }
+            
+            activityIndicator.center = CGPointMake(view.bounds.size.width / 2, 18)
+            
+            println("rotate")
     }
     
     /// Добавляет книгу в избранное
@@ -76,9 +87,7 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         changeFavoriteState(true, bookId: book.id)
         Database.instance.addBook(book, toList: "favorites")
         totalResults += 1
-        // offset += 1
         sectionTitleLabel1.text = textForSectionHeader(totalResults)
-        // updateSectionTitle()
         showUpdateAndEditButtons()
         hidePlaceholderView()
     }
@@ -216,7 +225,7 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         tableView.bounces = false
         self.placeholderView?.removeFromSuperview()
         self.placeholderView = placeholderView
-        tableView.addSubview(placeholderView)
+        tableView.addSubview(self.placeholderView!)
         loadingMore = false
         activityIndicator.stopAnimating()
         books.removeAll(keepCapacity: false)

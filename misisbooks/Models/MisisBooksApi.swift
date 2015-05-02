@@ -1,9 +1,9 @@
 //
 //  MisisBooksApi.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 06.12.14.
-//  Copyright (c) 2014 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import Foundation
@@ -35,8 +35,8 @@ struct MisisBooksApiError {
     
     /// Инициализирует структуру заданными параметрами
     ///
-    /// :param: title Описание ошибки
-    /// :param: description Заголовок ошибки
+    /// :param: title Заголовок ошибки
+    /// :param: description Описание ошибки
     /// :oaram: shortDescription Краткое описание ошибки
     init(title: String, description: String, shortDescription: String) {
         self.title = title

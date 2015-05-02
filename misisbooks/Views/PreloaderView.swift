@@ -1,9 +1,9 @@
 //
 //  PreloaderView.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 08.12.14.
-//  Copyright (c) 2014 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
@@ -50,11 +50,11 @@ class PreloaderView: UIView {
         let contentColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
         
         label = UILabel()
-        label.backgroundColor = UIColor.clearColor()
+        label.backgroundColor = .clearColor()
         label.font = UIFont(name: "HelveticaNeue-Light", size: 13)
         label.lineBreakMode = .ByWordWrapping
         label.numberOfLines = 0
-        label.shadowColor = UIColor.whiteColor()
+        label.shadowColor = .whiteColor()
         label.shadowOffset = CGSizeMake(0, -1)
         label.text = text
         label.textAlignment = .Center

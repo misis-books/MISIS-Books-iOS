@@ -1,9 +1,9 @@
 //
 //  DownloadsTableViewController.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 01.12.14.
-//  Copyright (c) 2014 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
@@ -12,6 +12,10 @@ class DownloadsTableViewController: BookTableViewController {
     
     /// Вид-заполнитель
     private var placeholderView: PlaceholderView?
+    
+    override func viewDidAppear(animated: Bool) {
+        updateSectionTitle()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,8 +34,11 @@ class DownloadsTableViewController: BookTableViewController {
         println("Загруженные книги (\(books.count)): [\(getAllDocuments())]")
     }
     
-    override func viewDidAppear(animated: Bool) {
-        updateSectionTitle()
+    override func willAnimateRotationToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation,
+        duration: NSTimeInterval) {
+            if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
+                placeholderView?.setNeedsLayout()
+            }
     }
     
     /// Добавляет книгу в загрузки
@@ -85,10 +92,10 @@ class DownloadsTableViewController: BookTableViewController {
         for bookForDeletion in booksForDeletion {
             for i in 0..<books.count {
                 if books[i].id == bookForDeletion.id {
+                    NSFileManager.defaultManager().removeItemAtPath(books[i].localUrl().path!, error: nil)
                     changeDownloadProgress(0, isWaiting: false, bookId: books[i].id)
                     books.removeAtIndex(i)
                     tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: i, inSection: 1)], withRowAnimation: .Fade)
-                    NSFileManager.defaultManager().removeItemAtPath(books[i].localUrl().path!, error: nil)
                     
                     break
                 }

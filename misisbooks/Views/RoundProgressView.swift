@@ -1,6 +1,6 @@
 //
 //  RoundProgressView.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 07.04.15.
 //  Copyright (c) 2015 Maxim Loskov. All rights reserved.
@@ -31,7 +31,7 @@ class RoundProgressView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = UIColor.clearColor()
+        backgroundColor = .clearColor()
     }
     
     required init(coder aDecoder: NSCoder) {

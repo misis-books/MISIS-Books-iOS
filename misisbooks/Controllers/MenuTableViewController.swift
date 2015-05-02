@@ -1,6 +1,6 @@
 //
 //  MenuViewController.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 26.01.15.
 //  Copyright (c) 2015 Maxim Loskov. All rights reserved.
@@ -176,8 +176,10 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                 MisisBooksApi.instance.getPopular(count: 20, categoryId: 1)
             }
             
-            if ControllerManager.instance.favoritesTableViewController.action == MisisBooksApiAction.GetFavorites {
-                MisisBooksApi.instance.getFavorites(count: 20, offset: 0)
+            if ControllerManager.instance.favoritesTableViewController.isControllerReady {
+                if ControllerManager.instance.favoritesTableViewController.action == MisisBooksApiAction.GetFavorites {
+                    MisisBooksApi.instance.getFavorites(count: 20, offset: 0)
+                }
             }
         }
     }
@@ -231,7 +233,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         fullNameLabel.font = UIFont(name: "HelveticaNeue", size: 14)
         fullNameLabel.text = fullName
         fullNameLabel.textColor = UIColor(red: 79 / 255.0, green: 97 / 255.0, blue: 115 / 255.0, alpha: 1)
-        fullNameLabel.textColor = UIColor.whiteColor()
+        fullNameLabel.textColor = .whiteColor()
         fullNameLabel.numberOfLines = 1
         fullNameLabel.sizeToFit()
         fullNameLabel.center = CGPointMake(SlideMenuOption().leftViewWidth / 2, tableHeaderView.frame.height / 2 + 30)
@@ -244,7 +246,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
     
     /// Показывает кнопку авторизации
     private func showLogInButton() {
-        logInButton = CustomButton(title: "Авторизоваться", color: UIColor.whiteColor())
+        logInButton = CustomButton(title: "Авторизоваться", color: .whiteColor())
         logInButton.addTarget(self, action: Selector("logInButtonPressed"), forControlEvents: .TouchUpInside)
         logInButton.center = CGPointMake(SlideMenuOption().leftViewWidth / 2, tableHeaderView.frame.height / 2)
         tableHeaderView.addSubview(logInButton)
@@ -252,7 +254,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
     
     /// Показывает кнопку выхода
     private func showLogOutButton() {
-        logOutButton = CustomButton(title: "Выйти", color: UIColor.whiteColor())
+        logOutButton = CustomButton(title: "Выйти", color: .whiteColor())
         logOutButton.addTarget(self, action: Selector("logOutButtonPressed"), forControlEvents: .TouchUpInside)
         logOutButton.center = CGPointMake(SlideMenuOption().leftViewWidth - logOutButton.frame.width / 2 - 10,
             logOutButton.frame.height / 2 + 10)

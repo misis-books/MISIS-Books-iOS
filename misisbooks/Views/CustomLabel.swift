@@ -1,29 +1,29 @@
 //
 //  CustomLabel.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 01.12.14.
-//  Copyright (c) 2014 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
 
-/// Класс для представления поля с внутренними отступами (от границ поля до текста)
+/// Класс для представления поля с внутренними отступами
 class CustomLabel: UILabel {
     
-    /// Отступ сверху
+    /// Внутренний отступ сверху
     var topInset: CGFloat = 0
     
-    /// Отступ слева
+    /// Внутренний отступ слева
     var leftInset: CGFloat = 0
     
-    /// Отступ снизу
+    /// Внутренний отступ снизу
     var bottomInset: CGFloat = 0
     
-    /// Отступ справа
+    /// Внутренний отступ справа
     var rightInset: CGFloat = 0
     
-    /// Возвращает прямоугольник с заданными отступами
+    /// Возвращает прямоугольник с заданными внутренними отступами
     ///
     /// :param: rect Прямоугольник
     override func drawRect(rect: CGRect) {

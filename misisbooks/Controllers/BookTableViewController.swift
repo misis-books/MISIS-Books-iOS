@@ -1,6 +1,6 @@
 //
 //  BookTableViewController.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 02.04.15.
 //  Copyright (c) 2015 Maxim Loskov. All rights reserved.
@@ -50,16 +50,16 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         tableView.registerClass(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseId)
         
         sectionTitleLabel1 = UILabel(frame: CGRectMake(15, 6, tableView.frame.size.width - 30, 20))
-        sectionTitleLabel1.backgroundColor = UIColor.clearColor()
+        sectionTitleLabel1.backgroundColor = .clearColor()
         sectionTitleLabel1.font = UIFont(name: "HelveticaNeue", size: 13)
-        sectionTitleLabel1.shadowColor = UIColor.whiteColor()
+        sectionTitleLabel1.shadowColor = .whiteColor()
         sectionTitleLabel1.shadowOffset = CGSizeMake(0, -1)
         sectionTitleLabel1.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
         
         sectionTitleLabel2 = UILabel(frame: CGRectMake(15, 6, tableView.frame.size.width - 30, 20))
-        sectionTitleLabel2.backgroundColor = UIColor.clearColor()
+        sectionTitleLabel2.backgroundColor = .clearColor()
         sectionTitleLabel2.font = UIFont(name: "HelveticaNeue", size: 13)
-        sectionTitleLabel2.shadowColor = UIColor.whiteColor()
+        sectionTitleLabel2.shadowColor = .whiteColor()
         sectionTitleLabel2.shadowOffset = CGSizeMake(0, -1)
         sectionTitleLabel2.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
     }

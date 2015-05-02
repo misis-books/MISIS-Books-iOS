@@ -1,9 +1,9 @@
 //
 //  FilterTableViewController.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 01.12.14.
-//  Copyright (c) 2014 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import UIKit

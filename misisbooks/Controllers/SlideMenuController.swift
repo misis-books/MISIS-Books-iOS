@@ -1,6 +1,6 @@
 //
 //  SlideMenuController.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 26.01.15.
 //  Copyright (c) 2015 Maxim Loskov. All rights reserved.
@@ -93,7 +93,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     
     func initView() {
         mainContainerView = UIView(frame: view.bounds)
-        mainContainerView.backgroundColor = UIColor.clearColor()
+        mainContainerView.backgroundColor = .clearColor()
         mainContainerView.autoresizingMask = .FlexibleHeight | .FlexibleWidth
         view.insertSubview(mainContainerView, atIndex: 0)
         
@@ -102,7 +102,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         opacityframe.origin.y = opacityframe.origin.y + opacityOffset
         opacityframe.size.height = opacityframe.size.height - opacityOffset
         opacityView = UIView(frame: opacityframe)
-        opacityView.backgroundColor = UIColor.blackColor()
+        opacityView.backgroundColor = .blackColor()
         opacityView.autoresizingMask = .FlexibleHeight | .FlexibleWidth
         opacityView.layer.opacity = 0
         view.insertSubview(opacityView, atIndex: 1)
@@ -114,7 +114,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         leftFrame.origin.y = leftFrame.origin.y + leftOffset
         leftFrame.size.height = leftFrame.size.height - leftOffset
         leftContainerView = UIView(frame: leftFrame)
-        leftContainerView.backgroundColor = UIColor.clearColor()
+        leftContainerView.backgroundColor = .clearColor()
         leftContainerView.autoresizingMask = .FlexibleHeight
         view.insertSubview(leftContainerView, atIndex: 2)
         
@@ -125,7 +125,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         rightFrame.origin.y = rightFrame.origin.y + rightOffset
         rightFrame.size.height = rightFrame.size.height - rightOffset
         rightContainerView = UIView(frame: rightFrame)
-        rightContainerView.backgroundColor = UIColor.clearColor()
+        rightContainerView.backgroundColor = .clearColor()
         rightContainerView.autoresizingMask = .FlexibleHeight
         view.insertSubview(rightContainerView, atIndex: 3)
         

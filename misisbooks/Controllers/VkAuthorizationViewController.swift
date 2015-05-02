@@ -1,6 +1,6 @@
 //
 //  VkAuthorizationViewController.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 27.01.15.
 //  Copyright (c) 2015 Maxim Loskov. All rights reserved.
@@ -58,7 +58,7 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         let errorLabel = UILabel(frame: CGRectZero)
         errorLabel.font = UIFont(name: "HelveticaNeue-Light", size: 14)
         errorLabel.text = "Невозможно загрузить страницу"
-        errorLabel.textColor = UIColor.blackColor()
+        errorLabel.textColor = .blackColor()
         errorLabel.sizeToFit()
         errorLabel.center = view.center
         view.addSubview(errorLabel)

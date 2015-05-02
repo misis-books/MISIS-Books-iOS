@@ -1,9 +1,9 @@
 //
 //  PlaceholderView.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 01.12.14.
-//  Copyright (c) 2014 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
@@ -40,9 +40,9 @@ class PlaceholderView: UIView {
         self.viewController = viewController
         
         titleLabel = UILabel()
-        titleLabel.backgroundColor = UIColor.clearColor()
+        titleLabel.backgroundColor = .clearColor()
         titleLabel.font = UIFont(name: "HelveticaNeue", size: 20)
-        titleLabel.shadowColor = UIColor.whiteColor()
+        titleLabel.shadowColor = .whiteColor()
         titleLabel.shadowOffset = CGSizeMake(0, -1)
         titleLabel.text = title
         titleLabel.textColor = UIColor(red: 79 / 255.0, green: 97 / 255.0, blue: 115 / 255.0, alpha: 1)
@@ -50,10 +50,10 @@ class PlaceholderView: UIView {
         addSubview(titleLabel)
         
         subtitleLabel = UILabel()
-        subtitleLabel.backgroundColor = UIColor.clearColor()
+        subtitleLabel.backgroundColor = .clearColor()
         subtitleLabel.font = UIFont(name: "HelveticaNeue", size: 16)
         subtitleLabel.numberOfLines = 0
-        subtitleLabel.shadowColor = UIColor.whiteColor()
+        subtitleLabel.shadowColor = .whiteColor()
         subtitleLabel.shadowOffset = CGSizeMake(0, -1)
         subtitleLabel.text = subtitle
         subtitleLabel.textAlignment = .Center
@@ -65,6 +65,8 @@ class PlaceholderView: UIView {
         button = CustomButton(title: buttonText, color: UIColor(red: 255 / 255.0, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1))
         button.addTarget(self, action: Selector("buttonPressed"), forControlEvents: .TouchUpInside)
         addSubview(button)
+        
+        layoutIfNeeded()
     }
     
     required init(coder aDecoder: NSCoder) {

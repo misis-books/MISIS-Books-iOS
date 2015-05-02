@@ -1,9 +1,9 @@
 //
 //  SearchTableViewController.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 06.12.14.
-//  Copyright (c) 2014 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
@@ -57,7 +57,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         searchBar.delegate = self
         searchBar.placeholder = "Поиск"
         searchBar.searchBarStyle = .Minimal
-        searchBar.tintColor = UIColor.darkGrayColor()
+        searchBar.tintColor = .darkGrayColor()
         navigationItem.titleView = searchBar
         
         activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
@@ -73,7 +73,11 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
     
     override func willAnimateRotationToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation,
         duration: NSTimeInterval) {
-            activityIndicator?.center = CGPointMake(view.bounds.size.width / 2, 18)
+            if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
+                placeholderView?.setNeedsLayout()
+            }
+            
+            activityIndicator.center = CGPointMake(view.bounds.size.width / 2, 18)
     }
     
     /// Изменяет категорию
@@ -144,7 +148,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         books.removeAll(keepCapacity: false)
         removePreloaderView()
         tableView.reloadData()
-        tableView.addSubview(placeholderView)
+        tableView.addSubview(self.placeholderView!)
         tableView.bounces = false
     }
     

@@ -1,6 +1,6 @@
 //
 //  ControllerManager.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 03.02.15.
 //  Copyright (c) 2015 Maxim Loskov. All rights reserved.

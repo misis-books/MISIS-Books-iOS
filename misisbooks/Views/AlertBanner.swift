@@ -1,6 +1,6 @@
 //
 //  AlertBanner.swift
-//  misisbooks
+//  MisisBooks
 //
 //  Created by Maxim Loskov on 15.03.15.
 //  Copyright (c) 2015 Maxim Loskov. All rights reserved.
@@ -70,25 +70,25 @@ class AlertBanner: UIView {
             delegate = AlertBannerManager.instance
             
             titleLabel = UILabel()
-            titleLabel.backgroundColor = UIColor.clearColor()
+            titleLabel.backgroundColor = .clearColor()
             titleLabel.font = UIFont(name: "HelveticaNeue", size: 14)
             titleLabel.numberOfLines = 0
             titleLabel.layer.shadowColor = UIColor.blackColor().CGColor
             titleLabel.layer.shadowOffset = CGSizeMake(0, -1)
             titleLabel.lineBreakMode = .ByTruncatingTail
             titleLabel.text = title == nil ? " " : title
-            titleLabel.textColor = UIColor.whiteColor()
+            titleLabel.textColor = .whiteColor()
             addSubview(titleLabel)
             
             subtitleLabel = UILabel()
-            subtitleLabel.backgroundColor = UIColor.clearColor()
+            subtitleLabel.backgroundColor = .clearColor()
             subtitleLabel.font = UIFont(name: "HelveticaNeue-Light", size: 12)
             subtitleLabel.numberOfLines = 0
             subtitleLabel.layer.shadowColor = UIColor.blackColor().CGColor
             subtitleLabel.layer.shadowOffset = CGSizeMake(0, -1)
             subtitleLabel.lineBreakMode = .ByWordWrapping
             subtitleLabel.text = subtitle
-            subtitleLabel.textColor = UIColor.whiteColor()
+            subtitleLabel.textColor = .whiteColor()
             addSubview(subtitleLabel)
             
             alpha = 0
