@@ -8,7 +8,9 @@
 
 import UIKit
 
-/// Класс для представления вида-заполнителя
+/**
+    Класс для представления вида-заполнителя
+*/
 class PlaceholderView: UIView {
     
     /// Контроллер
@@ -26,13 +28,15 @@ class PlaceholderView: UIView {
     /// Обработчик нажатия на кнопку
     private var tapHandler: (() -> Void)!
     
-    /// Инициализирует класс заданными параметрами
-    ///
-    /// :param: viewController Контроллер
-    /// :param: title Заголовок
-    /// :param: subtitle Подзаголовок
-    /// :param: buttonText Текст кнопки
-    /// :param: tapHandler Блок нажатия на кнопку
+    /**
+        Инициализирует класс заданными параметрами
+
+        - parameter viewController: Контроллер
+        - parameter title: Заголовок
+        - parameter subtitle: Подзаголовок
+        - parameter buttonText: Текст кнопки
+        - parameter tapHandler: Обработчик нажатия на кнопку
+    */
     init(viewController: UIViewController, title: String, subtitle: String, buttonText: String, tapHandler: () -> Void) {
         super.init(frame: CGRectZero)
         
@@ -83,7 +87,9 @@ class PlaceholderView: UIView {
         button.center = CGPointMake(frame.size.width / 2, frame.size.height / 2 + 60)
     }
     
-    /// Обрабатывает событие, когда нажата кнопка
+    /**
+        Обрабатывает событие, когда нажата кнопка
+    */
     func buttonPressed() {
         tapHandler()
     }

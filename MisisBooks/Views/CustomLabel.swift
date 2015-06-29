@@ -8,7 +8,9 @@
 
 import UIKit
 
-/// Класс для представления поля с внутренними отступами
+/**
+    Класс для представления поля с внутренними отступами
+*/
 class CustomLabel: UILabel {
     
     /// Внутренний отступ сверху
@@ -23,9 +25,11 @@ class CustomLabel: UILabel {
     /// Внутренний отступ справа
     var rightInset: CGFloat = 0
     
-    /// Возвращает прямоугольник с заданными внутренними отступами
-    ///
-    /// :param: rect Прямоугольник
+    /**
+        Возвращает прямоугольник с заданными внутренними отступами
+
+        - parameter rect: Прямоугольник
+    */
     override func drawRect(rect: CGRect) {
         let insets = UIEdgeInsets(top: topInset, left: leftInset, bottom: bottomInset, right: rightInset)
         

@@ -8,7 +8,10 @@
 
 import UIKit
 
-class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegate, PreloaderViewDelegate {
+/**
+    Класс для представления контроллера избранного
+*/
+class FavoritesTableViewController: BookTableViewController, PreloaderViewDelegate {
     
     /// Действие
     var action: MisisBooksApiAction!
@@ -65,12 +68,14 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
             
             activityIndicator.center = CGPointMake(view.bounds.size.width / 2, 18)
             
-            println("rotate")
+            print("rotate")
     }
     
-    /// Добавляет книгу в избранное
-    ///
-    /// :param: book Книга
+    /**
+        Добавляет книгу в избранное
+
+        - parameter book: Книга
+    */
     func addBook(book: Book) {
         for bookInSearch in ControllerManager.instance.searchTableViewController.books {
             if bookInSearch.id == book.id {
@@ -92,7 +97,9 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         hidePlaceholderView()
     }
     
-    /// Удаляет все книги из избранного
+    /**
+        Удаляет все книги из избранного
+    */
     func deleteAllBooks() {
         for book in books {
             for bookInSearch in ControllerManager.instance.searchTableViewController.books {
@@ -117,9 +124,11 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
             })
     }
     
-    /// Удаляет книги из избранного
-    ///
-    /// :param: booksForDeletion Книги для удаления
+    /**
+        Удаляет книги из избранного
+
+        - parameter booksForDeletion: Книги для удаления
+    */
     func deleteBooks(booksToDelete: [Book]) {
         for bookForDeletion in booksToDelete {
             for bookInSearch in ControllerManager.instance.searchTableViewController.books {
@@ -160,9 +169,11 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         }
     }
     
-    /// Обрабатывает событие, когда нажата кнопка удаления
+    /**
+        Обрабатывает событие, когда нажата кнопка удаления
+    */
     func deleteButtonPressed() {
-        let selectedIndexPaths = tableView.indexPathsForSelectedRows()
+        let selectedIndexPaths = tableView.indexPathsForSelectedRows
         let actionTitleSubstring: String
         let numberOfBooksToDelete: Int
         
@@ -184,10 +195,12 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         actionSheet.showInView(view)
     }
     
-    /// Загружает книги из базы данных
+    /**
+        Загружает книги из базы данных
+    */
     func loadBooksFromDatabase() {
         activityIndicator.stopAnimating()
-        books = reverse(Database.instance.booksForList("favorites"))
+        books = Array(Database.instance.booksForList("favorites").reverse())
         totalResults = books.count
         sectionTitleLabel1.text = textForSectionHeader(totalResults)
         
@@ -201,13 +214,15 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
             
         }
         
-        let allDocuments = join(", ", map(books) { String($0.id) })
-        println("Избранные книги (\(books.count)): [\(allDocuments)]")
+        let allDocuments = ", ".join(books.map { String($0.id) })
+        print("Избранные книги (\(books.count)): [\(allDocuments)]")
         
         tableView.reloadData()
     }
     
-    /// Показывает кнопки для удаления документов и отмены редактирования таблицы
+    /**
+        Показывает кнопки для удаления документов и отмены редактирования таблицы
+    */
     func showDeleteAndCancelButtons() {
         setEditing(true, animated: true)
         
@@ -218,7 +233,11 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         navigationItem.setRightBarButtonItems([cancelBarButtonItem, deleteBarButtonItem], animated: true)
     }
     
-    /// Показывает вид-заполнитель
+    /**
+        Показывает вид-заполнитель
+    
+        - parameter placeholderView: Вид-заполнитель
+    */
     func showPlaceholderView(placeholderView: PlaceholderView) {
         showUpdateButton()
         setEditing(false, animated: true)
@@ -232,7 +251,9 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         tableView.reloadData()
     }
     
-    /// Показывает кнопки для обновления и редактирования таблицы
+    /**
+        Показывает кнопки для обновления и редактирования таблицы
+    */
     func showUpdateAndEditButtons() {
         setEditing(false, animated: true)
         
@@ -243,14 +264,18 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         navigationItem.setRightBarButtonItems([editBarButtonItem, updateBarButtonItem], animated: true)
     }
     
-    /// Показывает кнопку для обновления таблицы
+    /**
+        Показывает кнопку для обновления таблицы
+    */
     func showUpdateButton() {
         let updateBarButtonItem = UIBarButtonItem(image: UIImage(named: "Update"), style: .Plain, target: self,
             action: Selector("updateButtonPressed"))
         navigationItem.setRightBarButtonItems([updateBarButtonItem], animated: true)
     }
     
-    /// Обрабатывает событие, когда нажата кнопка обновления
+    /**
+        Обрабатывает событие, когда нажата кнопка обновления
+    */
     func updateButtonPressed() {
         books.removeAll(keepCapacity: false)
         sectionTitleLabel1.text = ""
@@ -267,10 +292,12 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         MisisBooksApi.instance.getFavorites(count: count, offset: offset)
     }
     
-    /// Обновляет таблицу
-    ///
-    /// :param: receivedBooks Полученные книги
-    /// :param: totalResults Общее количество результатов
+    /**
+        Обновляет таблицу
+
+        - parameter receivedBooks: Полученные книги
+        - parameter totalResults: Общее количество результатов
+    */
     func updateTable(receivedBooks: [Book], totalResults: Int) {
         loadingMore = false
         activityIndicator.stopAnimating()
@@ -312,28 +339,30 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         self.totalResults = totalResults
         sectionTitleLabel1.text = textForSectionHeader(totalResults)
         
-        for receivedBook in reverse(receivedBooks) {
+        for receivedBook in Array(receivedBooks.reverse()) {
             if !Database.instance.isBook(receivedBook, addedToList: "favorites") {
-                println("Добавляем " + receivedBook.name)
+                print("Добавляем " + receivedBook.name)
                 Database.instance.addBook(receivedBook, toList: "favorites")
             }
         }
     }
     
-    /// MARK: - Внутренние методы
+    // MARK: - Внутренние методы
     
-    /// Изменяет состояние наличия в избранном книги во всех принадлежащих ей ячейках
-    ///
-    /// :param: isMarkedAsFavorite Флаг наличия книги в избранном
-    /// :param: bookId Идентификатор книги
+    /**
+        Изменяет состояние наличия в избранном книги во всех принадлежащих ей ячейках
+
+        - parameter isMarkedAsFavorite: Флаг наличия книги в избранном
+        - parameter bookId: Идентификатор книги
+    */
     private func changeFavoriteState(isMarkedAsFavorite: Bool, bookId: Int) {
         let controllers = [ControllerManager.instance.searchTableViewController,
             ControllerManager.instance.downloadsTableViewController, ControllerManager.instance.favoritesTableViewController]
         
         for controller in controllers {
-            if let indexPaths = controller.tableView.indexPathsForVisibleRows() {
+            if let indexPaths = controller.tableView.indexPathsForVisibleRows {
                 for indexPath in indexPaths {
-                    if let cell = controller.tableView.cellForRowAtIndexPath(indexPath as! NSIndexPath) as? CustomTableViewCell {
+                    if let cell = controller.tableView.cellForRowAtIndexPath(indexPath as NSIndexPath) as? CustomTableViewCell {
                         if cell.tag == bookId {
                             cell.starImage.tintColor = isMarkedAsFavorite ?
                                 UIColor(red: 255 / 255.0, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1) :
@@ -345,17 +374,22 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         }
     }
     
-    /// Скрывает вид-заполнитель
+    /**
+        Скрывает вид-заполнитель
+    */
     private func hidePlaceholderView() {
         tableView.bounces = true
         placeholderView?.removeFromSuperview()
     }
     
-    /// Возвращает текст для вида-подгрузчика
-    ///
-    /// :param: nextResults Количество следующих результатов
-    /// :param: remainingResults Количество оставшихся результатов
-    /// :returns: Текст для вида-подгрузчика
+    /**
+        Возвращает текст для вида-подгрузчика
+
+        - parameter nextResults: Количество следующих результатов
+        - parameter remainingResults: Количество оставшихся результатов
+
+        - returns: Текст для вида-подгрузчика
+    */
     private func textForPreloaderView(nextResults: Int, remainingResults: Int) -> String {
         let formats = ["Потяните вверх, чтобы увидеть\nследующий %d документ из %d",
             "Потяните вверх, чтобы увидеть\nследующие %d документа из %d",
@@ -366,10 +400,13 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         return String(format: formats[ending], nextResults, remainingResults)
     }
     
-    /// Возвращает текст для заголовка секции
-    ///
-    /// :param: totalResults Общее количество результатов
-    /// :returns: Текст для заголовка секции
+    /**
+        Возвращает текст для заголовка секции
+
+        - parameter totalResults: Общее количество результатов
+
+        - returns: Текст для заголовка секции
+    */
     private func textForSectionHeader(totalResults: Int) -> String {
         let formats = ["%d ИЗБРАННЫЙ ДОКУМЕНТ", "%d ИЗБРАННЫХ ДОКУМЕНТА", "%d ИЗБРАННЫХ ДОКУМЕНТОВ"]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
@@ -378,22 +415,28 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         return totalResults == 0 ? "" : String(format: formats[ending], totalResults)
     }
     
-    /// Удаляет вид-продгрузчик
+    /**
+        Удаляет вид-продгрузчик
+    */
     private func removePreloaderView() {
         preloaderView = nil
-        tableView.tableFooterView = UIView(frame: CGRectZero)
+        tableView.tableFooterView = UIView()
     }
     
-    /// Показывает контроллер поиска
+    /**
+        Показывает контроллер поиска
+    */
     private func showSearchController() {
         ControllerManager.instance.slideMenuController.changeMainViewController(
             ControllerManager.instance.menuTableViewController.searchTableViewNavigationController, close: true)
         ControllerManager.instance.menuTableViewController.highlightRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))
     }
     
-    /// Обновляет вид-подгрузчик
-    ///
-    /// :param: totalResults Общее количество результатов
+    /**
+        Обновляет вид-подгрузчик
+
+        - parameter totalResults: Общее количество результатов
+    */
     private func updatePreloaderView(totalResults: Int) {
         let remainingResults = totalResults - offset - 20
         let nextResults = remainingResults >= 20 ? 20 : remainingResults
@@ -412,7 +455,9 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         }
     }
     
-    /// Обновляет заголовок секции
+    /**
+        Обновляет заголовок секции
+    */
     private func updateSectionTitle() {
         let totalBooks = books.count
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
@@ -422,7 +467,7 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         sectionTitleLabel1?.text = totalBooks == 0 ? "" : "\(totalBooks) \(word)"
     }
     
-    /// MARK: - Методы UITableViewDataSource
+    // MARK: - Методы UITableViewDataSource
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
@@ -436,27 +481,27 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         return books.count
     }
     
-    /// MARK: - Методы UITableViewDelegate
+    // MARK: - Методы UITableViewDelegate
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
     }
     
-    /// MARK: - Методы UIActionSheetDelegate
+    // MARK: - Методы UIActionSheetDelegate
     
     override func actionSheet(actionSheet: UIActionSheet, clickedButtonAtIndex buttonIndex: Int) {
         super.actionSheet(actionSheet, clickedButtonAtIndex: buttonIndex)
         
         if actionSheet.tag == 0 && buttonIndex == 0 {
-            if let selectedIndexPaths = tableView.indexPathsForSelectedRows() {
-                MisisBooksApi.instance.deleteBooksFromFavorites(map(selectedIndexPaths) { self.books[$0.row] })
+            if let selectedIndexPaths = tableView.indexPathsForSelectedRows {
+                MisisBooksApi.instance.deleteBooksFromFavorites(selectedIndexPaths.map { self.books[$0.row] })
             } else {
                 MisisBooksApi.instance.deleteAllBooksFromFavorites()
             }
         }
     }
     
-    /// MARK: - Методы UIScrollViewDelegate
+    // MARK: - Методы UIScrollViewDelegate
     
     override func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         preloaderView?.preloaderViewScrollViewDidEndDragging(scrollView)
@@ -466,7 +511,7 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         preloaderView?.preloaderViewScrollViewDidScroll(scrollView)
     }
     
-    /// MARK: - Методы PreloaderViewDelegate
+    // MARK: - Методы PreloaderViewDelegate
     
     func preloaderViewDataSourceIsLoading() -> Bool! {
         return loadingMore
@@ -478,7 +523,7 @@ class FavoritesTableViewController: BookTableViewController, UIScrollViewDelegat
         
         let time = dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC)))
         dispatch_after(time, dispatch_get_main_queue()) {
-            self.action = MisisBooksApiAction.GetFavorites
+            self.action = .GetFavorites
             MisisBooksApi.instance.getFavorites(count: self.count, offset: self.offset)
         }
     }

@@ -8,7 +8,9 @@
 
 import UIKit
 
-/// Класс для представления настраиваемой кнопки
+/**
+    Класс для представления настраиваемой кнопки
+*/
 class CustomButton: UIButton {
     
     init(title: String, color: UIColor) {
@@ -24,7 +26,7 @@ class CustomButton: UIButton {
         layer.borderColor = color.CGColor
         layer.borderWidth = 1
         layer.cornerRadius = 2
-        titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14)
+        titleLabel!.font = UIFont(name: "HelveticaNeue", size: 14)
         sizeToFit()
     }
     
@@ -32,14 +34,18 @@ class CustomButton: UIButton {
         super.init(coder: aDecoder)
     }
     
-    /// Делает кнопку активной
+    /**
+        Делает кнопку активной
+    */
     func makeActive() {
         UIView.animateWithDuration(0.25) {
             self.layer.opacity = 0.5
         }
     }
     
-    /// Делает кнопку обычной
+    /**
+        Делает кнопку обычной
+    */
     func makeNormal() {
         UIView.animateWithDuration(0.25) {
             self.layer.opacity = 1

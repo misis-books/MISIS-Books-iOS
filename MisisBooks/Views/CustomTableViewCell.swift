@@ -8,7 +8,9 @@
 
 import UIKit
 
-/// Класс для представления настраиваемой ячейки таблицы
+/**
+    Класс для представления настраиваемой ячейки таблицы
+*/
 class CustomTableViewCell: UITableViewCell {
     
     /// Книга
@@ -29,9 +31,11 @@ class CustomTableViewCell: UITableViewCell {
     /// Картинка звезды
     var starImage: UIImageView!
     
-    /// Возвращает идентификатор для повторного использования
-    ///
-    /// :returns: Идентификатор для повторного использования
+    /**
+        Возвращает идентификатор для повторного использования
+
+        - returns: Идентификатор для повторного использования
+    */
     class var reuseId: String {
         return "cell"
     }
@@ -65,10 +69,13 @@ class CustomTableViewCell: UITableViewCell {
         starImage.frame = CGRectMake(frame.width - 35, nameLabelSize.height + authorsLabelSize.height + 16.5, 20, 20)
     }
     
-    /// Возвращает название категории по идетификатору
-    ///
-    /// :param: fontId Идентификатор шрифта
-    /// :returns: Названия категорий
+    /**
+        Возвращает название категории по ее идетификатору
+
+        - parameter fontId: Идентификатор шрифта
+
+        - returns: Название категории
+    */
     class func categoryName(categoryId: Int) -> String {
         let categoryNames = ["Все", "Пособия", "Дипломы", "Сборники научных трудов", "Монографии, научные издания",
             "Книги «МИСиС»", "Авторефераты диссертаций", "Разное"]
@@ -76,10 +83,13 @@ class CustomTableViewCell: UITableViewCell {
         return categoryNames[categoryId]
     }
     
-    /// Возвращает шрифт, соответсвующий идентификатору
-    ///
-    /// :param: fontId Идентификатор шрифта
-    /// :returns: Шрифт
+    /**
+        Возвращает шрифт по его идетификатору
+
+        - parameter fontId: Идентификатор шрифта
+
+        - returns: Шрифт
+    */
     class func font(fontId: Int) -> UIFont {
         let fonts = [UIFont(name: "HelveticaNeue-Light", size: 14)!, UIFont(name: "HelveticaNeue-Light", size: 12)!,
             UIFont(name: "HelveticaNeue", size: 12)!]
@@ -87,10 +97,13 @@ class CustomTableViewCell: UITableViewCell {
         return fonts[fontId]
     }
     
-    /// Возвращает размер ячейки таблицы для заданной книги
-    ///
-    /// :param: book Книга
-    /// :returns: Размер ячейки таблицы
+    /**
+        Возвращает размер ячейки таблицы для заданной книги
+
+        - parameter book: Книга
+
+        - returns: Размер ячейки таблицы
+    */
     class func heightForRowWithBook(book: Book) -> CGFloat {
         return CustomTableViewCell.labelSizeWithText(book.name, font: CustomTableViewCell.font(0)).height +
             CustomTableViewCell.labelSizeWithText(book.authors, font: CustomTableViewCell.font(1)).height +
@@ -98,11 +111,14 @@ class CustomTableViewCell: UITableViewCell {
                 font: CustomTableViewCell.font(2)).height + 35.5
     }
     
-    /// Возвращает размер поля, находящегося в ячейке таблицы, для заданного текста и шрифта
-    ///
-    /// :param: text Текст
-    /// :param: font Шрифт
-    /// :returns: Размер поля
+    /**
+        Возвращает размер поля, находящегося в ячейке таблицы, для заданного текста и шрифта
+
+        - parameter text: Текст
+        - parameter font: Шрифт
+
+        - returns: Размер поля
+    */
     class func labelSizeWithText(text: String, font: UIFont) -> CGSize {
         let mainScreenWidth = UIScreen.mainScreen().bounds.size.width
         let size = CGSizeMake(mainScreenWidth - 30, CGFloat.max)
@@ -110,26 +126,31 @@ class CustomTableViewCell: UITableViewCell {
         return (text == "" ? CGRectZero : text.boundingRectWithSize(size, options: .UsesLineFragmentOrigin, attributes: [NSFontAttributeName: font], context: nil)).size
     }
     
-    /// Внутренние методы
+    // MARK: - Внутренние методы
     
-    /// Возвращает строку для названия книги с подсвеченными словами, входящими в запрос
-    ///
-    /// :param: bookName Название книги
-    /// :param: highlightedWords Слова, которые требуется подсветить (разделены пробелом)
-    /// :returns: Строка для названия книги с подсвеченными словами
+    /**
+        Возвращает строку для названия книги с подсвеченными словами, входящими в запрос
+
+        - parameter bookName: Название книги
+        - parameter highlightedWords: Слова, которые требуется подсветить (разделены пробелом)
+        - returns: Строка для названия книги с подсвеченными словами
+    */
     private func attributedStringForBookName(bookName: NSString, highlightedWords: NSString) -> NSMutableAttributedString {
         let normalColor = UIColor(red: 59 / 255.0, green: 77 / 255.0, blue: 95 / 255.0, alpha: 1)
         let highlightColor = UIColor(red: 253 / 255.0, green: 208 / 255.0, blue: 209 / 255.0, alpha: 1)
         let result = NSMutableAttributedString(string: bookName as String)
         result.addAttribute(NSForegroundColorAttributeName, value: normalColor, range: NSMakeRange(0, result.length))
         
-        // Заменить только пробелы: [ ]+
-        // Заменить пробелы и табуляцию: [ \\t]+
-        // Заменить пробелы, табуляцию и переводы строк: \\s+
-        let squashedString = highlightedWords.stringByReplacingOccurrencesOfString("[ ]+", withString: " ", options: .RegularExpressionSearch, range: NSMakeRange(0, highlightedWords.length))
+        /*
+            Заменить только пробелы: [ ]+
+            Заменить пробелы и табуляцию: [ \\t]+
+            Заменить пробелы, табуляцию и переводы строк: \\s+
+        */
+        let squashedString = highlightedWords.stringByReplacingOccurrencesOfString("[ ]+", withString: " ",
+            options: .RegularExpressionSearch, range: NSMakeRange(0, highlightedWords.length))
         
         let trimmedString = squashedString.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-        let words = split(trimmedString) { $0 == " " }
+        let words = split(trimmedString.characters) { $0 == " " }.map { String($0) }
         var foundRange, nextRange: NSRange
         
         for word in words {
@@ -146,11 +167,13 @@ class CustomTableViewCell: UITableViewCell {
         return result
     }
     
-    /// Конфигурирует ячейку таблицы
-    ///
-    /// :params: book Книга
-    /// :params: query Запрос
-    private func configure(#book: Book, query: String!) {
+    /**
+        Конфигурирует ячейку таблицы
+
+        :params: book Книга
+        :params: query Запрос
+    */
+    private func configure(book book: Book, query: String!) {
         self.book = book
         
         let categoryColors = [UIColor(red: 186 / 255.0, green: 186 / 255.0, blue: 186 / 255.0, alpha: 1),

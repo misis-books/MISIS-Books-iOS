@@ -8,7 +8,9 @@
 
 import Foundation
 
-/// Класс для управления загрузками
+/**
+    Класс для управления загрузками
+*/
 class DownloadManager: NSObject, NSURLSessionDelegate {
     
     /// Загрузки
@@ -23,7 +25,6 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
     class var instance: DownloadManager {
             
         struct Singleton {
-            
             static var instance: DownloadManager?
             static var token: dispatch_once_t = 0
         }
@@ -35,7 +36,27 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
         
         return Singleton.instance!
     }
-    
+
+    /**
+    Возвращает экземпляр класса
+
+    - returns: Экземпляр класса
+
+    class var instance: DownloadManager {
+
+        struct Singleton {
+            static let instance = DownloadManager()
+        }
+
+        return Singleton.instance
+    }
+
+    override init() {
+        super.init()
+        
+        initSessionDownload()
+    }*/
+
     class FileInformation: NSObject {
         
         /// Флаг окончания загрузки
@@ -68,10 +89,12 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
         /// Источник
         var source: NSURL!
         
-        /// Инициализирует класс заданными параметрами
-        ///
-        /// :param: fileName Название файла
-        /// :param: source Ресурс
+        /**
+            Инициализирует класс заданными параметрами
+
+            - parameter fileName: Название файла
+            - parameter source: Ресурс
+        */
         init(fileName: String, source: NSURL) {
             super.init()
             
@@ -83,36 +106,40 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
         }
     }
     
-    /// Отменяет загрузку
-    ///
-    /// :param: Задача загрузки
-    class func cancelDownload(downloadTask task: NSURLSessionDownloadTask) {
-        if let selectedDownload = getFileInformationByTaskId(task.taskIdentifier) {
+    /**
+        Отменяет задачу загрузки
+
+        - parameter downloadTask: Задача загрузки
+    */
+    class func cancelDownloadTask(downloadTask: NSURLSessionDownloadTask) {
+        if let selectedDownload = getFileInformationByTaskId(downloadTask.taskIdentifier) {
             selectedDownload.task.cancel()
         }
     }
     
-    /// Инициализирует загрузку
-    ///
-    /// :param: fileName Название файла
-    /// :param: destination Директория назначения
-    /// :param: sourceUrl URL ресурса
-    /// :param: progressBlock Блок прогресса
-    /// :param: responseBlock Блок ответа
-    class func download(fileName: String, destination: NSURL?, sourceUrl: NSURL,
+    /**
+        Инициализирует задачу загрузки
+
+        - parameter fileName: Название файла
+        - parameter destinationUrl: URL назначения
+        - parameter sourceUrl: URL ресурса
+        - parameter progressBlock: Блок обработки процесса загрузки
+        - parameter responseBlock: Блок обработки ответа
+    */
+    class func download(fileName: String, destinationUrl: NSURL?, sourceUrl: NSURL,
         progressBlock: ((progressPercentage: Int, fileInformation: FileInformation) -> Void)?,
         responseBlock: (error: NSError!, fileInformation: FileInformation) -> Void) -> NSURLSessionDownloadTask {
             let newDownload = FileInformation(fileName: fileName, source: sourceUrl)
             newDownload.progressBlock = progressBlock
             newDownload.responseBlock = responseBlock
             
-            if let errorDestination = setDestinationDownload(newDownload, urlDestination: destination) {
+            if let errorDestination = setDestinationDownload(newDownload, destinationUrl: destinationUrl) {
                 responseBlock(error: errorDestination, fileInformation: newDownload)
                 
                 return newDownload.task
             }
             
-            newDownload.task = DownloadManager.instance.session.downloadTaskWithURL(newDownload.source, completionHandler: nil)
+            newDownload.task = DownloadManager.instance.session.downloadTaskWithURL(newDownload.source)
             newDownload.task.resume()
             newDownload.isDownloading = true
             DownloadManager.instance.downloads.append(newDownload)
@@ -120,18 +147,22 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             return newDownload.task
     }
     
-    /// Возвращает текущие загрузки
-    ///
-    /// :returns: Текущие загрузки
+    /**
+        Возвращает текущие загрузки
+
+        - returns: Текущие загрузки
+    */
     class func getCurrentDownloads() -> [FileInformation] {
-        
         return DownloadManager.instance.downloads
     }
     
-    /// Возвращает задачу или nil по идентификатору
-    ///
-    /// :param: id Идентификатор задачи
-    /// :returns: Задача или nil
+    /**
+        Возвращает загрузку по идентификатору или nil
+
+        - parameter id: Идентификатор загрузки
+
+        - returns: Загрузка или nil
+    */
     class func getFileInformationByTaskId(id: Int) -> FileInformation! {
         for currentDownload in DownloadManager.instance.downloads {
             if currentDownload.task.taskIdentifier == id {
@@ -142,52 +173,64 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
         return nil
     }
     
-    /// Приостанавливает загрузку
-    ///
-    /// :param: Задача загрузки
-    class func pauseDownload(downloadTask task: NSURLSessionDownloadTask) {
-        if let selectedDownload = getFileInformationByTaskId(task.taskIdentifier) {
+    /**
+        Приостанавливает задачу загрузки
+
+        - parameter downloadTask: Задача загрузки
+    */
+    class func pauseDownloadTask(downloadTask: NSURLSessionDownloadTask) {
+        if let selectedDownload = getFileInformationByTaskId(downloadTask.taskIdentifier) {
             selectedDownload.task.suspend()
             selectedDownload.isDownloading = false
-            /* task.cancelByProducingResumeData { data in
-            selectedDownload.taskResumeData = data
-            selectedDownload.isDownloading = false
-            } */
+            /*
+            task.cancelByProducingResumeData { data in
+                selectedDownload.taskResumeData = data
+                selectedDownload.isDownloading = false
+            }
+            */
         }
     }
     
-    /// Возобновляет приостановленную загрузку
-    ///
-    /// :param: Задача загрузки
-    class func resumeDownload(downloadTask task: NSURLSessionDownloadTask) {
-        if let selectedDownload = getFileInformationByTaskId(task.taskIdentifier) {
+    /**
+        Возобновляет приостановленную задачу загрузки
+
+        - parameter task: Задача загрузки
+    */
+    class func resumeDownloadTask(downloadTask: NSURLSessionDownloadTask) {
+        if let selectedDownload = getFileInformationByTaskId(downloadTask.taskIdentifier) {
             if selectedDownload.isDownloading == false {
-                // selectedDownload.task = Singleton.instance.session.downloadTaskWithResumeData(selectedDownload.taskResumeData)
-                // selectedDownload.taskResumeData = nil
+                /*
+                selectedDownload.task = Singleton.instance.session.downloadTaskWithResumeData(selectedDownload.taskResumeData)
+                selectedDownload.taskResumeData = nil
+                */
                 selectedDownload.isDownloading = true
                 selectedDownload.task.resume()
             }
         }
     }
     
-    /// Устанавливает директорию назначения
-    ///
-    /// :param: currentDownload Текущая загрузка
-    /// :param: urlDestination Директория назначения
-    class func setDestinationDownload(currentDownload: FileInformation, urlDestination: NSURL?) -> NSError? {
+    /**
+        Устанавливает директорию назначения и возвращает возможную ошибку, иначе nil
+
+        - parameter currentDownload: Текущая загрузка
+        - parameter destinationUrl: URL назначения
+    
+        - returns Возможная ошибка, иначе nil
+    */
+    class func setDestinationDownload(currentDownload: FileInformation, destinationUrl: NSURL?) -> NSError? {
         let fileManager = NSFileManager.defaultManager()
         
-        if urlDestination == nil {
-            let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0] as? NSURL
-            currentDownload.pathDestination = urls!.URLByAppendingPathComponent("\(currentDownload.fileName)")
+        if destinationUrl == nil {
+            let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0] as NSURL
+            currentDownload.pathDestination = urls.URLByAppendingPathComponent("\(currentDownload.fileName)")
         } else {
-            var error: NSError?
-            var path = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0] as? NSURL
-            path = path?.URLByAppendingPathComponent(urlDestination!.path!)
+            let documentDirectoryUrl = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0] as NSURL
+            let path = documentDirectoryUrl.URLByAppendingPathComponent(destinationUrl!.path!)
             
-            if fileManager.createDirectoryAtURL(path!, withIntermediateDirectories: true, attributes: nil, error: &error) {
-                currentDownload.pathDestination = path?.URLByAppendingPathComponent(currentDownload.fileName)
-            } else {
+            do {
+                try fileManager.createDirectoryAtURL(path, withIntermediateDirectories: true, attributes: nil)
+                currentDownload.pathDestination = path.URLByAppendingPathComponent(currentDownload.fileName)
+            } catch let error as NSError {
                 return error
             }
         }
@@ -195,14 +238,14 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
         return nil
     }
     
-    /// MARK: Методы NSURLSessionDelegate
+    // MARK: - Методы NSURLSessionDelegate
     
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
         if let selectedDownloadTask = DownloadManager.getFileInformationByTaskId(downloadTask.taskIdentifier) {
             selectedDownloadTask.task.cancel()
             saveDataTaskDownload(selectedDownloadTask, location: location)
             selectedDownloadTask.responseBlock(error: nil, fileInformation: selectedDownloadTask)
-            let index = find(DownloadManager.instance.downloads, selectedDownloadTask)
+            let index = DownloadManager.instance.downloads.indexOf(selectedDownloadTask)
             DownloadManager.instance.downloads.removeAtIndex(index!)
         }
     }
@@ -213,7 +256,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
                 // if selectedDownloadTask.taskResumeData == nil {
                 selectedDownloadTask.task.cancel()
                 selectedDownloadTask.responseBlock(error: error, fileInformation: selectedDownloadTask)
-                let index = find(DownloadManager.instance.downloads, selectedDownloadTask)
+                let index = DownloadManager.instance.downloads.indexOf(selectedDownloadTask)
                 DownloadManager.instance.downloads.removeAtIndex(index!)
                 // }
             }
@@ -221,10 +264,10 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
     }
     
     func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
-        session.getTasksWithCompletionHandler { dataTask, uploadTask, downloadTask -> Void in }
+        session.getTasksWithCompletionHandler { _ in }
     }
     
-    /// MARK: Методы NSURLSessionDownloadDelegate
+    // MARK: - Методы NSURLSessionDownloadDelegate
     
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
@@ -238,34 +281,47 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
                 
                 if selectedDownloadTask.progressPercentage != progressPercentage {
                     selectedDownloadTask.progressPercentage = progressPercentage
-                    selectedDownloadTask.progressBlock?(
-                        progressPercentage: progressPercentage,
-                        fileInformation: selectedDownloadTask
-                    )
+                    selectedDownloadTask.progressBlock?(progressPercentage: progressPercentage,
+                        fileInformation: selectedDownloadTask)
                 }
             }
     }
     
-    /// MARK: - Внутренние методы
+    // MARK: - Внутренние методы
     
     private func initSessionDownload() {
-        let sessionConfiguration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(identifierDownload)
+        let sessionConfiguration: NSURLSessionConfiguration
+
+        if #available(iOS 8.0, *) {
+            print("backgroundSessionConfigurationWithIdentifier")
+            sessionConfiguration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(identifierDownload)
+        } else {
+            print("defaultSessionConfiguration")
+            sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        }
+        
         sessionConfiguration.allowsCellularAccess = true
         sessionConfiguration.HTTPMaximumConnectionsPerHost = 10
         session = NSURLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
     }
-    
+
     private func saveDataTaskDownload(currentDownload: FileInformation, location: NSURL) -> NSError? {
         let fileManager = NSFileManager.defaultManager()
         let url = currentDownload.pathDestination
-        var error: NSError?
         
         if fileManager.fileExistsAtPath(url!.path!) == true {
-            if !fileManager.replaceItemAtURL(url!, withItemAtURL: location, backupItemName: nil, options: .UsingNewMetadataOnly, resultingItemURL: nil, error: &error) {
-                println(error)
+            do {
+                try fileManager.replaceItemAtURL(url!, withItemAtURL: location, backupItemName: nil,
+                    options: .UsingNewMetadataOnly, resultingItemURL: nil)
+            } catch let error as NSError {
+                print(error)
             }
-        } else if !fileManager.moveItemAtURL(location, toURL: url!, error: &error) {
-            return error
+        } else {
+            do {
+                try fileManager.moveItemAtURL(location, toURL: url!)
+            } catch let error as NSError {
+                return error
+            }
         }
         
         return nil

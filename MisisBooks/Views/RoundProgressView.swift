@@ -9,6 +9,9 @@
 import UIKit
 import CoreGraphics
 
+/**
+    Класс для представления круглого вида процесса загрузки
+*/
 class RoundProgressView: UIView {
     
     /// Флаг, показывающий, приостановлена ли загрузка
@@ -60,7 +63,7 @@ class RoundProgressView: UIView {
             endAngle: (CGFloat(270 * M_PI / 180) - startAngle) * percent / 100 + startAngle, clockwise: true)
         mainColor.setStroke()
         progressPath.lineWidth = 0.8
-        progressPath.lineCapStyle = kCGLineCapRound
+        progressPath.lineCapStyle = .Round
         progressPath.stroke()
         
         if percent == 100 {

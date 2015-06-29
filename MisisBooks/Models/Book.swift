@@ -8,7 +8,9 @@
 
 import Foundation
 
-/// Класс для представления книги
+/**
+    Класс для представления книги
+*/
 class Book {
     
     /// Автор (авторы) книги
@@ -38,17 +40,19 @@ class Book {
     /// URL маленького изображения книги
     let smallPreviewUrl: String
     
-    /// Инициализирует класс заданными параметрами
-    ///
-    /// :param: authors Автор (авторы) книги
-    /// :param: bigPhotoUrl URL большого изображения книги
-    /// :param: categoryId Идентификатор категории книги
-    /// :param: downloadUrl URL файла книги
-    /// :param: fileSize Размер файла книги
-    /// :param: id Идентификатор книги
-    /// :param: isMarkedAsFavorite Флаг наличия книги в избранном
-    /// :param: name Название книги
-    /// :param: smallPhotoUrl URL маленького изображения книги
+    /**
+        Инициализирует класс заданными параметрами
+
+        - parameter authors: Автор (авторы) книги
+        - parameter bigPhotoUrl: URL большого изображения книги
+        - parameter categoryId: Идентификатор категории книги
+        - parameter downloadUrl: URL файла книги
+        - parameter fileSize: Размер файла книги
+        - parameter id: Идентификатор книги
+        - parameter isMarkedAsFavorite: Флаг наличия книги в избранном
+        - parameter name: Название книги
+        - parameter smallPhotoUrl: URL маленького изображения книги
+    */
     init(authors: String, bigPreviewUrl: String, categoryId: Int, downloadUrl: String, fileSize: String, id: Int,
         isMarkedAsFavorite: Bool!, name: String, smallPreviewUrl: String) {
             self.authors = authors
@@ -62,9 +66,11 @@ class Book {
             self.smallPreviewUrl = smallPreviewUrl
     }
     
-    /// Возвращает задание загрузки или nil
-    ///
-    /// :returns: Задание загрузки или nil
+    /**
+        Возвращает задание загрузки или nil
+
+        - returns: Задание загрузки или nil
+    */
     func getDownloadTask() -> NSURLSessionDownloadTask! {
         for currentDownload in DownloadManager.getCurrentDownloads() {
             if currentDownload.fileName == "\(id).pdf" {
@@ -75,16 +81,20 @@ class Book {
         return nil
     }
     
-    /// Определяет, добавлена ли книга в загрузки
-    ///
-    /// :returns: Флаг наличия книги в загрузках
+    /**
+        Определяет, добавлена ли книга в загрузки
+
+        - returns: Флаг наличия книги в загрузках
+    */
     func isAddedToDownloads() -> Bool {
         return Database.instance.isBook(self, addedToList: "downloads")
     }
     
-    /// Определяет, добавлена ли книга в избранное
-    ///
-    /// :returns: Флаг наличия книги в избранном
+    /**
+        Определяет, добавлена ли книга в избранное
+
+        - returns: Флаг наличия книги в избранном
+    */
     func isAddedToFavorites() -> Bool {
         if isMarkedAsFavorite != nil {
             return isMarkedAsFavorite!
@@ -93,9 +103,11 @@ class Book {
         return Database.instance.isBook(self, addedToList: "favorites")
     }
     
-    /// Определяет, загружается ли книга в данный момент. При отсутствии в текущих загрузках возвращает nil
-    ///
-    /// :returns: Флаг состояния загрузки книги в данный момент или nil
+    /**
+        Определяет, загружается ли книга в данный момент. При отсутствии в текущих загрузках возвращает nil
+
+        - returns: Флаг состояния загрузки книги в данный момент или nil
+    */
     func isDownloading() -> Bool! {
         for currentDownload in DownloadManager.getCurrentDownloads() {
             if currentDownload.fileName == "\(id).pdf" {
@@ -106,9 +118,11 @@ class Book {
         return nil
     }
     
-    /// Определяет, существует ли книга в текущих загрузках
-    ///
-    /// :returns: Флаг наличия книги в текущих загрузках
+    /**
+        Определяет, существует ли книга в текущих загрузках
+
+        - returns: Флаг наличия книги в текущих загрузках
+    */
     func isExistsInCurrentDownloads() -> Bool {
         for downloadableBook in ControllerManager.instance.downloadsTableViewController.downloadableBooks {
             if downloadableBook.id == id {
@@ -119,12 +133,14 @@ class Book {
         return false
     }
     
-    /// Возвращает локальный URL книги
-    ///
-    /// :returns: Локальный URL книги
+    /**
+        Возвращает локальный URL книги
+
+        - returns: Локальный URL книги
+    */
     func localUrl() -> NSURL {
-        let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as! String
+        let documentDirectoryPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
         
-        return NSURL(fileURLWithPath: documentsPath.stringByAppendingPathComponent("\(id).pdf"))!
+        return NSURL(fileURLWithPath: documentDirectoryPath.stringByAppendingPathComponent("\(id).pdf"))
     }
 }

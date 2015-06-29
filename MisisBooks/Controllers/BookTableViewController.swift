@@ -8,6 +8,9 @@
 
 import UIKit
 
+/**
+    Класс для представления контроллера книг
+*/
 class BookTableViewController: UITableViewController, UIActionSheetDelegate, UIDocumentInteractionControllerDelegate {
     
     /// Книги
@@ -46,7 +49,7 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         
         tableView.backgroundColor = UIColor(red: 241 / 255.0, green: 239 / 255.0, blue: 237 / 255.0, alpha: 1)
         tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1)
-        tableView.tableFooterView = UIView(frame: CGRectZero)
+        tableView.tableFooterView = UIView()
         tableView.registerClass(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseId)
         
         sectionTitleLabel1 = UILabel(frame: CGRectMake(15, 6, tableView.frame.size.width - 30, 20))
@@ -64,7 +67,7 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         sectionTitleLabel2.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
     }
     
-    /// MARK: - Методы UITableViewDataSource
+    // MARK: - Методы UITableViewDataSource
     
     override func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         if numberOfSectionsInTableView(tableView) == 2 {
@@ -99,7 +102,7 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         return sectionHeaderView
     }
     
-    /// MARK: - Методы UITableViewDelegate
+    // MARK: - Методы UITableViewDelegate
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if tableView.editing {
@@ -143,10 +146,10 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         actionSheet.showInView(view)
     }
     
-    /// MARK: - Методы UIActionSheetDelegate
+    // MARK: - Методы UIActionSheetDelegate
     
     func actionSheet(actionSheet: UIActionSheet, clickedButtonAtIndex buttonIndex: Int) {
-        println("actionSheet.tag = \(actionSheet.tag), buttonIndex = \(buttonIndex)")
+        print("actionSheet.tag = \(actionSheet.tag), buttonIndex = \(buttonIndex)")
         
         switch actionSheet.tag {
         case 1: // Документ загружен
@@ -156,21 +159,17 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
                 documentationInteractionController.delegate = self
                 documentationInteractionController.name = selectedBook.name
                 documentationInteractionController.presentPreviewAnimated(true)
-                break
             case 2: // "Добавить/удалить из избранного"
                 if selectedBook.isAddedToFavorites() {
                     MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
                 } else {
                     MisisBooksApi.instance.addBookToFavorites(selectedBook)
                 }
-                break
             case 3: // "Удалить файл"
                 ControllerManager.instance.downloadsTableViewController.deleteBooks([selectedBook])
-                break
             default:
                 break
             }
-            break
         case 2: // Документ загружается
             switch buttonIndex {
             case 1: // "Приостановить/возобновить загрузку"
@@ -181,43 +180,36 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
                         ControllerManager.instance.downloadsTableViewController.resumeDownloadBook(selectedBook)
                     }
                 }
-                break
             case 2: // "Отменить загрузку"
                 ControllerManager.instance.downloadsTableViewController.cancelDownloadBook(selectedBook)
-                break
             case 3: // "Добавить/удалить из избранного"
                 if selectedBook.isAddedToFavorites() {
                     MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
                 } else {
                     MisisBooksApi.instance.addBookToFavorites(selectedBook)
                 }
-                break
             default:
                 break
             }
-            break
         case 3: // Документ не загружен
             switch buttonIndex {
             case 1: // "Загрузить"
                 ControllerManager.instance.downloadsTableViewController.downloadBook(selectedBook)
-                break
             case 2: // "Добавить/удалить из избранного"
                 if selectedBook.isAddedToFavorites() {
                     MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
                 } else {
                     MisisBooksApi.instance.addBookToFavorites(selectedBook)
                 }
-                break
             default:
                 break
             }
-            break
         default:
             break
         }
     }
     
-    /// MARK: - Методы UIDocumentInteractionControllerDelegate
+    // MARK: - Методы UIDocumentInteractionControllerDelegate
     
     func documentInteractionControllerViewControllerForPreview(controller: UIDocumentInteractionController) -> UIViewController {
         return navigationController!

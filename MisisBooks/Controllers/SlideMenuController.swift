@@ -31,13 +31,10 @@ class SlideMenuOption {
 class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     
     enum SlideAction {
-        
-        case Close
-        case Open
+        case Close, Open
     }
     
     struct PanInfo {
-        
         var action: SlideAction
         var shouldBounce: Bool
         var velocity: CGFloat
@@ -94,7 +91,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     func initView() {
         mainContainerView = UIView(frame: view.bounds)
         mainContainerView.backgroundColor = .clearColor()
-        mainContainerView.autoresizingMask = .FlexibleHeight | .FlexibleWidth
+        mainContainerView.autoresizingMask = [.FlexibleHeight, .FlexibleWidth]
         view.insertSubview(mainContainerView, atIndex: 0)
         
         var opacityframe = view.bounds
@@ -103,7 +100,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         opacityframe.size.height = opacityframe.size.height - opacityOffset
         opacityView = UIView(frame: opacityframe)
         opacityView.backgroundColor = .blackColor()
-        opacityView.autoresizingMask = .FlexibleHeight | .FlexibleWidth
+        opacityView.autoresizingMask = [.FlexibleHeight, .FlexibleWidth]
         opacityView.layer.opacity = 0
         view.insertSubview(opacityView, atIndex: 1)
         
@@ -294,7 +291,6 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     struct rightPanState {
-        
         static var frameAtStartOfPan = CGRectZero
         static var startPointOfPan = CGPointZero
         static var wasHiddenAtStartOfPan = false
@@ -702,7 +698,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         enableContentInteraction()
     }
     
-    /// MARK: – Методы UIGestureRecognizerDelegate
+    // MARK: – Методы UIGestureRecognizerDelegate
     
     func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
         let point = touch.locationInView(view)
@@ -720,7 +716,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         return true
     }
     
-    private func slideLeftForGestureRecognizer(gesture: UIGestureRecognizer, point:CGPoint) -> Bool {
+    private func slideLeftForGestureRecognizer(gesture: UIGestureRecognizer, point: CGPoint) -> Bool {
         return isLeftOpen() || options.panFromBezel && isLeftPointContainedWithinBezelRect(point)
     }
     
@@ -729,7 +725,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         var tempRect = CGRectZero
         let bezelWidth = options.leftBezelWidth
         
-        CGRectDivide(view.bounds, &leftBezelRect, &tempRect, bezelWidth, CGRectEdge.MinXEdge)
+        CGRectDivide(view.bounds, &leftBezelRect, &tempRect, bezelWidth, .MinXEdge)
         
         return CGRectContainsPoint(leftBezelRect, point)
     }
@@ -747,7 +743,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         var tempRect = CGRectZero
         let bezelWidth = CGRectGetWidth(view.bounds) - options.rightBezelWidth
         
-        CGRectDivide(view.bounds, &tempRect, &rightBezelRect, bezelWidth, CGRectEdge.MinXEdge)
+        CGRectDivide(view.bounds, &tempRect, &rightBezelRect, bezelWidth, .MinXEdge)
         
         return CGRectContainsPoint(rightBezelRect, point)
     }

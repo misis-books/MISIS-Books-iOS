@@ -8,6 +8,9 @@
 
 import UIKit
 
+/**
+    Класс для представления контроллера меню
+*/
 class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
     
     /// Индикатор активности
@@ -57,7 +60,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         
         tableView.scrollEnabled = false
         tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1)
-        tableView.tableFooterView = UIView(frame: CGRectZero)
+        tableView.tableFooterView = UIView()
         tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
         configureTableHeaderView()
@@ -69,9 +72,11 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             rootViewController: ControllerManager.instance.favoritesTableViewController)
     }
     
-    /// Подсвечивает картинку и текст ячейки, а прошлую делает обычной
-    ///
-    /// :param: indexPath Индекс ячейки
+    /**
+        Подсвечивает картинку и текст ячейки, а прошлую делает обычной
+
+        - parameter indexPath: Индекс ячейки
+    */
     func highlightRowAtIndexPath(indexPath: NSIndexPath) {
         let normalColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
         let previousCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: selectedMenuItem, inSection: 0))
@@ -86,7 +91,9 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         selectedMenuItem = indexPath.item
     }
     
-    /// Обрабатывает событие, когда нажата кнопка авторизации
+    /**
+        Обрабатывает событие, когда нажата кнопка авторизации
+    */
     func logInButtonPressed() {
         UIView.transitionWithView(tableHeaderView, duration: 0.3, options: .TransitionCrossDissolve, animations: {
             self.logInButton.hidden = true
@@ -99,14 +106,18 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         presentViewController(viewControllerToPresent, animated: true, completion: nil)
     }
     
-    /// Обрабатывает событие, когда нажата кнопка выхода
+    /**
+        Обрабатывает событие, когда нажата кнопка выхода
+    */
     func logOutButtonPressed() {
         UIAlertView(title: "", message: "Вы действительно хотите выйти? Все загруженные документы будут удалены. " +
             "Приложение вернется к первоначальному состоянию", delegate: self, cancelButtonTitle: nil, otherButtonTitles: "Выйти",
             "Отмена").show()
     }
     
-    /// Обновляет "шапку таблицы"
+    /**
+        Обновляет "шапку" таблицы
+    */
     func updateTableHeaderView() {
         let avatarPath = NSHomeDirectory().stringByAppendingFormat("/Documents/avatar.jpg")
         
@@ -116,7 +127,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             if let fullName = NSUserDefaults.standardUserDefaults().stringForKey("fullName") {
                 showFullNameLabel(fullName)
                 
-                println("Полное имя и аватар взяты из кэша")
+                print("Полное имя и аватар взяты из кэша")
             }
             
             showLogOutButton()
@@ -140,7 +151,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                             dispatch_async(dispatch_get_main_queue()) {
                                 if let imageUrl = NSURL(string: photo), imageData = NSData(contentsOfURL: imageUrl),
                                     image = UIImage(data: imageData) {
-                                        UIImageJPEGRepresentation(image, 100).writeToFile(avatarPath, atomically: true)
+                                        UIImageJPEGRepresentation(image, 100)!.writeToFile(avatarPath, atomically: true)
                                         
                                         self.showAvatar(image)
                                 }
@@ -155,16 +166,22 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             showLogInButton()
         }
     }
-    
+
+    /**
+        Обрабатывает событие, когда авторизация через ВКонтакте не удалась
+    */
     func vkLogInFailed() {
-        println("Авторизация через ВКонтакте не удалась")
+        print("Авторизация через ВКонтакте не удалась")
         
         logInButton.hidden = false
         activityIndicatorView.stopAnimating()
     }
-    
-    func vkLogInSucceeded(#vkAccessToken: String, vkUserId: String) {
-        println("Маркер доступа VK: \(vkAccessToken)\nИдентификатор пользователя VK: \(vkUserId)")
+
+    /**
+        Обрабатывает событие, когда был успешно получен маркер доступа и идентификато пользователя ВКонтакте
+    */
+    func vkLogInSucceeded(vkAccessToken vkAccessToken: String, vkUserId: String) {
+        print("Маркер доступа VK: \(vkAccessToken)\nИдентификатор пользователя VK: \(vkUserId)")
         
         let standardUserDefaults = NSUserDefaults.standardUserDefaults()
         standardUserDefaults.setObject(vkAccessToken, forKey: "vkAccessToken")
@@ -184,9 +201,11 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         }
     }
     
-    /// MARK: - Внутренние методы
+    // MARK: - Внутренние методы
     
-    /// Конфигурирует "шапку" таблицы
+    /**
+        Конфигурирует "шапку" таблицы
+    */
     private func configureTableHeaderView() {
         tableHeaderView = UIView(frame: CGRectMake(0, 0, tableView.frame.size.width, 100))
         
@@ -208,9 +227,11 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         tableView.tableHeaderView = tableHeaderView
     }
     
-    /// Показывает аватар
-    ///
-    /// :param: avatar Аватар
+    /**
+        Показывает аватар
+
+        - parameter avatar: Аватар
+    */
     private func showAvatar(avatar: UIImage) {
         avatarView = UIImageView(image: avatar)
         avatarView.layer.borderColor = UIColor.whiteColor().CGColor
@@ -225,11 +246,13 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             }, completion: nil)
     }
     
-    /// Показывает поле с полным именем
-    ///
-    /// :param: fullName Полное имя
+    /**
+        Показывает поле с полным именем
+
+        - parameter fullName: Полное имя
+    */
     private func showFullNameLabel(fullName: String) {
-        fullNameLabel = UILabel(frame: CGRectZero)
+        fullNameLabel = UILabel()
         fullNameLabel.font = UIFont(name: "HelveticaNeue", size: 14)
         fullNameLabel.text = fullName
         fullNameLabel.textColor = UIColor(red: 79 / 255.0, green: 97 / 255.0, blue: 115 / 255.0, alpha: 1)
@@ -244,7 +267,9 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             }, completion: nil)
     }
     
-    /// Показывает кнопку авторизации
+    /**
+        Показывает кнопку авторизации
+    */
     private func showLogInButton() {
         logInButton = CustomButton(title: "Авторизоваться", color: .whiteColor())
         logInButton.addTarget(self, action: Selector("logInButtonPressed"), forControlEvents: .TouchUpInside)
@@ -252,7 +277,9 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         tableHeaderView.addSubview(logInButton)
     }
     
-    /// Показывает кнопку выхода
+    /**
+        Показывает кнопку выхода
+    */
     private func showLogOutButton() {
         logOutButton = CustomButton(title: "Выйти", color: .whiteColor())
         logOutButton.addTarget(self, action: Selector("logOutButtonPressed"), forControlEvents: .TouchUpInside)
@@ -261,22 +288,21 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         tableHeaderView.addSubview(logOutButton)
     }
     
-    /// MARK: - Методы UITableViewDataSource
+    // MARK: - Методы UITableViewDataSource
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let titles = ["Поиск", "Загрузки", "Избранное"]
         let images = ["Search", "Downloads", "Favorites"]
         let image = UIImage(named: images[indexPath.row])
-        let color = indexPath.item != selectedMenuItem ?
-            UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1) :
+        let color = indexPath.item != selectedMenuItem ? UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1) :
             UIColor(red: 0 / 255.0, green: 138 / 255.0, blue: 190 / 255.0, alpha: 1)
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as! UITableViewCell
-        cell.imageView?.image = image!.imageWithRenderingMode(.AlwaysTemplate)
-        cell.imageView?.tintColor = color
-        cell.textLabel?.font = UIFont(name: "HelveticaNeue-Light", size: 16)
-        cell.textLabel?.text = titles[indexPath.row]
-        cell.textLabel?.textColor = color
+        let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as UITableViewCell
+        cell.imageView!.image = image!.imageWithRenderingMode(.AlwaysTemplate)
+        cell.imageView!.tintColor = color
+        cell.textLabel!.font = UIFont(name: "HelveticaNeue-Light", size: 16)
+        cell.textLabel!.text = titles[indexPath.row]
+        cell.textLabel!.textColor = color
         
         return cell
     }
@@ -285,7 +311,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         return 3
     }
     
-    /// MARK: - Методы UITableViewDelegate
+    // MARK: - Методы UITableViewDelegate
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         highlightRowAtIndexPath(indexPath)
@@ -295,15 +321,12 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         case 0:
             ControllerManager.instance.slideMenuController.changeMainViewController(searchTableViewNavigationController,
                 close: true)
-            break
         case 1:
             ControllerManager.instance.slideMenuController.changeMainViewController(downloadsTableViewNavigationController,
                 close: true)
-            break
         case 2:
             ControllerManager.instance.slideMenuController.changeMainViewController(favoritesTableViewNavigationController,
                 close: true)
-            break
         default:
             break
         }
@@ -313,7 +336,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         return 44
     }
     
-    /// MARK: - Методы UIAlertViewDelegate
+    // MARK: - Методы UIAlertViewDelegate
     
     func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
         if buttonIndex == 0 { // "Выйти"
@@ -333,7 +356,12 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             standardUserDefaults.synchronize()
             
             let avatarPath = NSHomeDirectory().stringByAppendingFormat("/Documents/avatar.jpg")
-            NSFileManager.defaultManager().removeItemAtPath(avatarPath, error: nil)
+
+            do {
+                try NSFileManager.defaultManager().removeItemAtPath(avatarPath)
+            } catch {
+                print("Не удалось удалить аватар")
+            }
             
             for currentDownload in DownloadManager.getCurrentDownloads() {
                 currentDownload.task.cancel()

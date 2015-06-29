@@ -8,7 +8,10 @@
 
 import UIKit
 
-class SearchTableViewController: BookTableViewController, UISearchBarDelegate, UIScrollViewDelegate, PreloaderViewDelegate {
+/**
+    Класс для представления контроллера поиска
+*/
+class SearchTableViewController: BookTableViewController, UISearchBarDelegate, PreloaderViewDelegate {
     
     /// Действие
     var action: MisisBooksApiAction!
@@ -46,7 +49,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let filterBarButtonItem = UIBarButtonItem(image: UIImage(named: "Filter"), style: .Plain,target: self,
+        let filterBarButtonItem = UIBarButtonItem(image: UIImage(named: "Filter"), style: .Plain, target: self,
             action: Selector("filterButtonPressed"))
         navigationItem.setRightBarButtonItem(filterBarButtonItem, animated: false)
         
@@ -80,11 +83,13 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
             activityIndicator.center = CGPointMake(view.bounds.size.width / 2, 18)
     }
     
-    /// Изменяет категорию
-    ///
-    /// :param: selectedCategoryId Идентификатор выбранной категории
+    /**
+        Изменяет категорию
+
+        - parameter selectedCategoryId: Идентификатор выбранной категории
+    */
     func changeCategory(selectedCategoryId: Int) {
-        println("Изменена категория: \(selectedCategoryId)")
+        print("Изменена категория: \(selectedCategoryId)")
         
         books.removeAll(keepCapacity: false)
         sectionTitleLabel1.text = ""
@@ -103,10 +108,12 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         }
     }
     
-    /// Проверяет, изменился ли текст в поисковой строке
+    /**
+        Проверяет, изменился ли текст в поисковой строке. Запускает запросы к серверу
+    */
     func checkInput() {
         if lastInput != searchBar.text {
-            lastInput = searchBar.text
+            lastInput = searchBar.text!
             books.removeAll(keepCapacity: false)
             sectionTitleLabel1.text = ""
             removePreloaderView()
@@ -127,7 +134,9 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         }
     }
     
-    /// Обрабатывает событие, когда нажата кнопка фильтра
+    /**
+        Обрабатывает событие, когда нажата кнопка фильтра
+    */
     func filterButtonPressed() {
         let filterTableViewNavigationController = UINavigationController(
             rootViewController: FilterTableViewController(selectedCategoryId: categoryId))
@@ -135,9 +144,11 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         presentViewController(filterTableViewNavigationController, animated: true, completion: nil)
     }
     
-    /// Показывает вид-подгрузчик
-    ///
-    /// :param: placeholderView Вид-подгрузчик
+    /**
+        Показывает вид-подгрузчик
+
+        - parameter placeholderView: Вид-подгрузчик
+    */
     func showPlaceholderView(placeholderView: PlaceholderView) {
         loadingMore = false
         searchBar?.resignFirstResponder()
@@ -152,10 +163,12 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         tableView.bounces = false
     }
     
-    /// Обновляет таблицу
-    ///
-    /// :param: receivedBooks Полученные книги
-    /// :param: totalResults Общее количество результатов
+    /**
+        Обновляет таблицу
+
+        - parameter receivedBooks: Полученные книги
+        - parameter totalResults: Общее количество результатов
+    */
     func updateTable(receivedBooks: [Book], totalResults: Int) {
         loadingMore = false
         activityIndicator.stopAnimating()
@@ -193,19 +206,24 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         
     }
     
-    /// MARK: - Внутренние методы
+    // MARK: - Внутренние методы
     
-    /// Удаляет вид-подгрузчик
+    /**
+        Удаляет вид-подгрузчик
+    */
     private func removePreloaderView() {
         preloaderView = nil
-        tableView.tableFooterView = UIView(frame: CGRectZero)
+        tableView.tableFooterView = UIView()
     }
     
-    /// Возвращает текст для подгрузчика результатов
-    ///
-    /// :param: nextResults Количество следующих результатов
-    /// :param: remainingResults Количество оставшихся результатов
-    /// :returns: Текст для поля вида-подгрузчика
+    /**
+        Возвращает текст для поля вида-подгрузчика
+
+        - parameter nextResults: Количество следующих результатов
+        - parameter remainingResults: Количество оставшихся результатов
+
+        - returns: Текст для поля вида-подгрузчика
+    */
     private func textForPreloaderView(nextResults: Int, remainingResults: Int) -> String {
         let formats = ["Потяните вверх, чтобы увидеть\nследующий %d результат из %d",
             "Потяните вверх, чтобы увидеть\nследующие %d результата из %d",
@@ -216,10 +234,13 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         return String(format: formats[ending], nextResults, remainingResults)
     }
     
-    /// Возвращает текст для заголовка секции
-    ///
-    /// :param: totalResults Общее количество результатов
-    /// :returns: Текст для заголовка секции
+    /**
+        Возвращает текст для заголовка секции
+
+        - parameter totalResults: Общее количество результатов
+
+        - returns: Текст для заголовка секции
+    */
     private func textForSectionHeader(totalResults: Int) -> String {
         let formats = ["НАЙДЕН %d ДОКУМЕНТ", "НАЙДЕНО %d ДОКУМЕНТА", "НАЙДЕНО %d ДОКУМЕНТОВ"]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
@@ -228,9 +249,11 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         return totalResults == 0 ? "ПОИСК НЕ ДАЛ РЕЗУЛЬТАТОВ" : String(format: formats[ending], totalResults)
     }
     
-    /// Обновляет вид-подгрузчик
-    ///
-    /// :param: totalResults Общее количество результатов
+    /**
+        Обновляет вид-подгрузчик
+
+        - parameter totalResults: Общее количество результатов
+    */
     private func updatePreloaderView(totalResults: Int) {
         let remainingResults = totalResults - offset - 20
         let nextResults = remainingResults >= 20 ? 20 : remainingResults
@@ -249,7 +272,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         }
     }
     
-    /// MARK: - Методы UITableViewDataSource
+    // MARK: - Методы UITableViewDataSource
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
@@ -263,7 +286,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         return books.count
     }
     
-    /// MARK: - Методы UITableViewDelegate
+    // MARK: - Методы UITableViewDelegate
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         super.tableView(tableView, didSelectRowAtIndexPath: indexPath)
@@ -275,7 +298,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         return CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
     }
     
-    /// MARK: - Методы UIScrollViewDelegate
+    // MARK: - Методы UIScrollViewDelegate
     
     override func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         preloaderView?.preloaderViewScrollViewDidEndDragging(scrollView)
@@ -289,7 +312,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         searchBar.resignFirstResponder()
     }
     
-    /// MARK: - Методы UISearchBarDelegate
+    // MARK: - Методы UISearchBarDelegate
     
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
@@ -316,7 +339,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         searchBar.resignFirstResponder()
     }
     
-    /// MARK: - Методы PreloaderViewDelegate
+    // MARK: - Методы PreloaderViewDelegate
     
     func preloaderViewDataSourceIsLoading() -> Bool! {
         return loadingMore
@@ -328,7 +351,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, U
         
         let time = dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC)))
         dispatch_after(time, dispatch_get_main_queue()) {
-            self.action = MisisBooksApiAction.Search
+            self.action = .Search
             MisisBooksApi.instance.search(query: self.lastInput, count: self.count, offset: self.offset,
                 categoryId: self.categoryId)
         }

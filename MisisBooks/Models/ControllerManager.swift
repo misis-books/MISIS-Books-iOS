@@ -8,7 +8,9 @@
 
 import UIKit
 
-/// Класс для управления контроллерами
+/**
+    Класс для управления контроллерами
+*/
 class ControllerManager {
     
     /// Контроллер загрузок
@@ -28,11 +30,10 @@ class ControllerManager {
     
     /// Возвращает экземпляр класса
     ///
-    /// :returns: Экземпляр класса
+    /// - returns: Экземпляр класса
     class var instance: ControllerManager {
         
         struct Singleton {
-            
             static let instance = ControllerManager()
         }
         
@@ -43,7 +44,6 @@ class ControllerManager {
         let downloadsTableViewNavigationController = UINavigationController(rootViewController: downloadsTableViewController)
         
         menuTableViewController.downloadsTableViewNavigationController = downloadsTableViewNavigationController
-        
         slideMenuController = SlideMenuController(mainViewController: downloadsTableViewNavigationController,
             leftMenuViewController: menuTableViewController)
     }

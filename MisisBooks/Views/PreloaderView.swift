@@ -9,19 +9,17 @@
 import UIKit
 
 enum PreloaderViewState {
-    
-    case Normal
-    case Pulling
-    case Loading
+    case Normal, Pulling, Loading
 }
 
 protocol PreloaderViewDelegate {
-    
     func preloaderViewDataSourceIsLoading() -> Bool!
     func preloaderViewDidTriggerRefresh()
 }
 
-/// Класс для представления подгрузчика
+/**
+    Класс для представления вида-подгрузчика
+*/
 class PreloaderView: UIView {
     
     /// Делегат
@@ -152,7 +150,6 @@ class PreloaderView: UIView {
             arrowImage.hidden = false
             arrowImage.transform = CATransform3DIdentity
             CATransaction.commit()
-            break
         case .Pulling:
             savedText = label.text
             label.text = "Отпустите для продолжения"
@@ -163,7 +160,6 @@ class PreloaderView: UIView {
             CATransaction.setAnimationDuration(0.2)
             arrowImage.transform = CATransform3DMakeRotation(CGFloat(M_PI), 0, 0, 1)
             CATransaction.commit()
-            break
         case .Loading:
             label.text = "Загрузка результатов..."
             loadingIndicator.hidden = false
@@ -173,7 +169,6 @@ class PreloaderView: UIView {
             CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
             arrowImage.hidden = true
             CATransaction.commit()
-            break
         }
         
         loadState = state

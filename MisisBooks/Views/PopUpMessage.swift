@@ -1,73 +1,88 @@
 //
-//  AlertBanner.swift
+//  PopUpMessage.swift
 //  MisisBooks
 //
-//  Created by Maxim Loskov on 15.03.15.
+//  Created by Maxim Loskov on 29.06.15.
 //  Copyright (c) 2015 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
 
-let kHideAlertBannerKey = "hideAlertBannerKey"
-let kShowAlertBannerKey = "showAlertBannerKey"
-let kMoveAlertBannerKey = "moveAlertBannerKey"
+let kHidePopUpMessageKey = "hidePopUpMessageKey"
+let kShowPopUpMessageKey = "showPopUpMessageKey"
+let kMovePopUpMessageKey = "movePopUpMessageKey"
 
 let kForceHideAnimationDuration: CFTimeInterval = 0.1
 let kRotationDurationIPad: CFTimeInterval = 0.4
 let kRotationDurationIPhone: CFTimeInterval = 0.3
 
-
-enum AlertBannerPosition {
-    
-    case Bottom
-    case Top
-    case UnderNavigationBar
+/**
+    Перечисление для положений всплывающего сообщения
+*/
+enum PopUpMessagePosition {
+    case Bottom, Top, UnderNavigationBar
 }
 
-enum AlertBannerState {
-    
-    case Hidden
-    case Hiding
-    case MovingBackward
-    case MovingForward
-    case Showing
-    case Visible
+/**
+    Перечисление для состояний всплывающего сообщения
+*/
+enum PopUpMessageState {
+    case Hidden, Hiding, MovingBackward, MovingForward, Showing, Visible
 }
 
-protocol AlertBannerDelegate {
-    
-    func alertBannerDidHide(alertBanner: AlertBanner, inView view: UIView)
-    func alertBannerDidShow(alertBanner: AlertBanner, inView view: UIView)
-    func alertBannerWillHide(alertBanner: AlertBanner, inView view: UIView)
-    func alertBannerWillShow(alertBanner: AlertBanner, inView view: UIView)
-    func hideAlertBanner(alertBanner: AlertBanner, forced: Bool)
-    func showAlertBanner(alertBanner: AlertBanner!, hideAfter delay: NSTimeInterval)
+/**
+    Протокол для всплывающего сообщения
+*/
+protocol PopUpMessageDelegate {
+    func popUpMessageDidHide(popUpMessage: PopUpMessage, inView view: UIView)
+    func popUpMessageDidShow(popUpMessage: PopUpMessage, inView view: UIView)
+    func popUpMessageWillHide(popUpMessage: PopUpMessage, inView view: UIView)
+    func popUpMessageWillShow(popUpMessage: PopUpMessage, inView view: UIView)
+    func hidePopUpMessage(popUpMessage: PopUpMessage, forced: Bool)
+    func showPopUpMessage(popUpMessage: PopUpMessage!, hideAfter delay: NSTimeInterval)
 }
 
-class AlertBanner: UIView {
-    
+/**
+    Класс для представления всплывающего сообщения
+*/
+class PopUpMessage: UIView {
+
+    // Флаг разрешения на то, чтобы скрыть всплывающее сообщение при нажатии на него
     var allowTapToDismiss = false
+
+    // Прозрачность всплывающего сообщения
     let bannerOpacity: CGFloat = 1
-    var delegate: AlertBannerDelegate!
+
+    // Делагат
+    var delegate: PopUpMessageDelegate!
+
     let fadeInDuration: NSTimeInterval = 0.3
     let fadeOutDuration: NSTimeInterval = 0.2
     let hideAnimationDuration: NSTimeInterval = 0.2
     var isScheduledToHide = false
     var parentFrameUponCreation: CGRect!
-    var position: AlertBannerPosition = .UnderNavigationBar
+    var position: PopUpMessagePosition = .UnderNavigationBar
     let secondsToShow: NSTimeInterval = 3.5
     var shouldForceHide = false
     let showAnimationDuration: NSTimeInterval = 0.25
-    var state: AlertBannerState!
+
+    /// Состояние
+    var state: PopUpMessageState!
+
+    /// Поле подзаголовка
     var subtitleLabel: UILabel!
-    var tapHandler: ((alertBanner: AlertBanner) -> Void)?
+
+    /// Обработчик нажатия
+    var tapHandler: ((popUpMessage: PopUpMessage) -> Void)?
+
+    /// Поле заголовка
     var titleLabel: UILabel!
     
-    init(view: UIView?, position: AlertBannerPosition?, title: String?, subtitle: String?,
-        tapHandler: ((alertBanner: AlertBanner) -> Void)?) {
+    init(view: UIView?, position: PopUpMessagePosition?, title: String?, subtitle: String?,
+        tapHandler: ((popUpMessage: PopUpMessage) -> Void)?) {
             super.init(frame: CGRectZero)
             
-            delegate = AlertBannerManager.instance
+            delegate = PopUpMessageManager.instance
             
             titleLabel = UILabel()
             titleLabel.backgroundColor = .clearColor()
@@ -111,11 +126,11 @@ class AlertBanner: UIView {
         self.init(view: nil, position: nil, title: title, subtitle: subtitle, tapHandler: nil)
     }
     
-    convenience init(view: UIView, position: AlertBannerPosition, title: String) {
+    convenience init(view: UIView, position: PopUpMessagePosition, title: String) {
         self.init(view: view, position: position, title: title, subtitle: nil, tapHandler: nil)
     }
     
-    convenience init(view: UIView, position: AlertBannerPosition, title: String, subtitle: String) {
+    convenience init(view: UIView, position: PopUpMessagePosition, title: String, subtitle: String) {
         self.init(view: nil, position: nil, title: title, subtitle: nil, tapHandler: nil)
     }
     
@@ -123,65 +138,65 @@ class AlertBanner: UIView {
         super.init(coder: aDecoder)
     }
     
-    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         if state != .Visible {
             return
         }
         
         if tapHandler != nil {
-            tapHandler?(alertBanner: self)
+            tapHandler?(popUpMessage: self)
         }
         
         if allowTapToDismiss {
-            delegate.hideAlertBanner(self, forced: false)
+            delegate.hidePopUpMessage(self, forced: false)
         }
     }
     
     override func animationDidStop(anim: CAAnimation, finished flag: Bool) {
-        if anim.valueForKey("animation") as! String == kShowAlertBannerKey && flag {
-            delegate.alertBannerDidShow(self, inView: superview!)
+        if anim.valueForKey("animation") as! String == kShowPopUpMessageKey && flag {
+            delegate.popUpMessageDidShow(self, inView: superview!)
             state = .Visible
-        } else if anim.valueForKey("animation") as! String == kHideAlertBannerKey && flag {
+        } else if anim.valueForKey("animation") as! String == kHidePopUpMessageKey && flag {
             UIView.animateWithDuration(shouldForceHide ? kForceHideAnimationDuration : fadeOutDuration, delay: 0,
                 options: .CurveLinear, animations: {
                     self.alpha = 0
                 }, completion: { _ in
                     self.state = .Hidden
-                    self.delegate.alertBannerDidHide(self, inView: self.superview!)
+                    self.delegate.popUpMessageDidHide(self, inView: self.superview!)
                     NSNotificationCenter.defaultCenter().removeObserver(self)
                     self.removeFromSuperview()
             })
-        } else if anim.valueForKey("animation") as? String == kMoveAlertBannerKey && flag {
+        } else if anim.valueForKey("animation") as? String == kMovePopUpMessageKey && flag {
             state = .Visible
         }
     }
     
-    class func alertBannersInView(view: UIView) -> [AlertBanner] {
-        return AlertBannerManager.instance.alertBannersInView(view)
+    class func popUpMessagesInView(view: UIView) -> [PopUpMessage] {
+        return PopUpMessageManager.instance.popUpMessagesInView(view)
     }
     
-    class func forceHideAllAlertBannersInView(view: UIView) {
-        AlertBannerManager.instance.forceHideAllAlertBannersInView(view)
+    class func forceHideAllPopUpMessagesInView(view: UIView) {
+        PopUpMessageManager.instance.forceHideAllPopUpMessagesInView(view)
     }
     
-    class func hideAllAlertBanners() {
-        AlertBannerManager.instance.hideAllAlertBanners()
+    class func hideAllPopUpMessages() {
+        PopUpMessageManager.instance.hideAllPopUpMessages()
     }
     
-    class func hideAlertBannersInView(view: UIView) {
-        AlertBannerManager.instance.hideAlertBannersInView(view)
+    class func hidePopUpMessagesInView(view: UIView) {
+        PopUpMessageManager.instance.hidePopUpMessagesInView(view)
     }
     
-    func hideAlertBanner() {
-        delegate.alertBannerWillHide(self, inView: superview!)
+    func hidePopUpMessage() {
+        delegate.popUpMessageWillHide(self, inView: superview!)
         
         state = .Hiding
         
         if position == .UnderNavigationBar {
-            let currentPoint = layer.mask.position
+            let currentPoint = layer.mask!.position
             let newPoint = CGPointZero
             
-            layer.mask.position = newPoint
+            layer.mask!.position = newPoint
             
             let moveMaskDown = CABasicAnimation(keyPath: "position")
             moveMaskDown.fromValue = NSValue(CGPoint: currentPoint)
@@ -189,7 +204,7 @@ class AlertBanner: UIView {
             moveMaskDown.duration = shouldForceHide ? kForceHideAnimationDuration : hideAnimationDuration
             moveMaskDown.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn)
             
-            layer.mask.addAnimation(moveMaskDown, forKey: "position")
+            layer.mask!.addAnimation(moveMaskDown, forKey: "position")
         }
         
         let oldPoint = layer.position
@@ -198,10 +213,8 @@ class AlertBanner: UIView {
         switch position {
         case .Top, .UnderNavigationBar:
             yCoord -= frame.size.height
-            break
         case .Bottom:
             yCoord += frame.size.height
-            break
         }
         
         let newPoint = CGPointMake(oldPoint.x, yCoord)
@@ -214,9 +227,9 @@ class AlertBanner: UIView {
         moveLayer.duration = shouldForceHide ? kForceHideAnimationDuration : hideAnimationDuration
         moveLayer.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn)
         moveLayer.delegate = self
-        moveLayer.setValue(kHideAlertBannerKey, forKey: "animation")
+        moveLayer.setValue(kHidePopUpMessageKey, forKey: "animation")
         
-        layer.addAnimation(moveLayer, forKey: kHideAlertBannerKey)
+        layer.addAnimation(moveLayer, forKey: kHidePopUpMessageKey)
     }
     
     func nextAvailableViewController(view: AnyObject) -> AnyObject? {
@@ -231,7 +244,7 @@ class AlertBanner: UIView {
         }
     }
     
-    func pushAlertBanner(distance: CGFloat, forward: Bool, delay: Double) {
+    func pushPopUpMessage(distance: CGFloat, forward: Bool, delay: Double) {
         state = forward ? .MovingForward : .MovingBackward
         
         var distanceToPush = distance
@@ -256,33 +269,33 @@ class AlertBanner: UIView {
                 CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut) :
                 CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn)
             moveLayer.delegate = self
-            moveLayer.setValue(kMoveAlertBannerKey, forKey: "animation")
+            moveLayer.setValue(kMovePopUpMessageKey, forKey: "animation")
             
-            self.layer.addAnimation(moveLayer, forKey: kMoveAlertBannerKey)
+            self.layer.addAnimation(moveLayer, forKey: kMovePopUpMessageKey)
         }
     }
     
     func show() {
-        delegate.showAlertBanner(self, hideAfter: secondsToShow)
+        delegate.showPopUpMessage(self, hideAfter: secondsToShow)
     }
     
-    func showAlertBanner() {
+    func showPopUpMessage() {
         if !CGRectEqualToRect(parentFrameUponCreation, superview!.bounds) {
             setInitialLayout()
             updateSizeAndSubviewsAnimated(false)
         }
         
-        delegate.alertBannerWillShow(self, inView: superview!)
+        delegate.popUpMessageWillShow(self, inView: superview!)
         
         state = .Showing
         
         let time = dispatch_time(DISPATCH_TIME_NOW, Int64(fadeInDuration * Double(NSEC_PER_SEC)))
         dispatch_after(time, dispatch_get_main_queue()) {
             if self.position == .UnderNavigationBar {
-                let currentPoint = self.layer.mask.position
+                let currentPoint = self.layer.mask!.position
                 let newPoint = CGPointMake(0, -self.frame.size.height)
                 
-                self.layer.mask.position = newPoint
+                self.layer.mask!.position = newPoint
                 
                 let moveMaskUp = CABasicAnimation(keyPath: "position")
                 moveMaskUp.fromValue = NSValue(CGPoint: currentPoint)
@@ -290,7 +303,7 @@ class AlertBanner: UIView {
                 moveMaskUp.duration = self.showAnimationDuration
                 moveMaskUp.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
                 
-                self.layer.mask.addAnimation(moveMaskUp, forKey: "position")
+                self.layer.mask!.addAnimation(moveMaskUp, forKey: "position")
             }
             
             let oldPoint = self.layer.position
@@ -299,10 +312,8 @@ class AlertBanner: UIView {
             switch self.position {
             case .Top, .UnderNavigationBar:
                 yCoord += self.frame.size.height
-                break
             case .Bottom:
                 yCoord -= self.frame.size.height
-                break
             }
             
             let newPoint = CGPointMake(oldPoint.x, yCoord)
@@ -315,9 +326,9 @@ class AlertBanner: UIView {
             moveLayer.duration = self.showAnimationDuration
             moveLayer.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
             moveLayer.delegate = self
-            moveLayer.setValue(kShowAlertBannerKey, forKey: "animation")
+            moveLayer.setValue(kShowPopUpMessageKey, forKey: "animation")
             
-            self.layer.addAnimation(moveLayer, forKey: kShowAlertBannerKey)
+            self.layer.addAnimation(moveLayer, forKey: kShowPopUpMessageKey)
         }
         
         UIView.animateWithDuration(fadeInDuration, delay: 0, options: .CurveLinear, animations: {
@@ -336,17 +347,14 @@ class AlertBanner: UIView {
             
             switch state! {
             case .Showing:
-                currentAnimation = layer.animationForKey(kShowAlertBannerKey)
-                currentAnimationKey = kShowAlertBannerKey
-                break
+                currentAnimation = layer.animationForKey(kShowPopUpMessageKey)
+                currentAnimationKey = kShowPopUpMessageKey
             case .Hiding:
-                currentAnimation = layer.animationForKey(kHideAlertBannerKey)
-                currentAnimationKey = kHideAlertBannerKey
-                break
+                currentAnimation = layer.animationForKey(kHidePopUpMessageKey)
+                currentAnimationKey = kHidePopUpMessageKey
             case .MovingBackward, .MovingForward:
-                currentAnimation = layer.animationForKey(kMoveAlertBannerKey)
-                currentAnimationKey = kMoveAlertBannerKey
-                break
+                currentAnimation = layer.animationForKey(kMovePopUpMessageKey)
+                currentAnimationKey = kMovePopUpMessageKey
             default:
                 return
             }
@@ -356,7 +364,7 @@ class AlertBanner: UIView {
                 timingFunction = currentAnimation.timingFunction
                 positionAnimationDuration = remainingAnimationDuration
                 
-                layer.removeAnimationForKey(currentAnimationKey)
+                layer.removeAnimationForKey(currentAnimationKey!)
             }
             
         }
@@ -367,10 +375,8 @@ class AlertBanner: UIView {
             switch position {
             case .Top, .UnderNavigationBar:
                 yPosNew -= layer.bounds.size.height
-                break
             case .Bottom:
                 yPosNew += layer.bounds.size.height
-                break
             }
         }
         
@@ -434,7 +440,7 @@ class AlertBanner: UIView {
         }
     }
     
-    /// MARK: - Внутренние методы
+    // MARK: - Внутренние методы
     
     private func heightForText(text: String, font: UIFont, maxLabelSize: CGSize) -> CGFloat {
         return (text == "" ? CGRectZero : text.boundingRectWithSize(maxLabelSize, options: .UsesLineFragmentOrigin,
@@ -442,7 +448,7 @@ class AlertBanner: UIView {
     }
     
     private func hide() {
-        delegate.hideAlertBanner(self, forced: false)
+        delegate.hidePopUpMessage(self, forced: false)
     }
     
     private func isAnimating() -> Bool {
@@ -484,13 +490,10 @@ class AlertBanner: UIView {
                     initialYCoord += vc.topLayoutGuide.length
                 }
             }
-            break
         case .Bottom:
             initialYCoord = superview.bounds.size.height
-            break
         case .UnderNavigationBar:
             initialYCoord = -heightForSelf + UIApplication.sharedApplication().statusBarFrame.size.height + 44
-            break
         }
         
         frame.origin.y = initialYCoord
@@ -501,7 +504,7 @@ class AlertBanner: UIView {
             let maskRect = CGRectMake(0, frame.size.height, frame.size.width, superview.bounds.size.height)
             maskLayer.path = CGPathCreateWithRect(maskRect, nil)
             layer.mask = maskLayer
-            layer.mask.position = CGPointZero
+            layer.mask!.position = CGPointZero
         }
     }
 }
