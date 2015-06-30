@@ -51,7 +51,10 @@ class MisisBooksApi {
     
     /// Маркер доступа
     var accessToken = NSUserDefaults.standardUserDefaults().stringForKey("accessToken")
-    
+
+    /// Маркер доступа для ВКонтакте
+    var vkAccessToken: String!
+
     /// Задача для работы с аккаунтом
     private var accountDataTask: NSURLSessionDataTask?
     
@@ -355,10 +358,10 @@ class MisisBooksApi {
         - parameter completionHandler: Обработчик завершения
     */
     func signIn(completionHandler: () -> Void) {
-        if let vkAccessToken = NSUserDefaults.standardUserDefaults().stringForKey("vkAccessToken") {
+        if vkAccessToken != nil {
             let urlString = "\(baseUrlString)/auth.signin?vk_access_token=\(vkAccessToken)"
             
-            executeAction(.SignIn, urlString: urlString) { json, errorDescription in
+            executeAction(.SignIn, urlString: urlString) { json, _ in
                 if let json = json, response = json["response"] as? NSDictionary,
                     accessToken = response["access_token"] as? String {
                         print("Маркер доступа получен")
@@ -379,7 +382,7 @@ class MisisBooksApi {
                     ControllerManager.instance.menuTableViewController.logInButtonPressed()
                 })
             ControllerManager.instance.favoritesTableViewController.showPlaceholderView(PlaceholderView(
-                viewController: ControllerManager.instance.searchTableViewController,
+                viewController: ControllerManager.instance.favoritesTableViewController,
                 title: "Избранное недоступно", subtitle: "Чтобы работать с избранным,\nнеобходимо авторизоваться",
                 buttonText: "Авторизоваться") {
                     ControllerManager.instance.menuTableViewController.logInButtonPressed()

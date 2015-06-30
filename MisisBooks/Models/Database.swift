@@ -186,8 +186,8 @@ class Database {
         - returns: Полный путь к файлу базы данных из директории документов
     */
     private func databasePath() -> String {
-        let documentDirectoryPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
+        let documentDirectory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
         
-        return documentDirectoryPath.stringByAppendingPathComponent(databaseFileName)
+        return documentDirectory.stringByAppendingPathComponent(databaseFileName)
     }
 }

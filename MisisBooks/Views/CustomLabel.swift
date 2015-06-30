@@ -13,26 +13,10 @@ import UIKit
 */
 class CustomLabel: UILabel {
     
-    /// Внутренний отступ сверху
-    var topInset: CGFloat = 0
-    
-    /// Внутренний отступ слева
-    var leftInset: CGFloat = 0
-    
-    /// Внутренний отступ снизу
-    var bottomInset: CGFloat = 0
-    
-    /// Внутренний отступ справа
-    var rightInset: CGFloat = 0
-    
-    /**
-        Возвращает прямоугольник с заданными внутренними отступами
+    /// Верхний, левый, нижний и правый внутренние отступы
+    var edgeInsets = UIEdgeInsetsMake(0, 0, 0, 0)
 
-        - parameter rect: Прямоугольник
-    */
     override func drawRect(rect: CGRect) {
-        let insets = UIEdgeInsets(top: topInset, left: leftInset, bottom: bottomInset, right: rightInset)
-        
-        super.drawTextInRect(UIEdgeInsetsInsetRect(rect, insets))
+        super.drawTextInRect(UIEdgeInsetsInsetRect(rect, edgeInsets))
     }
 }

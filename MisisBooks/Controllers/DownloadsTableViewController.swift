@@ -212,7 +212,7 @@ class DownloadsTableViewController: BookTableViewController {
     */
     func downloadBook(book: Book) {
         if DownloadManager.getCurrentDownloads().count <= 10 {
-            if let accessToken = NSUserDefaults.standardUserDefaults().stringForKey("accessToken") {
+            if let accessToken = MisisBooksApi.instance.accessToken {
                 let shortUrlString = "\(book.downloadUrl)&access_token=\(accessToken)"
                 
                 print("Короткий URL: \(shortUrlString)")
@@ -221,39 +221,37 @@ class DownloadsTableViewController: BookTableViewController {
                 
                 if let sourceUrl = NSURL(string: shortUrlString) {
                     DownloadManager.download("\(book.id).pdf", destinationUrl: nil, sourceUrl: sourceUrl,
-                        progressBlock: { progressPercentage, fileInformation in
+                        progressBlock: { progressPercentage, _ in
                             dispatch_async(dispatch_get_main_queue()) {
                                 self.changeDownloadProgress(Float(progressPercentage) / 100, isWaiting: false, bookId: book.id)
                             }
-                        }, responseBlock: { error, fileInformation in
-                            if error == nil {
-                                print("Файл загружен: \(fileInformation.pathDestination.absoluteString)")
-                                
-                                dispatch_async(dispatch_get_main_queue()) {
+                        }) { error, fileInformation in
+                            dispatch_async(dispatch_get_main_queue()) {
+                                if error == nil {
+                                    print("Файл загружен: \(fileInformation.pathDestination.absoluteString)")
+
                                     self.deleteDownloadableBook(book)
                                     self.addBook(book)
-                                }
-                            } else {
-                                var errorDescription = [String]()
-                                
-                                switch error.code {
-                                case -1009: // NSURLErrorNotConnectedToInternet
-                                    errorDescription = ["Не удалось загрузить документ", "Отсутствует соедениение с Интернетом"]
-                                case -999: // NSURLErrorDomain
-                                    errorDescription = ["Не удалось загрузить документ", "Загрузка была отменена"]
-                                default:
-                                    errorDescription = ["Не удалось загрузить документ", "Соединение с сервером прервано"]
-                                }
-                                
-                                print(error.debugDescription)
-                                
-                                dispatch_async(dispatch_get_main_queue()) {
-                                    PopUpMessage(title: errorDescription[0], subtitle: errorDescription[1]).show()
+                                } else {
+                                    let errorDescription: String
+
+                                    switch error.code {
+                                    case -1009: // NSURLErrorNotConnectedToInternet
+                                        errorDescription = "Отсутствует соедениение с Интернетом"
+                                    case -999: // NSURLErrorDomain
+                                        errorDescription = "Загрузка была отменена"
+                                    default:
+                                        errorDescription = "Соединение с сервером прервано"
+                                    }
+
+                                    print(error.debugDescription)
+
+                                    PopUpMessage(title: "Не удалось загрузить документ", subtitle: errorDescription).show()
                                     self.changeDownloadProgress(0, isWaiting: false, bookId: book.id)
                                     self.deleteDownloadableBook(book)
                                 }
                             }
-                    })
+                    }
                 } else {
                     dispatch_async(dispatch_get_main_queue()) {
                         PopUpMessage(title: "Невозможно начать загрузку", subtitle: "Получен некорректный URL").show()

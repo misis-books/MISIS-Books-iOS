@@ -139,8 +139,8 @@ class Book {
         - returns: Локальный URL книги
     */
     func localUrl() -> NSURL {
-        let documentDirectoryPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
+        let documentDirectory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
         
-        return NSURL(fileURLWithPath: documentDirectoryPath.stringByAppendingPathComponent("\(id).pdf"))
+        return NSURL(fileURLWithPath: documentDirectory.stringByAppendingPathComponent("\(id).pdf"))
     }
 }

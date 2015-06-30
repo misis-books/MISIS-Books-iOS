@@ -43,7 +43,7 @@ class CustomTableViewCell: UITableViewCell {
     init(book: Book, query: String!) {
         super.init(style: .Default, reuseIdentifier: CustomTableViewCell.reuseId)
         
-        configure(book: book, query: query)
+        configureWithBook(book, query: query)
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -132,7 +132,7 @@ class CustomTableViewCell: UITableViewCell {
         Возвращает строку для названия книги с подсвеченными словами, входящими в запрос
 
         - parameter bookName: Название книги
-        - parameter highlightedWords: Слова, которые требуется подсветить (разделены пробелом)
+        - parameter highlightedWords: Слова, разделенные пробелом, которые требуется подсветить
         - returns: Строка для названия книги с подсвеченными словами
     */
     private func attributedStringForBookName(bookName: NSString, highlightedWords: NSString) -> NSMutableAttributedString {
@@ -170,10 +170,10 @@ class CustomTableViewCell: UITableViewCell {
     /**
         Конфигурирует ячейку таблицы
 
-        :params: book Книга
-        :params: query Запрос
+        - parameter book: Книга
+        - parameter query: Запрос
     */
-    private func configure(book book: Book, query: String!) {
+    private func configureWithBook(book: Book, query: String!) {
         self.book = book
         
         let categoryColors = [UIColor(red: 186 / 255.0, green: 186 / 255.0, blue: 186 / 255.0, alpha: 1),
@@ -209,10 +209,7 @@ class CustomTableViewCell: UITableViewCell {
         contentView.addSubview(authorsLabel)
         
         categoryLabel = CustomLabel()
-        categoryLabel.topInset = 3
-        categoryLabel.rightInset = 3
-        categoryLabel.bottomInset = 5
-        categoryLabel.leftInset = 5
+        categoryLabel.edgeInsets = UIEdgeInsetsMake(3, 5, 5, 3)
         categoryLabel.font = CustomTableViewCell.font(2)
         categoryLabel.text = CustomTableViewCell.categoryName(book.categoryId - 1)
         categoryLabel.textColor = .whiteColor()
@@ -223,7 +220,6 @@ class CustomTableViewCell: UITableViewCell {
         contentView.addSubview(categoryLabel)
         
         roundProgressView = RoundProgressView()
-        roundProgressView.tag = 4
         contentView.addSubview(roundProgressView)
         
         starImage = UIImageView(image: UIImage(named: "Favorites")!.imageWithRenderingMode(.AlwaysTemplate))

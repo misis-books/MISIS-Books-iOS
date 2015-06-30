@@ -17,13 +17,13 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
     var action: MisisBooksApiAction!
     
     /// Индикатор активности
-    private var activityIndicator: UIActivityIndicatorView!
+    var activityIndicator: UIActivityIndicatorView!
     
     /// Количество результатов
     private var count = 20
     
     /// Флаг состояния готовности контроллера
-    var isControllerReady = false
+    var isReady = false
     
     /// Флаг состояния подгрузки
     private var loadingMore = false
@@ -35,14 +35,14 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
     private var preloaderView: PreloaderView?
     
     /// Вид-заполнитель
-    private var placeholderView: PlaceholderView?
+    var placeholderView: PlaceholderView?
     
     /// Общее количество разультатов
     private var totalResults = 0
     
     override func viewDidAppear(animated: Bool) {
         updateSectionTitle()
-        isControllerReady = true
+        isReady = true
     }
     
     override func viewDidLoad() {
@@ -65,10 +65,8 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
             if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
                 placeholderView?.setNeedsLayout()
             }
-            
+
             activityIndicator.center = CGPointMake(view.bounds.size.width / 2, 18)
-            
-            print("rotate")
     }
     
     /**
@@ -85,7 +83,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         
         books.insert(book, atIndex: 0)
         
-        if isControllerReady {
+        if isReady {
             tableView?.insertRowsAtIndexPaths([NSIndexPath(forRow: 0, inSection: 0)], withRowAnimation: .Automatic)
         }
         
@@ -143,7 +141,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
                 if books[i].id == bookForDeletion.id {
                     books.removeAtIndex(i)
                     
-                    if isControllerReady {
+                    if isReady {
                         tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: i, inSection: 0)], withRowAnimation: .Fade)
                     }
                     
@@ -240,15 +238,15 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
     */
     func showPlaceholderView(placeholderView: PlaceholderView) {
         showUpdateButton()
-        setEditing(false, animated: true)
-        tableView.bounces = false
-        self.placeholderView?.removeFromSuperview()
-        self.placeholderView = placeholderView
-        tableView.addSubview(self.placeholderView!)
         loadingMore = false
         activityIndicator.stopAnimating()
+        self.placeholderView?.removeFromSuperview()
+        self.placeholderView = placeholderView
         books.removeAll(keepCapacity: false)
         tableView.reloadData()
+        tableView.addSubview(self.placeholderView!)
+        tableView.bounces = false
+        setEditing(false, animated: true)
     }
     
     /**
@@ -281,6 +279,8 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         sectionTitleLabel1.text = ""
         removePreloaderView()
         activityIndicator.startAnimating()
+        placeholderView?.removeFromSuperview()
+        placeholderView = nil
         
         UIView.transitionWithView(self.tableView, duration: 0.2, options: .TransitionCrossDissolve, animations: {
             self.tableView.reloadData()
@@ -383,7 +383,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
     }
     
     /**
-        Возвращает текст для вида-подгрузчика
+        Возвращает текст для вида-подгрузчика с количеством следующих и оставшихся результатов
 
         - parameter nextResults: Количество следующих результатов
         - parameter remainingResults: Количество оставшихся результатов

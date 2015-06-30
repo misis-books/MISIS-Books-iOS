@@ -76,14 +76,14 @@ class FilterTableViewController: UITableViewController {
 
         - returns: Картинка с кругом
     */
-    private func imageWithCircle(diameter: Double, color: UIColor) -> UIImage {
-        let paddingTop = 2.0
-        let imageSize = CGSize(width: diameter, height: diameter + paddingTop)
-        let circleSize = CGSize(width: diameter, height: diameter)
+    private func imageWithCircle(diameter: CGFloat, color: UIColor) -> UIImage {
+        let paddingTop: CGFloat = 2.0
+        let imageSize = CGSizeMake(diameter, diameter + paddingTop)
+        let circleSize = CGSizeMake(diameter, diameter)
         UIGraphicsBeginImageContextWithOptions(imageSize, false, 0)
         let context = UIGraphicsGetCurrentContext()
         CGContextSetFillColorWithColor(context, color.CGColor)
-        CGContextFillEllipseInRect(context, CGRect(origin: CGPointMake(0, CGFloat(paddingTop)), size: circleSize))
+        CGContextFillEllipseInRect(context, CGRect(origin: CGPointMake(0, paddingTop), size: circleSize))
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         

@@ -17,7 +17,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
     var action: MisisBooksApiAction!
     
     /// Индикатор активности
-    private var activityIndicator: UIActivityIndicatorView!
+    var activityIndicator: UIActivityIndicatorView!
     
     /// Идентификатор категории
     private var categoryId = 1
@@ -38,7 +38,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
     private var offset = 0
     
     /// Вид-заполнитель
-    private var placeholderView: PlaceholderView?
+    var placeholderView: PlaceholderView?
     
     /// Вид-подгрузчик
     private var preloaderView: PreloaderView?

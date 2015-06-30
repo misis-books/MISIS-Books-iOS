@@ -48,8 +48,8 @@ class RoundProgressView: UIView {
         
         let context = UIGraphicsGetCurrentContext()
         let padding: CGFloat = 2
-        let progressRect = CGRect(x: CGRectGetMinX(rect) + padding / 2, y: CGRectGetMinY(rect) + padding / 2,
-            width: rect.size.width - padding, height: rect.size.height - padding)
+        let progressRect = CGRectMake(CGRectGetMinX(rect) + padding / 2, CGRectGetMinY(rect) + padding / 2,
+            rect.size.width - padding, rect.size.height - padding)
         
         let progressBackgroundPath = UIBezierPath(ovalInRect: progressRect)
         UIColor(white: 0.8, alpha: 1).setStroke()
@@ -58,7 +58,7 @@ class RoundProgressView: UIView {
         
         let startAngle = CGFloat(-90 * M_PI / 180)
         let progressPath = UIBezierPath()
-        progressPath.addArcWithCenter(CGPoint(x: CGRectGetMidX(progressRect), y: CGRectGetMidY(progressRect)),
+        progressPath.addArcWithCenter(CGPointMake(CGRectGetMidX(progressRect), CGRectGetMidY(progressRect)),
             radius: CGRectGetWidth(progressRect) / 2, startAngle: startAngle,
             endAngle: (CGFloat(270 * M_PI / 180) - startAngle) * percent / 100 + startAngle, clockwise: true)
         mainColor.setStroke()
@@ -67,8 +67,8 @@ class RoundProgressView: UIView {
         progressPath.stroke()
         
         if percent == 100 {
-            let circlePath = UIBezierPath(ovalInRect: CGRect(x: CGRectGetMinX(rect) + rect.size.width / 4,
-                y: CGRectGetMinY(rect) + rect.size.height / 4, width: rect.size.width / 2, height: rect.size.height / 2))
+            let circlePath = UIBezierPath(ovalInRect: CGRectMake(CGRectGetMinX(rect) + rect.size.width / 4,
+                CGRectGetMinY(rect) + rect.size.height / 4, rect.size.width / 2, rect.size.height / 2))
             mainColor.setStroke()
             circlePath.lineWidth = 0.8
             circlePath.stroke()
@@ -80,20 +80,19 @@ class RoundProgressView: UIView {
             return
         }
         
-        let titleRect = CGRect(x: CGRectGetMinX(rect), y: CGRectGetMinY(rect), width: rect.size.width, height: rect.size.height)
+        let titleRect = CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), rect.size.width, rect.size.height)
         let title = "\(Int(percent))"
         let titleStyle = NSMutableParagraphStyle.defaultParagraphStyle().mutableCopy() as! NSMutableParagraphStyle
         titleStyle.alignment = .Center
         let titleFontAttributes = [NSFontAttributeName: UIFont(name: "HelveticaNeue", size: 11)!,
-            NSForegroundColorAttributeName: mainColor,
-            NSParagraphStyleAttributeName: titleStyle]
-        let titleHeight = title.boundingRectWithSize(CGSize(width: titleRect.width, height: titleRect.height),
+            NSForegroundColorAttributeName: mainColor, NSParagraphStyleAttributeName: titleStyle]
+        let titleHeight = title.boundingRectWithSize(CGSizeMake(titleRect.width, titleRect.height),
             options: .UsesLineFragmentOrigin, attributes: titleFontAttributes, context: nil).height
         CGContextSaveGState(context)
         CGContextClipToRect(context, titleRect)
-        title.drawInRect(CGRect(x: CGRectGetMinX(titleRect),
-            y: CGRectGetMinY(titleRect) + (CGRectGetHeight(titleRect) - titleHeight) / 2, width: CGRectGetWidth(titleRect),
-            height: titleHeight), withAttributes: titleFontAttributes)
+        title.drawInRect(CGRectMake(CGRectGetMinX(titleRect),
+            CGRectGetMinY(titleRect) + (CGRectGetHeight(titleRect) - titleHeight) / 2, CGRectGetWidth(titleRect),
+            titleHeight), withAttributes: titleFontAttributes)
         CGContextRestoreGState(context)
     }
     

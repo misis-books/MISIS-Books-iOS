@@ -37,7 +37,7 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         view.addSubview(activityIndicatorView)
         
         let parameters = ["client_id=4720039", "display=mobile", "redirect_uri=https://oauth.vk.com/blank.html",
-            "response_type=token", "revoke=1", "scope=65536"]
+            "response_type=token", "revoke=1", "scope=offline"]
         let urlString = "https://oauth.vk.com/authorize?" + "&".join(parameters)
 
         webView.loadRequest(NSURLRequest(URL: NSURL(string: urlString)!))
@@ -64,7 +64,6 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         errorLabel.sizeToFit()
         errorLabel.center = view.center
         view.addSubview(errorLabel)
-
     }
 
     func webViewDidStartLoad(webView: UIWebView) {
@@ -72,10 +71,11 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
     }
 
     func webViewDidFinishLoad(webView: UIWebView) {
-
         activityIndicatorView.stopAnimating()
+
         let urlString = webView.request!.mainDocumentURL!.absoluteString
         print("Открыта страница: \(urlString)")
+
         let urlParts = split(urlString.characters) { $0 == "#" }.map { String($0) }
 
         if urlParts.count == 2 {
