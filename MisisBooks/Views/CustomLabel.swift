@@ -12,7 +12,7 @@ import UIKit
     Класс для представления поля с внутренними отступами
 */
 class CustomLabel: UILabel {
-    
+
     /// Верхний, левый, нижний и правый внутренние отступы
     var edgeInsets = UIEdgeInsetsMake(0, 0, 0, 0)
 

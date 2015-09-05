@@ -12,28 +12,28 @@ import Foundation
     Класс для управления загрузками
 */
 class DownloadManager: NSObject, NSURLSessionDelegate {
-    
+
     /// Загрузки
     var downloads = [FileInformation]()
-    
+
     /// Идентификатор загрузки
     let identifierDownload = "com.maximloskov.misisbooks"
-    
+
     /// Сессия
     var session: NSURLSession!
-    
+
     class var instance: DownloadManager {
-            
+
         struct Singleton {
             static var instance: DownloadManager?
             static var token: dispatch_once_t = 0
         }
-        
+
         dispatch_once(&Singleton.token) {
             Singleton.instance = DownloadManager()
             Singleton.instance?.initSessionDownload()
         }
-        
+
         return Singleton.instance!
     }
 
@@ -53,42 +53,42 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
 
     override init() {
         super.init()
-        
+
         initSessionDownload()
     }*/
 
     class FileInformation: NSObject {
-        
+
         /// Флаг окончания загрузки
         var downloadComplete: Bool!
-        
+
         /// Название файла
         var fileName: String!
-        
+
         /// Флаг загрузки
         var isDownloading: Bool!
-        
+
         /// Путь к директории
         var pathDestination: NSURL!
-        
+
         /// Блок процесса
         var progressBlock: ((progressPercentage: Int, fileInformation: FileInformation) -> Void)!
-        
+
         /// Прогресс в процентах
         var progressPercentage = 0
-        
+
         /// Блок ответа
         var responseBlock: ((error: NSError!, fileInformation: FileInformation) -> Void)!
-        
+
         /// Задача
         var task: NSURLSessionDownloadTask!
-        
+
         /// Данные приостановленной задачи
         // let taskResumeData: NSData!
-        
+
         /// Источник
         var source: NSURL!
-        
+
         /**
             Инициализирует класс заданными параметрами
 
@@ -97,7 +97,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
         */
         init(fileName: String, source: NSURL) {
             super.init()
-            
+
             downloadComplete = false
             self.fileName = fileName
             isDownloading = false
@@ -105,7 +105,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             self.source = source
         }
     }
-    
+
     /**
         Отменяет задачу загрузки
 
@@ -116,7 +116,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             selectedDownload.task.cancel()
         }
     }
-    
+
     /**
         Инициализирует задачу загрузки
 
@@ -132,21 +132,21 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             let newDownload = FileInformation(fileName: fileName, source: sourceUrl)
             newDownload.progressBlock = progressBlock
             newDownload.responseBlock = responseBlock
-            
+
             if let errorDestination = setDestinationDownload(newDownload, destinationUrl: destinationUrl) {
                 responseBlock(error: errorDestination, fileInformation: newDownload)
-                
+
                 return newDownload.task
             }
-            
+
             newDownload.task = DownloadManager.instance.session.downloadTaskWithURL(newDownload.source)
             newDownload.task.resume()
             newDownload.isDownloading = true
             DownloadManager.instance.downloads.append(newDownload)
-            
+
             return newDownload.task
     }
-    
+
     /**
         Возвращает текущие загрузки
 
@@ -155,7 +155,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
     class func getCurrentDownloads() -> [FileInformation] {
         return DownloadManager.instance.downloads
     }
-    
+
     /**
         Возвращает загрузку по идентификатору или nil
 
@@ -169,10 +169,10 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
                 return currentDownload
             }
         }
-        
+
         return nil
     }
-    
+
     /**
         Приостанавливает задачу загрузки
 
@@ -190,7 +190,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             */
         }
     }
-    
+
     /**
         Возобновляет приостановленную задачу загрузки
 
@@ -208,25 +208,25 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             }
         }
     }
-    
+
     /**
         Устанавливает директорию назначения и возвращает возможную ошибку, иначе nil
 
         - parameter currentDownload: Текущая загрузка
         - parameter destinationUrl: URL назначения
-    
+
         - returns Возможная ошибка, иначе nil
     */
     class func setDestinationDownload(currentDownload: FileInformation, destinationUrl: NSURL?) -> NSError? {
         let fileManager = NSFileManager.defaultManager()
-        
+
         if destinationUrl == nil {
             let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0] as NSURL
             currentDownload.pathDestination = urls.URLByAppendingPathComponent("\(currentDownload.fileName)")
         } else {
             let documentDirectoryUrl = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0] as NSURL
             let path = documentDirectoryUrl.URLByAppendingPathComponent(destinationUrl!.path!)
-            
+
             do {
                 try fileManager.createDirectoryAtURL(path, withIntermediateDirectories: true, attributes: nil)
                 currentDownload.pathDestination = path.URLByAppendingPathComponent(currentDownload.fileName)
@@ -234,12 +234,12 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
                 return error
             }
         }
-        
+
         return nil
     }
-    
+
     // MARK: - Методы NSURLSessionDelegate
-    
+
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
         if let selectedDownloadTask = DownloadManager.getFileInformationByTaskId(downloadTask.taskIdentifier) {
             selectedDownloadTask.task.cancel()
@@ -249,7 +249,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             DownloadManager.instance.downloads.removeAtIndex(index!)
         }
     }
-    
+
     func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
         if error != nil {
             if let selectedDownloadTask = DownloadManager.getFileInformationByTaskId(task.taskIdentifier) {
@@ -262,23 +262,23 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             }
         }
     }
-    
+
     func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
         session.getTasksWithCompletionHandler { _ in }
     }
-    
+
     // MARK: - Методы NSURLSessionDownloadDelegate
-    
+
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
             if totalBytesExpectedToWrite == -1 {
                 return
             }
-            
+
             if let selectedDownloadTask = DownloadManager.getFileInformationByTaskId(downloadTask.taskIdentifier) {
                 let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
                 let progressPercentage = Int(progress * 100)
-                
+
                 if selectedDownloadTask.progressPercentage != progressPercentage {
                     selectedDownloadTask.progressPercentage = progressPercentage
                     selectedDownloadTask.progressBlock?(progressPercentage: progressPercentage,
@@ -286,9 +286,9 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
                 }
             }
     }
-    
+
     // MARK: - Внутренние методы
-    
+
     private func initSessionDownload() {
         let sessionConfiguration: NSURLSessionConfiguration
 
@@ -299,7 +299,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
             print("defaultSessionConfiguration")
             sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
         }
-        
+
         sessionConfiguration.allowsCellularAccess = true
         sessionConfiguration.HTTPMaximumConnectionsPerHost = 10
         session = NSURLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
@@ -308,7 +308,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
     private func saveDataTaskDownload(currentDownload: FileInformation, location: NSURL) -> NSError? {
         let fileManager = NSFileManager.defaultManager()
         let url = currentDownload.pathDestination
-        
+
         if fileManager.fileExistsAtPath(url!.path!) == true {
             do {
                 try fileManager.replaceItemAtURL(url!, withItemAtURL: location, backupItemName: nil,
@@ -323,7 +323,7 @@ class DownloadManager: NSObject, NSURLSessionDelegate {
                 return error
             }
         }
-        
+
         return nil
     }
 }

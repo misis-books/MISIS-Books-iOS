@@ -28,26 +28,13 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
     /// Выбранная книга
     var selectedBook: Book!
     
-    override init(style: UITableViewStyle) {
-        super.init(style: style)
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(named: "Menu"), style: .Plain,
+            target: ControllerManager.instance.slideMenuController, action: "openLeft")
         
-        let menuBarButtonItem = UIBarButtonItem(image: UIImage(named: "Menu"), style: .Plain,
-            target: ControllerManager.instance.slideMenuController, action: Selector("openLeft"))
-        navigationItem.setLeftBarButtonItem(menuBarButtonItem, animated: false)
-        
-        tableView.backgroundColor = UIColor(red: 241 / 255.0, green: 239 / 255.0, blue: 237 / 255.0, alpha: 1)
+        tableView.backgroundColor = UIColor(red: 242 / 255.0, green: 238 / 255.0, blue: 235 / 255.0, alpha: 1)
         tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1)
         tableView.tableFooterView = UIView()
         tableView.registerClass(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseId)
@@ -70,53 +57,37 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
     // MARK: - Методы UITableViewDataSource
     
     override func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        if numberOfSectionsInTableView(tableView) == 2 {
-            if section == 0 && downloadableBooks.count == 0 || section == 1 && books.count == 0 {
-                return CGFloat.min
-            }
-        }
-        
-        return 8
+        return numberOfSectionsInTableView(tableView) == 2 && (section == 0 && downloadableBooks.count == 0 || section == 1 &&
+            books.count == 0) ? CGFloat.min : 8
     }
     
     override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if numberOfSectionsInTableView(tableView) == 2 {
-            if section == 0 && downloadableBooks.count == 0 || section == 1 && books.count == 0 {
-                return CGFloat.min
-            }
-        }
-        
-        return 26
+        return numberOfSectionsInTableView(tableView) == 2 && (section == 0 && downloadableBooks.count == 0 || section == 1 &&
+            books.count == 0) ? CGFloat.min : 26
     }
     
     override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if numberOfSectionsInTableView(tableView) == 2 {
-            if section == 0 && downloadableBooks.count == 0 || section == 1 && books.count == 0 {
-                return nil
-            }
-        }
-        
-        let sectionHeaderView = UIView(frame: CGRectMake(0, 0, tableView.frame.size.width, 26))
-        sectionHeaderView.addSubview(section == 0 ? sectionTitleLabel1 : sectionTitleLabel2)
-        
-        return sectionHeaderView
+        return numberOfSectionsInTableView(tableView) == 2 && (section == 0 && downloadableBooks.count == 0 || section == 1 &&
+            books.count == 0) ? nil : {
+                let sectionHeaderView = UIView(frame: CGRectMake(0, 0, tableView.frame.size.width, 26))
+                sectionHeaderView.addSubview(section == 0 ? sectionTitleLabel1 : sectionTitleLabel2)
+
+                return sectionHeaderView
+                }()
     }
     
     // MARK: - Методы UITableViewDelegate
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if tableView.editing {
-            if numberOfSectionsInTableView(tableView) == 2 && indexPath.section == 1 {
+        if tableView.editing && (numberOfSectionsInTableView(tableView) == 2 && indexPath.section == 1 ||
+            numberOfSectionsInTableView(tableView) == 1 && indexPath.section == 0) {
                 return
-            } else if numberOfSectionsInTableView(tableView) == 1 && indexPath.section == 0 {
-                return
-            }
         }
         
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
-        selectedBook = indexPath.section == 0 && numberOfSectionsInTableView(tableView) == 2 ?
-            downloadableBooks[indexPath.row] : books[indexPath.row]
+        selectedBook = indexPath.section == 0 && numberOfSectionsInTableView(tableView) == 2 ? downloadableBooks[indexPath.row] :
+            books[indexPath.row]
         
         let titleForFavorites = selectedBook.isAddedToFavorites() ? "Удалить из избранного" : "Добавить в избранное"
         let actionSheet: UIActionSheet!
@@ -152,7 +123,7 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         print("actionSheet.tag = \(actionSheet.tag), buttonIndex = \(buttonIndex)")
         
         switch actionSheet.tag {
-        case 1: // Документ загружен
+        case 1: // Когда документ загружен
             switch buttonIndex {
             case 1: // "Просмотреть"
                 let documentationInteractionController = UIDocumentInteractionController(URL: selectedBook.localUrl())
@@ -160,47 +131,35 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
                 documentationInteractionController.name = selectedBook.name
                 documentationInteractionController.presentPreviewAnimated(true)
             case 2: // "Добавить/удалить из избранного"
-                if selectedBook.isAddedToFavorites() {
-                    MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
-                } else {
+                selectedBook.isAddedToFavorites() ? MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook]) :
                     MisisBooksApi.instance.addBookToFavorites(selectedBook)
-                }
             case 3: // "Удалить файл"
                 ControllerManager.instance.downloadsTableViewController.deleteBooks([selectedBook])
             default:
                 break
             }
-        case 2: // Документ загружается
+        case 2: // Когда документ загружается
             switch buttonIndex {
             case 1: // "Приостановить/возобновить загрузку"
                 if let isBookDownloading = selectedBook.isDownloading() {
-                    if isBookDownloading {
-                        ControllerManager.instance.downloadsTableViewController.pauseDownloadBook(selectedBook)
-                    } else {
+                    isBookDownloading ? ControllerManager.instance.downloadsTableViewController.pauseDownloadBook(selectedBook) :
                         ControllerManager.instance.downloadsTableViewController.resumeDownloadBook(selectedBook)
-                    }
                 }
             case 2: // "Отменить загрузку"
                 ControllerManager.instance.downloadsTableViewController.cancelDownloadBook(selectedBook)
             case 3: // "Добавить/удалить из избранного"
-                if selectedBook.isAddedToFavorites() {
-                    MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
-                } else {
+                selectedBook.isAddedToFavorites() ? MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook]) :
                     MisisBooksApi.instance.addBookToFavorites(selectedBook)
-                }
             default:
                 break
             }
-        case 3: // Документ не загружен
+        case 3: // Когда документ не загружен
             switch buttonIndex {
             case 1: // "Загрузить"
                 ControllerManager.instance.downloadsTableViewController.downloadBook(selectedBook)
             case 2: // "Добавить/удалить из избранного"
-                if selectedBook.isAddedToFavorites() {
-                    MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook])
-                } else {
+                selectedBook.isAddedToFavorites() ? MisisBooksApi.instance.deleteBooksFromFavorites([selectedBook]) :
                     MisisBooksApi.instance.addBookToFavorites(selectedBook)
-                }
             default:
                 break
             }

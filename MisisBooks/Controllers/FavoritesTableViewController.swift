@@ -223,12 +223,9 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
     */
     func showDeleteAndCancelButtons() {
         setEditing(true, animated: true)
-        
-        let cancelBarButtonItem = UIBarButtonItem(image: UIImage(named: "Cancel"), style: .Plain, target: self,
-            action: Selector("showUpdateAndEditButtons"))
-        let deleteBarButtonItem = UIBarButtonItem(image: UIImage(named: "Trash"), style: .Plain, target: self,
-            action: Selector("deleteButtonPressed"))
-        navigationItem.setRightBarButtonItems([cancelBarButtonItem, deleteBarButtonItem], animated: true)
+        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Cancel"), style: .Plain, target: self,
+            action: "showUpdateAndEditButtons"), UIBarButtonItem(image: UIImage(named: "Trash"), style: .Plain, target: self,
+                action: "deleteButtonPressed")], animated: true)
     }
     
     /**
@@ -254,21 +251,17 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
     */
     func showUpdateAndEditButtons() {
         setEditing(false, animated: true)
-        
-        let editBarButtonItem = UIBarButtonItem(image: UIImage(named: "Edit"), style: .Plain, target: self,
-            action: Selector("showDeleteAndCancelButtons"))
-        let updateBarButtonItem = UIBarButtonItem(image: UIImage(named: "Update"), style: .Plain, target: self,
-            action: Selector("updateButtonPressed"))
-        navigationItem.setRightBarButtonItems([editBarButtonItem, updateBarButtonItem], animated: true)
+        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Edit"), style: .Plain, target: self,
+            action: "showDeleteAndCancelButtons"), UIBarButtonItem(image: UIImage(named: "Update"), style: .Plain, target: self,
+                action: "updateButtonPressed")], animated: true)
     }
     
     /**
         Показывает кнопку для обновления таблицы
     */
     func showUpdateButton() {
-        let updateBarButtonItem = UIBarButtonItem(image: UIImage(named: "Update"), style: .Plain, target: self,
-            action: Selector("updateButtonPressed"))
-        navigationItem.setRightBarButtonItems([updateBarButtonItem], animated: true)
+        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Update"), style: .Plain, target: self,
+            action: "updateButtonPressed")], animated: true)
     }
     
     /**
@@ -362,10 +355,10 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         for controller in controllers {
             if let indexPaths = controller.tableView.indexPathsForVisibleRows {
                 for indexPath in indexPaths {
-                    if let cell = controller.tableView.cellForRowAtIndexPath(indexPath as NSIndexPath) as? CustomTableViewCell {
+                    if let cell = controller.tableView.cellForRowAtIndexPath(indexPath) as? CustomTableViewCell {
                         if cell.tag == bookId {
                             cell.starImage.tintColor = isMarkedAsFavorite ?
-                                UIColor(red: 255 / 255.0, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1) :
+                                UIColor(red: 1, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1) :
                                 UIColor(white: 0.8, alpha: 1)
                         }
                     }
@@ -391,13 +384,13 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         - returns: Текст для вида-подгрузчика
     */
     private func textForPreloaderView(nextResults: Int, remainingResults: Int) -> String {
-        let formats = ["Потяните вверх, чтобы увидеть\nследующий %d документ из %d",
+        let pluralForms = ["Потяните вверх, чтобы увидеть\nследующий %d документ из %d",
             "Потяните вверх, чтобы увидеть\nследующие %d документа из %d",
             "Потяните вверх, чтобы увидеть\nследующие %d документов из %d"]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
         let ending = nextResults % 100 > 4 && nextResults % 100 < 20 ? 2 : keys[nextResults % 10]
         
-        return String(format: formats[ending], nextResults, remainingResults)
+        return String(format: pluralForms[ending], nextResults, remainingResults)
     }
     
     /**
@@ -408,11 +401,11 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         - returns: Текст для заголовка секции
     */
     private func textForSectionHeader(totalResults: Int) -> String {
-        let formats = ["%d ИЗБРАННЫЙ ДОКУМЕНТ", "%d ИЗБРАННЫХ ДОКУМЕНТА", "%d ИЗБРАННЫХ ДОКУМЕНТОВ"]
+        let pluralForms = ["%d ИЗБРАННЫЙ ДОКУМЕНТ", "%d ИЗБРАННЫХ ДОКУМЕНТА", "%d ИЗБРАННЫХ ДОКУМЕНТОВ"]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
         let ending = totalResults % 100 > 4 && totalResults % 100 < 20 ? 2 : keys[totalResults % 10]
         
-        return totalResults == 0 ? "" : String(format: formats[ending], totalResults)
+        return totalResults == 0 ? "" : String(format: pluralForms[ending], totalResults)
     }
     
     /**
@@ -521,8 +514,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         loadingMore = true
         offset += count
         
-        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC)))
-        dispatch_after(time, dispatch_get_main_queue()) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
             self.action = .GetFavorites
             MisisBooksApi.instance.getFavorites(count: self.count, offset: self.offset)
         }

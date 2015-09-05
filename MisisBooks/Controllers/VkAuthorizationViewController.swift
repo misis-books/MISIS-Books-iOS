@@ -19,11 +19,14 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
     /// Веб-страница
     private var webView: UIWebView!
 
+    /// Поле с ошибкой соединения
+    private var errorLabel: UILabel?
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "Close"), style: .Plain, target: self,
-            action: Selector("closeButtonPressed"))
+            action: "closeButtonPressed")
         
         title = "Вход через ВКонтакте"
         
@@ -43,6 +46,12 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         webView.loadRequest(NSURLRequest(URL: NSURL(string: urlString)!))
     }
 
+    override func willAnimateRotationToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation,
+        duration: NSTimeInterval) {
+            errorLabel?.center = view.center
+            webView.frame = view.bounds
+    }
+
     /**
         Обрабатывает событие, когда нажата кнопка закрытия
     */
@@ -57,13 +66,16 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         activityIndicatorView.stopAnimating()
         webView.scrollView.scrollEnabled = false
 
-        let errorLabel = UILabel()
-        errorLabel.font = UIFont(name: "HelveticaNeue-Light", size: 14)
-        errorLabel.text = "Невозможно загрузить страницу"
-        errorLabel.textColor = .blackColor()
-        errorLabel.sizeToFit()
-        errorLabel.center = view.center
-        view.addSubview(errorLabel)
+        errorLabel = UILabel()
+        errorLabel!.font = UIFont(name: "HelveticaNeue-Light", size: 14)
+        errorLabel!.lineBreakMode = .ByWordWrapping
+        errorLabel!.numberOfLines = 0
+        errorLabel!.text = "Невозможно загрузить страницу\nПроверьте соединение с Интернетом"
+        errorLabel!.textAlignment = .Center
+        errorLabel!.textColor = .blackColor()
+        errorLabel!.sizeToFit()
+        errorLabel!.center = view.center
+        view.addSubview(errorLabel!)
     }
 
     func webViewDidStartLoad(webView: UIWebView) {
@@ -83,16 +95,17 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
             let parameters = split(urlParts[1].characters) { $0 == "&" }.map { String($0) }
 
             for parameter in parameters {
-                let keyAndValue = split(parameter.characters) { $0 == "=" }.map { String($0) }
+                let parts = split(parameter.characters) { $0 == "=" }.map { String($0) }
                 
-                if keyAndValue.count == 2 {
-                    parametersDictionary[keyAndValue[0]] = keyAndValue[1]
+                if parts.count == 2 {
+                    parametersDictionary[parts[0]] = parts[1]
                 }
             }
-            
-            if let vkAccessToken = parametersDictionary["access_token"], vkUserId = parametersDictionary["user_id"] {
-                ControllerManager.instance.menuTableViewController.vkLogInSucceeded(vkAccessToken: vkAccessToken,
-                    vkUserId: vkUserId)
+
+            if let vkAccessToken = parametersDictionary["access_token"],
+                vkUserId = parametersDictionary["user_id"] {
+                    ControllerManager.instance.menuTableViewController.vkLogInSucceeded(vkAccessToken: vkAccessToken,
+                        vkUserId: vkUserId)
             } else {
                 ControllerManager.instance.menuTableViewController.vkLogInFailed()
             }

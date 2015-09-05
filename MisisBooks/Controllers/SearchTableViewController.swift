@@ -48,10 +48,9 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let filterBarButtonItem = UIBarButtonItem(image: UIImage(named: "Filter"), style: .Plain, target: self,
-            action: Selector("filterButtonPressed"))
-        navigationItem.setRightBarButtonItem(filterBarButtonItem, animated: false)
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "Filter"), style: .Plain, target: self,
+            action: "filterButtonPressed")
         
         searchBar = UISearchBar()
         searchBar.autocapitalizationType = .None
@@ -71,7 +70,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         action = .GetPopular
         MisisBooksApi.instance.getPopular(count: count, categoryId: categoryId)
         
-        NSTimer.scheduledTimerWithTimeInterval(0.8, target: self, selector: Selector("checkInput"), userInfo: nil, repeats: true)
+        NSTimer.scheduledTimerWithTimeInterval(0.8, target: self, selector: "checkInput", userInfo: nil, repeats: true)
     }
     
     override func willAnimateRotationToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation,
@@ -84,7 +83,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
     }
     
     /**
-        Изменяет категорию
+        Изменяет категорию на выбранную
 
         - parameter selectedCategoryId: Идентификатор выбранной категории
     */
@@ -138,9 +137,12 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         Обрабатывает событие, когда нажата кнопка фильтра
     */
     func filterButtonPressed() {
-        let filterTableViewNavigationController = UINavigationController(
-            rootViewController: FilterTableViewController(selectedCategoryId: categoryId))
+        let filterTableViewController = FilterTableViewController()
+        filterTableViewController.selectedCategoryId = categoryId
+
+        let filterTableViewNavigationController = UINavigationController(rootViewController: filterTableViewController)
         filterTableViewNavigationController.modalTransitionStyle = .CoverVertical
+
         presentViewController(filterTableViewNavigationController, animated: true, completion: nil)
     }
     
@@ -225,13 +227,13 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         - returns: Текст для поля вида-подгрузчика
     */
     private func textForPreloaderView(nextResults: Int, remainingResults: Int) -> String {
-        let formats = ["Потяните вверх, чтобы увидеть\nследующий %d результат из %d",
+        let pluralForms = ["Потяните вверх, чтобы увидеть\nследующий %d результат из %d",
             "Потяните вверх, чтобы увидеть\nследующие %d результата из %d",
             "Потяните вверх, чтобы увидеть\nследующие %d результатов из %d"]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
         let ending = nextResults % 100 > 4 && nextResults % 100 < 20 ? 2 : keys[nextResults % 10]
         
-        return String(format: formats[ending], nextResults, remainingResults)
+        return String(format: pluralForms[ending], nextResults, remainingResults)
     }
     
     /**
@@ -242,11 +244,11 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         - returns: Текст для заголовка секции
     */
     private func textForSectionHeader(totalResults: Int) -> String {
-        let formats = ["НАЙДЕН %d ДОКУМЕНТ", "НАЙДЕНО %d ДОКУМЕНТА", "НАЙДЕНО %d ДОКУМЕНТОВ"]
+        let pluralForms = ["НАЙДЕН %d ДОКУМЕНТ", "НАЙДЕНО %d ДОКУМЕНТА", "НАЙДЕНО %d ДОКУМЕНТОВ"]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
         let ending = totalResults % 100 > 4 && totalResults % 100 < 20 ? 2 : keys[totalResults % 10]
         
-        return totalResults == 0 ? "ПОИСК НЕ ДАЛ РЕЗУЛЬТАТОВ" : String(format: formats[ending], totalResults)
+        return totalResults == 0 ? "ПОИСК НЕ ДАЛ РЕЗУЛЬТАТОВ" : String(format: pluralForms[ending], totalResults)
     }
     
     /**
@@ -320,10 +322,8 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
     
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
         filterButton = navigationItem.rightBarButtonItem
-        
-        let cancelBarButtonItem = UIBarButtonItem(image: UIImage(named: "Cancel"), style: .Plain, target: self,
-            action: Selector("searchCancelButtonClicked"))
-        navigationItem.setRightBarButtonItem(cancelBarButtonItem, animated: true)
+        navigationItem.setRightBarButtonItem(UIBarButtonItem(image: UIImage(named: "Cancel"), style: .Plain, target: self,
+            action: "searchCancelButtonClicked"), animated: true)
     }
     
     func searchBarTextDidEndEditing(searchBar: UISearchBar) {
@@ -349,8 +349,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         loadingMore = true
         offset += count
         
-        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC)))
-        dispatch_after(time, dispatch_get_main_queue()) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
             self.action = .Search
             MisisBooksApi.instance.search(query: self.lastInput, count: self.count, offset: self.offset,
                 categoryId: self.categoryId)

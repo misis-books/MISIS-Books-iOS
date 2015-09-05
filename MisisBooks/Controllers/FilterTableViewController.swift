@@ -21,7 +21,7 @@ class FilterTableViewController: UITableViewController {
         UIColor(red: 184 / 255.0, green: 145 / 255.0, blue: 78 / 255.0, alpha: 1),
         UIColor(red: 179 / 255.0, green: 200 / 255.0, blue: 51 / 255.0, alpha: 1),
         UIColor(red: 155 / 255.0, green: 89 / 255.0, blue: 182 / 255.0, alpha: 1),
-        UIColor(red: 255 / 255.0, green: 145 / 255.0, blue: 0 / 255.0, alpha: 1),
+        UIColor(red: 1, green: 145 / 255.0, blue: 0, alpha: 1),
         UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1)]
     
     /// Названия категорий
@@ -29,28 +29,13 @@ class FilterTableViewController: UITableViewController {
         "Книги «МИСиС»", "Авторефераты диссертаций", "Разное"]
     
     /// Идентификатор выбранной категории
-    private var selectedCategoryId: Int!
-    
-    init(selectedCategoryId: Int) {
-        super.init(style: .Plain)
-        
-        self.selectedCategoryId = selectedCategoryId
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
+    var selectedCategoryId: Int!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let closeBarButtonItem = UIBarButtonItem(image: UIImage(named: "Close"), style: .Plain, target: self,
-            action: Selector("closeButtonPressed"))
-        navigationItem.setRightBarButtonItem(closeBarButtonItem, animated: false)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "Close"), style: .Plain, target: self,
+            action: "closeButtonPressed")
         
         tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1)
         tableView.tableFooterView = UIView()

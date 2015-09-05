@@ -12,34 +12,34 @@ import Foundation
     Класс для представления книги
 */
 class Book {
-    
+
     /// Автор (авторы) книги
     let authors: String
-    
+
     /// URL большого изображения книги
     let bigPreviewUrl: String
-    
+
     /// Идентификатор категории книги
     let categoryId: Int
-    
+
     /// URL файла книги
     let downloadUrl: String
-    
+
     /// Размер файла книги
     let fileSize: String
-    
+
     /// Идентификатор книги
     let id: Int
-    
+
     /// Флаг наличия книги в избранном
     var isMarkedAsFavorite: Bool!
-    
+
     /// Название книги
     let name: String
-    
+
     /// URL маленького изображения книги
     let smallPreviewUrl: String
-    
+
     /**
         Инициализирует класс заданными параметрами
 
@@ -65,7 +65,7 @@ class Book {
             self.name = name
             self.smallPreviewUrl = smallPreviewUrl
     }
-    
+
     /**
         Возвращает задание загрузки или nil
 
@@ -77,10 +77,10 @@ class Book {
                 return currentDownload.task
             }
         }
-        
+
         return nil
     }
-    
+
     /**
         Определяет, добавлена ли книга в загрузки
 
@@ -89,7 +89,7 @@ class Book {
     func isAddedToDownloads() -> Bool {
         return Database.instance.isBook(self, addedToList: "downloads")
     }
-    
+
     /**
         Определяет, добавлена ли книга в избранное
 
@@ -99,10 +99,10 @@ class Book {
         if isMarkedAsFavorite != nil {
             return isMarkedAsFavorite!
         }
-        
+
         return Database.instance.isBook(self, addedToList: "favorites")
     }
-    
+
     /**
         Определяет, загружается ли книга в данный момент. При отсутствии в текущих загрузках возвращает nil
 
@@ -114,10 +114,10 @@ class Book {
                 return currentDownload.isDownloading
             }
         }
-        
+
         return nil
     }
-    
+
     /**
         Определяет, существует ли книга в текущих загрузках
 
@@ -129,10 +129,10 @@ class Book {
                 return true
             }
         }
-        
+
         return false
     }
-    
+
     /**
         Возвращает локальный URL книги
 
@@ -140,7 +140,7 @@ class Book {
     */
     func localUrl() -> NSURL {
         let documentDirectory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
-        
+
         return NSURL(fileURLWithPath: documentDirectory.stringByAppendingPathComponent("\(id).pdf"))
     }
 }

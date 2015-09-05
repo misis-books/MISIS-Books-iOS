@@ -300,10 +300,8 @@ class DownloadsTableViewController: BookTableViewController {
     */
     func showEditButton() {
         tableView.setEditing(false, animated: true)
-        
-        let editBarButtonItem = UIBarButtonItem(image: UIImage(named: "Edit"), style: .Plain, target: self,
-            action: Selector("showDeleteAndCancelButtons"))
-        navigationItem.setRightBarButtonItems([editBarButtonItem], animated: true)
+        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Edit"), style: .Plain, target: self,
+            action: "showDeleteAndCancelButtons")], animated: true)
     }
     
     /**
@@ -311,12 +309,9 @@ class DownloadsTableViewController: BookTableViewController {
     */
     func showDeleteAndCancelButtons() {
         setEditing(true, animated: true)
-        
-        let cancelBarButtonItem = UIBarButtonItem(image: UIImage(named: "Cancel"), style: .Plain, target: self,
-            action: Selector("showEditButton"))
-        let deleteBarButtonItem = UIBarButtonItem(image: UIImage(named: "Trash"), style: .Plain, target: self,
-            action: Selector("deleteButtonPressed"))
-        navigationItem.setRightBarButtonItems([cancelBarButtonItem, deleteBarButtonItem], animated: true)
+        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Cancel"), style: .Plain, target: self,
+            action: "showEditButton"), UIBarButtonItem(image: UIImage(named: "Trash"), style: .Plain, target: self,
+                action: "deleteButtonPressed")], animated: true)
     }
     
     // MARK: - Внутренние методы
@@ -335,7 +330,7 @@ class DownloadsTableViewController: BookTableViewController {
         for controller in controllers {
             if let indexPaths = controller.tableView.indexPathsForVisibleRows {
                 for indexPath in indexPaths {
-                    if let cell = controller.tableView.cellForRowAtIndexPath(indexPath as NSIndexPath) as? CustomTableViewCell {
+                    if let cell = controller.tableView.cellForRowAtIndexPath(indexPath) as? CustomTableViewCell {
                         if cell.tag == bookId {
                             if cell.roundProgressView?.isWaiting != isWaiting {
                                 cell.roundProgressView?.isWaiting = isWaiting
@@ -401,14 +396,14 @@ class DownloadsTableViewController: BookTableViewController {
         let totalBooks = books.count
         let totalDownloadableBooks = downloadableBooks.count
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
-        let words1 = ["ЗАГРУЖАЕМЫЙ ДОКУМЕНТ", "ЗАГРУЖАЕМЫХ ДОКУМЕНТА", "ЗАГРУЖАЕМЫХ ДОКУМЕНТОВ"]
-        let word1 = words1[totalDownloadableBooks % 100 > 4 && totalDownloadableBooks % 100 < 20 ?
+        let pluralForms1 = ["ЗАГРУЖАЕМЫЙ ДОКУМЕНТ", "ЗАГРУЖАЕМЫХ ДОКУМЕНТА", "ЗАГРУЖАЕМЫХ ДОКУМЕНТОВ"]
+        let pluralForm1 = pluralForms1[totalDownloadableBooks % 100 > 4 && totalDownloadableBooks % 100 < 20 ?
             2 : keys[totalDownloadableBooks % 10]]
-        let words2 = ["ЗАГРУЖЕННЫЙ ДОКУМЕНТ", "ЗАГРУЖЕННЫХ ДОКУМЕНТА", "ЗАГРУЖЕННЫХ ДОКУМЕНТОВ"]
-        let word2 = words2[totalBooks % 100 > 4 && totalBooks % 100 < 20 ? 2 : keys[totalBooks % 10]]
+        let pluralForms2 = ["ЗАГРУЖЕННЫЙ ДОКУМЕНТ", "ЗАГРУЖЕННЫХ ДОКУМЕНТА", "ЗАГРУЖЕННЫХ ДОКУМЕНТОВ"]
+        let pluralForm2 = pluralForms2[totalBooks % 100 > 4 && totalBooks % 100 < 20 ? 2 : keys[totalBooks % 10]]
         
-        sectionTitleLabel1.text = totalDownloadableBooks == 0 ? "" : "\(totalDownloadableBooks) \(word1)"
-        sectionTitleLabel2.text = totalBooks == 0 ? "" : "\(totalBooks) \(word2)"
+        sectionTitleLabel1.text = totalDownloadableBooks == 0 ? "" : "\(totalDownloadableBooks) \(pluralForm1)"
+        sectionTitleLabel2.text = totalBooks == 0 ? "" : "\(totalBooks) \(pluralForm2)"
     }
     
     // MARK: - Методы UITableViewDataSource
@@ -422,8 +417,7 @@ class DownloadsTableViewController: BookTableViewController {
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        return indexPath.section == 0 ?
-            CustomTableViewCell(book: downloadableBooks[indexPath.row], query: nil) :
+        return indexPath.section == 0 ? CustomTableViewCell(book: downloadableBooks[indexPath.row], query: nil) :
             CustomTableViewCell(book: books[indexPath.row], query: nil)
     }
     
@@ -434,8 +428,7 @@ class DownloadsTableViewController: BookTableViewController {
     // MARK: - Методы UITableViewDelegate
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return indexPath.section == 0 ?
-            CustomTableViewCell.heightForRowWithBook(downloadableBooks[indexPath.row]) :
+        return indexPath.section == 0 ? CustomTableViewCell.heightForRowWithBook(downloadableBooks[indexPath.row]) :
             CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
     }
     

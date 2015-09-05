@@ -43,18 +43,6 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
     /// "Шапка" таблицы
     var tableHeaderView: UIView!
     
-    override init(style: UITableViewStyle) {
-        super.init(style: style)
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -72,17 +60,17 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         tableHeaderView.layer.insertSublayer(gradient, atIndex: 0)
 
         activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .White)
-        activityIndicatorView.center = CGPointMake(SlideMenuOption().leftViewWidth / 2, tableHeaderView.frame.height / 2)
+        activityIndicatorView.center = CGPointMake(SlideMenuOption().menuViewWidth / 2, tableHeaderView.frame.height / 2)
         tableHeaderView.addSubview(activityIndicatorView)
 
         logInButton = CustomButton(title: "Авторизоваться", color: .whiteColor())
-        logInButton.addTarget(self, action: Selector("logInButtonPressed"), forControlEvents: .TouchUpInside)
-        logInButton.center = CGPointMake(SlideMenuOption().leftViewWidth / 2, tableHeaderView.frame.height / 2)
+        logInButton.addTarget(self, action: "logInButtonPressed", forControlEvents: .TouchUpInside)
+        logInButton.center = CGPointMake(SlideMenuOption().menuViewWidth / 2, tableHeaderView.frame.height / 2)
         tableHeaderView.addSubview(logInButton)
 
         logOutButton = CustomButton(title: "Выйти", color: .whiteColor())
-        logOutButton.addTarget(self, action: Selector("logOutButtonPressed"), forControlEvents: .TouchUpInside)
-        logOutButton.center = CGPointMake(SlideMenuOption().leftViewWidth - logOutButton.frame.width / 2 - 10,
+        logOutButton.addTarget(self, action: "logOutButtonPressed", forControlEvents: .TouchUpInside)
+        logOutButton.center = CGPointMake(SlideMenuOption().menuViewWidth - logOutButton.frame.width / 2 - 10,
             logOutButton.frame.height / 2 + 10)
         logOutButton.hidden = true
         tableHeaderView.addSubview(logOutButton)
@@ -113,7 +101,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         previousCell?.imageView?.tintColor = normalColor
         previousCell?.textLabel?.textColor = normalColor
         
-        let highlightColor = UIColor(red: 0 / 255.0, green: 138 / 255.0, blue: 190 / 255.0, alpha: 1)
+        let highlightColor = UIColor(red: 0, green: 138 / 255.0, blue: 190 / 255.0, alpha: 1)
         let newCell = tableView.cellForRowAtIndexPath(indexPath)
         newCell?.imageView?.tintColor = highlightColor
         newCell?.textLabel?.textColor = highlightColor
@@ -153,7 +141,6 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         let avatarPath = documentDirectory.stringByAppendingPathComponent("avatar.jpg")
 
         if NSFileManager.defaultManager().fileExistsAtPath(avatarPath) {
-            print("Кэш")
             showAvatarView(UIImage(contentsOfFile: avatarPath)!)
             
             if let fullName = NSUserDefaults.standardUserDefaults().stringForKey("fullName") {
@@ -162,11 +149,13 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
 
             logInButton.hidden = true
             logOutButton.hidden = false
-        } else if let accessToken = MisisBooksApi.instance.accessToken {
-            MisisBooksApi.getAccountInformation(accessToken) { json in
+        } else if MisisBooksApi.instance.accessToken != nil {
+            MisisBooksApi.instance.getAccountInformation() { json in
                 if json != nil {
-                    if let response = json!["response"] as? NSDictionary, user = response["user"] as? NSDictionary,
-                        fullName = user["view_name"] as? String, photoUrlString = user["photo"] as? String {
+                    if let response = json!["response"] as? [String: AnyObject],
+                        user = response["user"] as? [String: AnyObject],
+                        fullName = user["view_name"] as? String,
+                        photoUrlString = user["photo"] as? String {
                             self.activityIndicatorView.stopAnimating()
 
                             let standardUserDefaults = NSUserDefaults.standardUserDefaults()
@@ -176,7 +165,8 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                             self.showFullNameLabel(fullName)
                             
                             dispatch_async(dispatch_get_main_queue()) {
-                                if let imageUrl = NSURL(string: photoUrlString), imageData = NSData(contentsOfURL: imageUrl),
+                                if let imageUrl = NSURL(string: photoUrlString),
+                                    imageData = NSData(contentsOfURL: imageUrl),
                                     image = UIImage(data: imageData) {
                                         UIImageJPEGRepresentation(image, 100)!.writeToFile(avatarPath, atomically: true)
 
@@ -246,7 +236,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         avatarView.frame = CGRectMake(15, 30, 55, 55)
         avatarView.clipsToBounds = true
         avatarView.layer.cornerRadius = avatarView.frame.size.width / 2
-        avatarView.center = CGPointMake(SlideMenuOption().leftViewWidth / 2, tableHeaderView.frame.height / 2 - 10)
+        avatarView.center = CGPointMake(SlideMenuOption().menuViewWidth / 2, tableHeaderView.frame.height / 2 - 10)
 
         UIView.transitionWithView(tableHeaderView, duration: 0.3, options: .TransitionCrossDissolve, animations: {
             self.tableHeaderView.addSubview(self.avatarView)
@@ -254,7 +244,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
     }
     
     /**
-        Показывает полное имя именем
+        Показывает поле с полным именем
 
         - parameter fullName: Полное имя
     */
@@ -262,11 +252,10 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         fullNameLabel = UILabel()
         fullNameLabel.font = UIFont(name: "HelveticaNeue", size: 14)
         fullNameLabel.text = fullName
-        fullNameLabel.textColor = UIColor(red: 79 / 255.0, green: 97 / 255.0, blue: 115 / 255.0, alpha: 1)
         fullNameLabel.textColor = .whiteColor()
         fullNameLabel.numberOfLines = 1
         fullNameLabel.sizeToFit()
-        fullNameLabel.center = CGPointMake(SlideMenuOption().leftViewWidth / 2, tableHeaderView.frame.height / 2 + 30)
+        fullNameLabel.center = CGPointMake(SlideMenuOption().menuViewWidth / 2, tableHeaderView.frame.height / 2 + 30)
 
         UIView.transitionWithView(tableHeaderView, duration: 0.3, options: .TransitionCrossDissolve, animations: {
             self.tableHeaderView.addSubview(self.fullNameLabel)
@@ -280,7 +269,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         let imageNames = ["Search", "Downloads", "Favorites"]
         let image = UIImage(named: imageNames[indexPath.row])
         let color = indexPath.item != selectedMenuItem ? UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1) :
-            UIColor(red: 0 / 255.0, green: 138 / 255.0, blue: 190 / 255.0, alpha: 1)
+            UIColor(red: 0, green: 138 / 255.0, blue: 190 / 255.0, alpha: 1)
         
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as UITableViewCell
         cell.imageView!.image = image!.imageWithRenderingMode(.AlwaysTemplate)

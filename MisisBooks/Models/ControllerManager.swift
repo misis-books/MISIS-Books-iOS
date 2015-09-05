@@ -28,9 +28,11 @@ class ControllerManager {
     /// Корневой контроллер
     var slideMenuController: SlideMenuController!
     
-    /// Возвращает экземпляр класса
-    ///
-    /// - returns: Экземпляр класса
+    /**
+        Возвращает экземпляр класса
+
+        - returns: Экземпляр класса
+    */
     class var instance: ControllerManager {
         
         struct Singleton {
@@ -45,6 +47,6 @@ class ControllerManager {
         
         menuTableViewController.downloadsTableViewNavigationController = downloadsTableViewNavigationController
         slideMenuController = SlideMenuController(mainViewController: downloadsTableViewNavigationController,
-            leftMenuViewController: menuTableViewController)
+            menuViewController: menuTableViewController)
     }
 }

@@ -12,13 +12,13 @@ import UIKit
     Класс для представления настраиваемой кнопки
 */
 class CustomButton: UIButton {
-    
+
     init(title: String, color: UIColor) {
         super.init(frame: CGRectZero)
-        
-        addTarget(self, action: Selector("makeNormal"), forControlEvents: .TouchCancel)
-        addTarget(self, action: Selector("makeActive"), forControlEvents: .TouchDown)
-        addTarget(self, action: Selector("makeNormal"), forControlEvents: .TouchUpInside)
+
+        addTarget(self, action: "makeNormal", forControlEvents: .TouchCancel)
+        addTarget(self, action: "makeActive", forControlEvents: .TouchDown)
+        addTarget(self, action: "makeNormal", forControlEvents: .TouchUpInside)
         setTitle(title, forState: .Normal)
         setTitleColor(color, forState: .Normal)
         backgroundColor = .clearColor()
@@ -29,11 +29,11 @@ class CustomButton: UIButton {
         titleLabel!.font = UIFont(name: "HelveticaNeue", size: 14)
         sizeToFit()
     }
-    
+
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-    
+
     /**
         Делает кнопку активной
     */
@@ -42,7 +42,7 @@ class CustomButton: UIButton {
             self.layer.opacity = 0.5
         }
     }
-    
+
     /**
         Делает кнопку обычной
     */
