@@ -32,9 +32,9 @@ class CustomTableViewCell: UITableViewCell {
     var starImage: UIImageView!
 
     /**
-        Возвращает идентификатор для повторного использования
+        Возвращает идентификатор для повторного использования ячейки
 
-        - returns: Идентификатор для повторного использования
+        - returns: Идентификатор для повторного использования ячейки
     */
     class var reuseId: String {
         return "cell"
@@ -46,12 +46,8 @@ class CustomTableViewCell: UITableViewCell {
         configureWithBook(book, query: query)
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-    }
-
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
 
     override func layoutSubviews() {
@@ -72,19 +68,19 @@ class CustomTableViewCell: UITableViewCell {
     /**
         Возвращает название категории по ее идетификатору
 
-        - parameter fontId: Идентификатор шрифта
+        - parameter categoryId: Идентификатор категории
 
         - returns: Название категории
     */
     class func categoryName(categoryId: Int) -> String {
         let categoryNames = ["Все", "Пособия", "Дипломы", "Сборники научных трудов", "Монографии, научные издания",
-            "Книги «МИСиС»", "Авторефераты диссертаций", "Разное"]
+            "Книги «МИСиС»", "Авторефераты диссертаций", "Разное", "Журналы", "Документы филиалов «МИСиС»", "УМКД"]
 
         return categoryNames[categoryId]
     }
 
     /**
-        Возвращает шрифт по его идетификатору
+        Возвращает шрифт по его идентификатору
 
         - parameter fontId: Идентификатор шрифта
 
@@ -98,11 +94,11 @@ class CustomTableViewCell: UITableViewCell {
     }
 
     /**
-        Возвращает размер ячейки таблицы для заданной книги
+        Возвращает высоту ячейки таблицы для заданной книги
 
         - parameter book: Книга
 
-        - returns: Размер ячейки таблицы
+        - returns: Высота ячейки таблицы
     */
     class func heightForRowWithBook(book: Book) -> CGFloat {
         return CustomTableViewCell.labelSizeWithText(book.name, font: CustomTableViewCell.font(0)).height +
@@ -123,7 +119,8 @@ class CustomTableViewCell: UITableViewCell {
         let mainScreenWidth = UIScreen.mainScreen().bounds.size.width
         let size = CGSizeMake(mainScreenWidth - 30, CGFloat.max)
 
-        return (text == "" ? CGRectZero : text.boundingRectWithSize(size, options: .UsesLineFragmentOrigin, attributes: [NSFontAttributeName: font], context: nil)).size
+        return (text == "" ? CGRectZero : text.boundingRectWithSize(size, options: .UsesLineFragmentOrigin,
+            attributes: [NSFontAttributeName: font], context: nil)).size
     }
 
     // MARK: - Внутренние методы
@@ -133,6 +130,7 @@ class CustomTableViewCell: UITableViewCell {
 
         - parameter bookName: Название книги
         - parameter highlightedWords: Слова, разделенные пробелом, которые требуется подсветить
+
         - returns: Строка для названия книги с подсвеченными словами
     */
     private func attributedStringForBookName(bookName: NSString, highlightedWords: NSString) -> NSMutableAttributedString {
@@ -149,8 +147,8 @@ class CustomTableViewCell: UITableViewCell {
         let squashedString = highlightedWords.stringByReplacingOccurrencesOfString("[ ]+", withString: " ",
             options: .RegularExpressionSearch, range: NSMakeRange(0, highlightedWords.length))
 
-        let trimmedString = squashedString.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-        let words = split(trimmedString.characters) { $0 == " " }.map { String($0) }
+        let trimmedString = squashedString.stringByTrimmingCharactersInSet(.whitespaceAndNewlineCharacterSet())
+        let words = trimmedString.characters.split { $0 == " " }.map { String($0) }
         var foundRange, nextRange: NSRange
 
         for word in words {
@@ -183,7 +181,10 @@ class CustomTableViewCell: UITableViewCell {
             UIColor(red: 179 / 255.0, green: 200 / 255.0, blue: 51 / 255.0, alpha: 1),
             UIColor(red: 155 / 255.0, green: 89 / 255.0, blue: 182 / 255.0, alpha: 1),
             UIColor(red: 1, green: 145 / 255.0, blue: 0, alpha: 1),
-            UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1)]
+            UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1),
+            UIColor(red: 69 / 255.0, green: 131 / 255.0, blue: 136 / 255.0, alpha: 1),
+            UIColor(red: 136 / 255.0, green: 69 / 255.0, blue: 69 / 255.0, alpha: 1),
+            UIColor(red: 96 / 255.0, green: 160 / 255.0, blue: 223 / 255.0, alpha: 1)]
 
         nameLabel = UILabel()
         nameLabel.font = CustomTableViewCell.font(0)
@@ -223,8 +224,8 @@ class CustomTableViewCell: UITableViewCell {
         contentView.addSubview(roundProgressView)
 
         starImage = UIImageView(image: UIImage(named: "Favorites")!.imageWithRenderingMode(.AlwaysTemplate))
-        starImage.tintColor = book.isAddedToFavorites() ?
-            UIColor(red: 1, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1) : UIColor(white: 0.8, alpha: 1)
+        starImage.tintColor = book.isAddedToFavorites() ? UIColor(red: 1, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1) :
+            UIColor(white: 0.8, alpha: 1)
         contentView.addSubview(starImage)
 
         for downloadedBook in ControllerManager.instance.downloadsTableViewController.books {
@@ -240,11 +241,11 @@ class CustomTableViewCell: UITableViewCell {
                     if !isDownloading {
                         roundProgressView.isWaiting = true
                     }
-
+                    
                     roundProgressView.percent = CGFloat(fileInfomation.progressPercentage)
             }
         }
-
+        
         tag = book.id
     }
 }

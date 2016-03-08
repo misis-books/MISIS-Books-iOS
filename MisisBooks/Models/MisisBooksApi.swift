@@ -13,31 +13,34 @@ import Foundation
 */
 enum MisisBooksApiAction {
     case AddBookToFavorites, Search, DeleteAllBooksFromFavorites, DeleteBookFromFavorites, GetCategories, GetFavorites,
-    GetPopular, GetPopularForWeek, LogOut, SignIn
+        GetPopular, GetPopularForWeek, LogOut, SignIn
 }
 
 /**
     Перечисление для ошибок API MISIS Books
 */
 enum MisisBooksApiError: ErrorType {
-    case NotConnectedToInternet, TimedOut, NotConnected, NoData, StatusCodeNotSupported, MissingMimeType, MimeTypeNotSupported,
-    NoSubscription, TooManyRequests, MissingAccessToken, InvalidVkAccessToken, TooManyRequestsToCreationToken, UnknownError,
-    InvalidJson
+    case NotConnectedToInternet, TimedOut, NotConnected, NoData, StatusCodeNotSupported, MissingMimeType,
+        MimeTypeNotSupported, NoSubscription, TooManyRequests, MissingAccessToken, InvalidVkAccessToken,
+        TooManyRequestsToCreationToken, UnknownError, InvalidJson
 
     func description() -> (title: String, detail: String, short: String) {
         switch self {
         case .NotConnectedToInternet:
-            return ("Ошибка соединения", "Не удалось установить связь\nс сервером, так как отсутствует\nподключение к Интернету",
+            return ("Ошибка соединения",
+                "Не удалось установить связь\nс сервером, так как отсутствует\nподключение к Интернету",
                 "Отсутствует подключение к Интернету")
         case .TimedOut:
-            return ("Ошибка соединения", "Не удалось установить связь\nс сервером, так как истекло\nвремя ожидания ответа",
+            return ("Ошибка соединения",
+                "Не удалось установить связь\nс сервером, так как истекло\nвремя ожидания ответа",
                 "Истекло время ожидания ответа")
         case .NotConnected:
             return ("Ошибка соединения", "Не удалось подключиться к серверу", "Не удалось подключиться к серверу")
         case .NoData:
             return ("Ошибка обработки", "Сервер не вернул данные", "Сервер не вернул данные")
         case .StatusCodeNotSupported:
-            return ("Запрос не выполнен", "Код состояния HTTP не поддерживается", "Код состояния HTTP не поддерживается")
+            return ("Запрос не выполнен", "Код состояния HTTP не поддерживается",
+                "Код состояния HTTP не поддерживается")
         case .MissingMimeType:
             return ("Запрос не выполнен", "Отсутствует MIME-тип", "Отсутствует MIME-тип")
         case .MimeTypeNotSupported:
@@ -49,7 +52,8 @@ enum MisisBooksApiError: ErrorType {
         case .MissingAccessToken:
             return ("Ошибка доступа", "Приложение не отправило\nмаркер доступа", "Нет маркера доступа")
         case .InvalidVkAccessToken:
-            return ("Ошибка доступа", "Авторизация через ВКонтакте\nотклонена сервером", "Авторизация через ВКонтакте отклонена")
+            return ("Ошибка доступа", "Авторизация через ВКонтакте\nотклонена сервером",
+                "Авторизация через ВКонтакте отклонена")
         case .TooManyRequestsToCreationToken:
             return ("Предупреждение", "Слишком много запросов\nна создание маркера доступа",
                 "Слишком много запросов на авторизацию")
@@ -125,7 +129,7 @@ class MisisBooksApi {
                     completionHandler(json: nil)
                 }
             }
-            }!.resume()
+            }.resume()
     }
 
     // MARK: Методы для работы с поиском
@@ -143,10 +147,10 @@ class MisisBooksApi {
         - parameter count: Количество возвращаемых результатов
         - parameter categoryId: Идентификатор категории
     */
-    func getPopular(count count: Int, categoryId: Int) {
+    func getPopularBooksByCount(count: Int, categoryId: Int) {
         if accessToken != nil {
             let parameters = ["access_token=\(accessToken!)", "category=\(categoryId)", "count=\(count)", "fields=all"]
-            let urlString = "\(baseUrlString)/materials.getPopular?" + "&".join(parameters)
+            let urlString = "\(baseUrlString)/materials.getPopular?" + parameters.joinWithSeparator("&")
 
             executeAction(.GetPopular, urlString: urlString) { json, error in
                 if error != nil {
@@ -154,13 +158,13 @@ class MisisBooksApi {
                 } else if let response = json!["response"] as? [String: AnyObject],
                     items = response["items"] as? [AnyObject],
                     totalResults = response["all_items_count"] as? Int {
-                        ControllerManager.instance.searchTableViewController.updateTable(self.getReceivedBooksFromItems(items),
-                            totalResults: totalResults)
+                        ControllerManager.instance.searchTableViewController.updateTableWithReceivedBooks(
+                            self.getReceivedBooksFromItems(items), totalResults: totalResults)
                 }
             }
         } else {
             signIn {
-                self.getPopular(count: count, categoryId: categoryId)
+                self.getPopularBooksByCount(count, categoryId: categoryId)
             }
         }
     }
@@ -171,10 +175,10 @@ class MisisBooksApi {
         - parameter count: Количество возвращаемых результатов
         - parameter categoryId: Идентификатор категории
     */
-    func getPopularForWeek(count count: Int, categoryId: Int) {
+    func getPopularBooksForWeekByCount(count: Int, categoryId: Int) {
         if accessToken != nil {
             let parameters = ["access_token=\(accessToken!)", "category=\(categoryId)", "count=\(count)", "fields=all"]
-            let urlString = "\(baseUrlString)/materials.getPopularForWeek?" + "&".join(parameters)
+            let urlString = "\(baseUrlString)/materials.getPopularForWeek?" + parameters.joinWithSeparator("&")
 
             executeAction(.GetPopularForWeek, urlString: urlString) { json, error in
                 if error != nil {
@@ -182,13 +186,13 @@ class MisisBooksApi {
                 } else if let response = json!["response"] as? [String: AnyObject],
                     items = response["items"] as? [AnyObject],
                     totalResults = response["all_items_count"] as? Int {
-                        ControllerManager.instance.searchTableViewController.updateTable(self.getReceivedBooksFromItems(items),
-                            totalResults: totalResults)
+                        ControllerManager.instance.searchTableViewController.updateTableWithReceivedBooks(
+                            self.getReceivedBooksFromItems(items), totalResults: totalResults)
                 }
             }
         } else {
             signIn {
-                self.getPopularForWeek(count: count, categoryId: categoryId)
+                self.getPopularBooksForWeekByCount(count, categoryId: categoryId)
             }
         }
     }
@@ -201,11 +205,12 @@ class MisisBooksApi {
         parameter offset: Cмещение выборки
         parameter categoryId: Идентификатор категории
     */
-    func search(query query: String, count: Int, offset: Int, categoryId: Int) {
+    func searchBooksByQuery(query: String, count: Int, offset: Int, categoryId: Int) {
         if accessToken != nil {
             let parameters = ["access_token=\(accessToken!)", "category=\(categoryId)", "count=\(count)", "fields=all",
-                "offset=\(offset)", "q=\(query.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)!)"]
-            let urlString = "\(baseUrlString)/materials.search?" + "&".join(parameters)
+                "offset=\(offset)",
+                "q=\(query.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())!)"]
+            let urlString = "\(baseUrlString)/materials.search?" + parameters.joinWithSeparator("&")
 
             executeAction(.Search, urlString: urlString) { json, error in
                 if error != nil {
@@ -213,13 +218,13 @@ class MisisBooksApi {
                 } else if let response = json!["response"] as? [String: AnyObject],
                     items = response["items"] as? [AnyObject],
                     totalResults = response["all_items_count"] as? Int {
-                        ControllerManager.instance.searchTableViewController.updateTable(self.getReceivedBooksFromItems(items),
-                            totalResults: totalResults)
+                        ControllerManager.instance.searchTableViewController.updateTableWithReceivedBooks(
+                            self.getReceivedBooksFromItems(items), totalResults: totalResults)
                 }
             }
         } else {
             signIn {
-                self.search(query: query, count: count, offset: offset, categoryId: categoryId)
+                self.searchBooksByQuery(query, count: count, offset: offset, categoryId: categoryId)
             }
         }
     }
@@ -242,9 +247,11 @@ class MisisBooksApi {
                     result = response["result"] as? Bool {
                         if result {
                             ControllerManager.instance.favoritesTableViewController.addBook(book)
-                            PopUpMessage(title: "Сервер принял запрос", subtitle: "Документ успешно добавлен в избранное").show()
+                            PopUpMessage(title: "Сервер принял запрос", subtitle:
+                                "Документ успешно добавлен в избранное").show()
                         } else {
-                            PopUpMessage(title: "Сервер отклонил запрос", subtitle: "Не удалось добавить документ в избранное").show()
+                            PopUpMessage(title: "Сервер отклонил запрос", subtitle:
+                                "Не удалось добавить документ в избранное").show()
                         }
                 }
             }
@@ -261,10 +268,10 @@ class MisisBooksApi {
         - parameter count: Количество возвращаемых результатов
         - parameter offset: Cмещение выборки
     */
-    func getFavorites(count count: Int, offset: Int) {
+    func getFavoritesByCount(count: Int, offset: Int) {
         if accessToken != nil {
             let parameters = ["access_token=\(accessToken!)", "count=\(count)", "fields=all", "offset=\(offset)"]
-            let urlString = "\(baseUrlString)/fave.getDocuments?" + "&".join(parameters)
+            let urlString = "\(baseUrlString)/fave.getDocuments?" + parameters.joinWithSeparator("&")
 
             executeAction(.GetFavorites, urlString: urlString) { json, error in
                 if error != nil {
@@ -279,12 +286,12 @@ class MisisBooksApi {
                     items = response["items"] as? [AnyObject],
                     totalResults = response["all_items_count"] as? Int {
                         ControllerManager.instance.favoritesTableViewController.updateTable(
-                                self.getReceivedBooksFromItems(items), totalResults: totalResults)
+                            self.getReceivedBooksFromItems(items), totalResults: totalResults)
                 }
             }
         } else {
             signIn {
-                self.getFavorites(count: count, offset: offset)
+                self.getFavoritesByCount(count, offset: offset)
             }
         }
     }
@@ -303,10 +310,11 @@ class MisisBooksApi {
                     result = response["result"] as? Bool {
                         if result {
                             ControllerManager.instance.favoritesTableViewController.deleteAllBooks()
-                            PopUpMessage(title: "Сервер принял запрос", subtitle: "Все документы удалены из избранного").show()
+                            PopUpMessage(title: "Сервер принял запрос", subtitle:
+                                "Все документы удалены из избранного").show()
                         } else {
-                            PopUpMessage(title: "Сервер отклонил запрос", subtitle: "Не удалось удалить все документы из избранного")
-                                .show()
+                            PopUpMessage(title: "Сервер отклонил запрос", subtitle:
+                                "Не удалось удалить все документы из избранного").show()
                         }
                 }
             }
@@ -324,8 +332,8 @@ class MisisBooksApi {
     */
     func deleteBooksFromFavorites(books: [Book]) {
         if accessToken != nil {
-            let bookIdsString = ",".join(books.map { String($0.id) })
-            let urlString = "\(baseUrlString)/fave.deleteDocument?edition_id=\(bookIdsString)&access_token=\(accessToken!)"
+            let bookIds = books.map { String($0.id) }.joinWithSeparator(",")
+            let urlString = "\(baseUrlString)/fave.deleteDocument?edition_id=\(bookIds)&access_token=\(accessToken!)"
 
             executeAction(.DeleteBookFromFavorites, urlString: urlString) { json, error in
                 if error != nil {
@@ -336,17 +344,19 @@ class MisisBooksApi {
                             ControllerManager.instance.favoritesTableViewController.deleteBooks(books)
 
                             if books.count == 1 {
-                                PopUpMessage(title: "Сервер принял запрос", subtitle: "Документ успешно удален из избранного").show()
+                                PopUpMessage(title: "Сервер принял запрос", subtitle:
+                                    "Документ успешно удален из избранного").show()
                             } else {
-                                PopUpMessage(title: "Сервер принял запрос", subtitle: "Документы успешно удалены из избранного").show()
+                                PopUpMessage(title: "Сервер принял запрос", subtitle:
+                                    "Документы успешно удалены из избранного").show()
                             }
                         } else {
                             if books.count == 1 {
-                                PopUpMessage(title: "Сервер отклонил запрос", subtitle: "Не удалось удалить документ из избранного")
-                                    .show()
+                                PopUpMessage(title: "Сервер отклонил запрос", subtitle:
+                                    "Не удалось удалить документ из избранного").show()
                             } else {
-                                PopUpMessage(title: "Сервер отклонил запрос", subtitle: "Не удалось удалить документы из избранного")
-                                    .show()
+                                PopUpMessage(title: "Сервер отклонил запрос", subtitle:
+                                    "Не удалось удалить документы из избранного").show()
                             }
                         }
                 }
@@ -454,7 +464,8 @@ class MisisBooksApi {
                                 case 4: // "Invalid access token"
                                     // Получение нового маркера доступа с возможностью дальнейшего выполнения запроса
                                     self.signIn {
-                                        self.executeAction(action, urlString: urlString, completionHandler: completionHandler)
+                                        self.executeAction(action, urlString: urlString, completionHandler:
+                                            completionHandler)
                                     }
                                 case 5: // "Missing access token"
                                     throw MisisBooksApiError.MissingAccessToken
@@ -481,8 +492,10 @@ class MisisBooksApi {
                         dispatch_async(dispatch_get_main_queue()) {
                             ControllerManager.instance.searchTableViewController.showPlaceholderView(
                                 PlaceholderView(viewController: ControllerManager.instance.searchTableViewController,
-                                    title: error.description().title, subtitle: error.description().detail, buttonText: "Повторить попытку") {
-                                        self.executeAction(action, urlString: urlString, completionHandler: completionHandler)
+                                    title: error.description().title, subtitle: error.description().detail, buttonText:
+                                    "Повторить попытку") {
+                                        self.executeAction(action, urlString: urlString, completionHandler:
+                                            completionHandler)
                                 }
                             )
                         }
@@ -510,31 +523,33 @@ class MisisBooksApi {
                 accountDataTask = task
             }
 
-            task!.resume()
+            task.resume()
     }
 
     /**
-        Возвращает отформатированную строку с авторами, которые перечислены через запятую, учитывая, что нельзя отделять инициалы
-        от фамилии или один инициал от другого (используются неразрывные пробелы)
+        Возвращает отформатированную строку с авторами, которые перечислены через запятую, с учетом того, что нельзя
+        отделять инициалы от фамилии или один инициал от другого (используются неразрывные пробелы)
 
         - parameter authors: Авторы
 
         - returns: Отформатированная строка с авторами
     */
     private func formattedStringWithAuthors(authors: [String]) -> String {
-        var result = "|".join(authors)
+        var result = authors.joinWithSeparator("|")
         let from = [" ", "|", ".", "\u{00a0}\u{00a0}", ".\u{00a0},"]
         let to = ["\u{00a0}", ", ", ".\u{00a0}", "\u{00a0}", ".,"]
 
         for i in 0...4 {
-            result = result.stringByReplacingOccurrencesOfString(from[i], withString: to[i], options: .LiteralSearch, range: nil)
+            result = result.stringByReplacingOccurrencesOfString(from[i], withString: to[i], options: .LiteralSearch,
+                range: nil)
         }
 
         return result
     }
 
     /**
-        Возвращает отформатированную строку с размером файла, где число отделено от единицы измерения неразрывным пробелом
+        Возвращает отформатированную строку с размером файла, где число отделено от единицы измерения неразрывным
+        пробелом
 
         - parameter fileSize: Размер файла
 
@@ -546,7 +561,8 @@ class MisisBooksApi {
         let to = ["\u{00a0}МБ", "\u{00a0}КБ"]
 
         for i in 0...1 {
-            result = result.stringByReplacingOccurrencesOfString(from[i], withString: to[i], options: .LiteralSearch, range: nil)
+            result = result.stringByReplacingOccurrencesOfString(from[i], withString: to[i], options: .LiteralSearch,
+                range: nil)
         }
 
         return result
@@ -573,12 +589,13 @@ class MisisBooksApi {
                 isMarkedAsFavorite = item["fave"] as? Bool,
                 name = item["name"] as? String,
                 smallPreviewUrl = item["photo_small"] as? String {
-                    receivedBooks.append(Book(authors: formattedStringWithAuthors(authors), bigPreviewUrl: bigPreviewUrl,
-                        categoryId: categoryId, downloadUrl: downloadUrl, fileSize: formattedStringWithFileSize(fileSize), id: id,
-                        isMarkedAsFavorite: isMarkedAsFavorite, name: name, smallPreviewUrl: smallPreviewUrl))
+                    receivedBooks.append(Book(authors: formattedStringWithAuthors(authors), bigPreviewUrl:
+                        bigPreviewUrl, categoryId: categoryId, downloadUrl: downloadUrl, fileSize:
+                        formattedStringWithFileSize(fileSize), id: id, isMarkedAsFavorite: isMarkedAsFavorite, name:
+                        name, smallPreviewUrl: smallPreviewUrl))
             }
         }
-
+        
         return receivedBooks
     }
 }

@@ -42,9 +42,10 @@ class Database {
         if sqlite3_open(databasePath().cStringUsingEncoding(NSUTF8StringEncoding)!, &database) != SQLITE_OK {
             sqlite3_close(database)
         } else {
-            let columns = ["`id` INTEGER", "`name` VARCHAR", "`authors` VARCHAR", "`category_id` INTEGER", "`file_size` VARCHAR",
-                "`big_preview_url` VARCHAR", "`small_preview_url` VARCHAR", "`download_url` VARCHAR", "`list` VARCHAR"]
-            let query = "CREATE TABLE IF NOT EXISTS `Books` (" + ", ".join(columns) + ")"
+            let columns = ["`id` INTEGER", "`name` VARCHAR", "`authors` VARCHAR", "`category_id` INTEGER",
+                "`file_size` VARCHAR", "`big_preview_url` VARCHAR", "`small_preview_url` VARCHAR",
+                "`download_url` VARCHAR", "`list` VARCHAR"]
+            let query = "CREATE TABLE IF NOT EXISTS `Books` (" + columns.joinWithSeparator(", ") + ")"
             sqlite3_exec(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, nil, nil, nil)
         }
     }
@@ -61,28 +62,33 @@ class Database {
     */
     func addBook(book: Book, toList list: String) {
         var statement: COpaquePointer = nil
-        let columns = ["`id`", "`name`", "`authors`", "`category_id`", "`file_size`", "`big_preview_url`", "`small_preview_url`",
-            "`download_url`", "`list`"]
-        let query = "INSERT INTO `Books` (" + ", ".join(columns) + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        let columns = ["`id`", "`name`", "`authors`", "`category_id`", "`file_size`", "`big_preview_url`",
+            "`small_preview_url`", "`download_url`", "`list`"]
+        let query = "INSERT INTO `Books` (" + columns.joinWithSeparator(", ") + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-        if sqlite3_prepare_v2(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, &statement, nil) == SQLITE_OK {
-            let transient = unsafeBitCast(UnsafeMutablePointer<Int>(bitPattern: -1), sqlite3_destructor_type.self)
+        if sqlite3_prepare_v2(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, &statement, nil)
+            == SQLITE_OK {
+                let transient = unsafeBitCast(UnsafeMutablePointer<Int>(bitPattern: -1), sqlite3_destructor_type.self)
 
-            sqlite3_bind_int(statement, 1, CInt(book.id))
-            sqlite3_bind_text(statement, 2, book.name.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
-            sqlite3_bind_text(statement, 3, book.authors.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
-            sqlite3_bind_int(statement, 4, CInt(book.categoryId))
-            sqlite3_bind_text(statement, 5, book.fileSize.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
-            sqlite3_bind_text(statement, 6, book.bigPreviewUrl.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
-            sqlite3_bind_text(statement, 7, book.smallPreviewUrl.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
-            sqlite3_bind_text(statement, 8, book.downloadUrl.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
-            sqlite3_bind_text(statement, 9, list.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
+                sqlite3_bind_int(statement, 1, CInt(book.id))
+                sqlite3_bind_text(statement, 2, book.name.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
+                sqlite3_bind_text(statement, 3, book.authors.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
+                sqlite3_bind_int(statement, 4, CInt(book.categoryId))
+                sqlite3_bind_text(statement, 5, book.fileSize.cStringUsingEncoding(NSUTF8StringEncoding)!, -1,
+                    transient)
+                sqlite3_bind_text(statement, 6, book.bigPreviewUrl.cStringUsingEncoding(NSUTF8StringEncoding)!, -1,
+                    transient)
+                sqlite3_bind_text(statement, 7, book.smallPreviewUrl.cStringUsingEncoding(NSUTF8StringEncoding)!, -1,
+                    transient)
+                sqlite3_bind_text(statement, 8, book.downloadUrl.cStringUsingEncoding(NSUTF8StringEncoding)!, -1,
+                    transient)
+                sqlite3_bind_text(statement, 9, list.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, transient)
 
-            if sqlite3_step(statement) != SQLITE_DONE {
-                print("Ошибка при выполнении SQL-запроса. Описание: %s", sqlite3_errmsg(database))
+                if sqlite3_step(statement) != SQLITE_DONE {
+                    print("Ошибка при выполнении SQL-запроса. Описание: %s", sqlite3_errmsg(database))
 
-                return
-            }
+                    return
+                }
         }
 
         sqlite3_reset(statement)
@@ -101,15 +107,16 @@ class Database {
         var books = [Book]()
         let query = "SELECT * FROM `Books` WHERE `list` = '\(list)'"
 
-        if sqlite3_prepare_v2(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, &statement, nil) != SQLITE_OK {
-            print(statement.debugDescription)
-            sqlite3_finalize(statement)
+        if sqlite3_prepare_v2(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, &statement, nil)
+            != SQLITE_OK {
+                print(statement.debugDescription)
+                sqlite3_finalize(statement)
 
-            if let error = String.fromCString(sqlite3_errmsg(database)) {
-                print("Не удалось подготовить SQL-запрос: \(query), описание ошибки: \(error)")
-            }
+                if let error = String.fromCString(sqlite3_errmsg(database)) {
+                    print("Не удалось подготовить SQL-запрос: \(query), описание ошибки: \(error)")
+                }
 
-            return books
+                return books
         }
 
         while sqlite3_step(statement) == SQLITE_ROW {
@@ -142,10 +149,11 @@ class Database {
         var isBookAdded = false
         let query = "SELECT * FROM `Books` WHERE `id` = \(book.id) AND `list` = '\(list)'"
 
-        if sqlite3_prepare_v2(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, &statement, nil) == SQLITE_OK {
-            if sqlite3_step(statement) == SQLITE_ROW {
-                isBookAdded = true
-            }
+        if sqlite3_prepare_v2(database, query.cStringUsingEncoding(NSUTF8StringEncoding)!, -1, &statement, nil)
+            == SQLITE_OK {
+                if sqlite3_step(statement) == SQLITE_ROW {
+                    isBookAdded = true
+                }
         }
 
         sqlite3_reset(statement)
@@ -183,8 +191,7 @@ class Database {
         - returns: Полный путь к файлу базы данных
     */
     private func databasePath() -> String {
-        let documentDirectory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
-
-        return documentDirectory.stringByAppendingPathComponent("database.sqlite")
+        return NSURL(string: "database.sqlite", relativeToURL: NSFileManager.defaultManager().URLsForDirectory(
+            .DocumentDirectory, inDomains: .UserDomainMask)[0])!.path!
     }
 }

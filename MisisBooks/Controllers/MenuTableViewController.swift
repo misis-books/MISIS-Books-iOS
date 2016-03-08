@@ -12,40 +12,40 @@ import UIKit
     Класс для представления контроллера меню
 */
 class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
-    
+
     /// Индикатор активности
     var activityIndicatorView: UIActivityIndicatorView!
-    
+
     /// Аватар
     var avatarView: UIImageView!
-    
+
     /// Навигационный контроллер загрузок
     var downloadsTableViewNavigationController: UIViewController!
-    
+
     /// Навигационный контроллер избранного
     var favoritesTableViewNavigationController: UIViewController!
-    
+
     /// Поле с полным именем
     var fullNameLabel: UILabel!
-    
+
     /// Кнопка авторизации
     var logInButton: CustomButton!
-    
+
     /// Кнопка выхода
     var logOutButton: CustomButton!
-    
+
     /// Навигационный контроллер поиска
     var searchTableViewNavigationController: UIViewController!
-    
+
     /// Выбранный элемент меню
     var selectedMenuItem = 1
-    
+
     /// "Шапка" таблицы
     var tableHeaderView: UIView!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         tableView.scrollEnabled = false
         tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1)
         tableView.tableFooterView = UIView()
@@ -60,7 +60,8 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         tableHeaderView.layer.insertSublayer(gradient, atIndex: 0)
 
         activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .White)
-        activityIndicatorView.center = CGPointMake(SlideMenuOption().menuViewWidth / 2, tableHeaderView.frame.height / 2)
+        activityIndicatorView.center = CGPointMake(SlideMenuOption().menuViewWidth / 2,
+            tableHeaderView.frame.height / 2)
         tableHeaderView.addSubview(activityIndicatorView)
 
         logInButton = CustomButton(title: "Авторизоваться", color: .whiteColor())
@@ -83,13 +84,13 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         tableView.tableHeaderView = tableHeaderView
 
         updateTableHeaderView()
-        
+
         searchTableViewNavigationController = UINavigationController(
             rootViewController: ControllerManager.instance.searchTableViewController)
         favoritesTableViewNavigationController = UINavigationController(
             rootViewController: ControllerManager.instance.favoritesTableViewController)
     }
-    
+
     /**
         Подсвечивает картинку и текст ячейки, а прошлую делает обычной
 
@@ -100,15 +101,15 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         let previousCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: selectedMenuItem, inSection: 0))
         previousCell?.imageView?.tintColor = normalColor
         previousCell?.textLabel?.textColor = normalColor
-        
+
         let highlightColor = UIColor(red: 0, green: 138 / 255.0, blue: 190 / 255.0, alpha: 1)
         let newCell = tableView.cellForRowAtIndexPath(indexPath)
         newCell?.imageView?.tintColor = highlightColor
         newCell?.textLabel?.textColor = highlightColor
-        
+
         selectedMenuItem = indexPath.item
     }
-    
+
     /**
         Обрабатывает событие, когда нажата кнопка авторизации
     */
@@ -123,28 +124,29 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         viewControllerToPresent.modalTransitionStyle = .CoverVertical
         presentViewController(viewControllerToPresent, animated: true, completion: nil)
     }
-    
+
     /**
         Обрабатывает событие, когда нажата кнопка выхода
     */
     func logOutButtonPressed() {
         UIAlertView(title: "", message: "Вы действительно хотите выйти? Все загруженные документы будут удалены. " +
-            "Приложение вернется к первоначальному состоянию", delegate: self, cancelButtonTitle: nil, otherButtonTitles: "Выйти",
-            "Отмена").show()
+            "Приложение вернется к первоначальному состоянию", delegate: self, cancelButtonTitle: nil,
+            otherButtonTitles: "Выйти", "Отмена").show()
     }
-    
+
     /**
         Обновляет "шапку" таблицы
     */
     func updateTableHeaderView() {
-        let documentDirectory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
-        let avatarPath = documentDirectory.stringByAppendingPathComponent("avatar.jpg")
+        let fileManager = NSFileManager.defaultManager()
+        let avatarPath = NSURL(string: "avatar.jpg", relativeToURL: fileManager.URLsForDirectory(.DocumentDirectory,
+            inDomains: .UserDomainMask)[0])!.path!
 
-        if NSFileManager.defaultManager().fileExistsAtPath(avatarPath) {
-            showAvatarView(UIImage(contentsOfFile: avatarPath)!)
-            
+        if fileManager.fileExistsAtPath(avatarPath) {
+            showAvatarViewWithImage(UIImage(contentsOfFile: avatarPath)!)
+
             if let fullName = NSUserDefaults.standardUserDefaults().stringForKey("fullName") {
-                showFullNameLabel(fullName)
+                showLabelWithFullName(fullName)
             }
 
             logInButton.hidden = true
@@ -161,21 +163,21 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                             let standardUserDefaults = NSUserDefaults.standardUserDefaults()
                             standardUserDefaults.setObject(fullName, forKey: "fullName")
                             standardUserDefaults.synchronize()
-                            
-                            self.showFullNameLabel(fullName)
-                            
+
+                            self.showLabelWithFullName(fullName)
+
                             dispatch_async(dispatch_get_main_queue()) {
                                 if let imageUrl = NSURL(string: photoUrlString),
                                     imageData = NSData(contentsOfURL: imageUrl),
                                     image = UIImage(data: imageData) {
                                         UIImageJPEGRepresentation(image, 100)!.writeToFile(avatarPath, atomically: true)
 
-                                        self.showAvatarView(image)
+                                        self.showAvatarViewWithImage(image)
                                 }
                             }
-                        }
+                    }
 
-                        self.logOutButton.hidden = false
+                    self.logOutButton.hidden = false
                 }
             }
         } else {
@@ -188,19 +190,22 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
     */
     func vkLogInFailed() {
         print("Авторизация через ВКонтакте не удалась")
-        
+
         logInButton.hidden = false
         activityIndicatorView.stopAnimating()
     }
 
     /**
         Обрабатывает событие, когда был успешно получен маркер доступа и идентификатор пользователя ВКонтакте
+
+        - parameter vkAccessToken: Маркер доступа ВКонтакте
+        - parameter vkUserId: Идентификатор пользователя ВКонтакте
     */
-    func vkLogInSucceeded(vkAccessToken vkAccessToken: String, vkUserId: String) {
+    func vkLogInSucceededWithVkAccessToken(vkAccessToken: String, vkUserId: String) {
         print("Маркер доступа ВКонтакте: \(vkAccessToken)\nИдентификатор пользователя ВКонтакте: \(vkUserId)")
 
         MisisBooksApi.instance.vkAccessToken = vkAccessToken
-        
+
         MisisBooksApi.instance.signIn {
             let searchTableViewController = ControllerManager.instance.searchTableViewController
             let favoritesTableViewController = ControllerManager.instance.favoritesTableViewController
@@ -209,7 +214,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                 searchTableViewController.activityIndicator?.startAnimating()
                 searchTableViewController.placeholderView?.removeFromSuperview()
                 searchTableViewController.placeholderView = nil
-                MisisBooksApi.instance.getPopular(count: 20, categoryId: 1)
+                MisisBooksApi.instance.getPopularBooksByCount(20, categoryId: 1)
             }
 
             if favoritesTableViewController.isReady &&
@@ -217,20 +222,20 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                     favoritesTableViewController.activityIndicator?.startAnimating()
                     favoritesTableViewController.placeholderView?.removeFromSuperview()
                     favoritesTableViewController.placeholderView = nil
-                    MisisBooksApi.instance.getFavorites(count: 20, offset: 0)
+                    MisisBooksApi.instance.getFavoritesByCount(20, offset: 0)
             }
         }
     }
-    
+
     // MARK: - Внутренние методы
 
     /**
         Показывает аватар
 
-        - parameter avatar: Аватар
+        - parameter image: Картинка аватара
     */
-    private func showAvatarView(avatar: UIImage) {
-        avatarView = UIImageView(image: avatar)
+    private func showAvatarViewWithImage(image: UIImage) {
+        avatarView = UIImageView(image: image)
         avatarView.layer.borderColor = UIColor.whiteColor().CGColor
         avatarView.layer.borderWidth = 1
         avatarView.frame = CGRectMake(15, 30, 55, 55)
@@ -242,13 +247,13 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             self.tableHeaderView.addSubview(self.avatarView)
             }, completion: nil)
     }
-    
+
     /**
         Показывает поле с полным именем
 
         - parameter fullName: Полное имя
     */
-    private func showFullNameLabel(fullName: String) {
+    private func showLabelWithFullName(fullName: String) {
         fullNameLabel = UILabel()
         fullNameLabel.font = UIFont(name: "HelveticaNeue", size: 14)
         fullNameLabel.text = fullName
@@ -261,57 +266,57 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             self.tableHeaderView.addSubview(self.fullNameLabel)
             }, completion: nil)
     }
-    
+
     // MARK: - Методы UITableViewDataSource
-    
+
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let titles = ["Поиск", "Загрузки", "Избранное"]
         let imageNames = ["Search", "Downloads", "Favorites"]
         let image = UIImage(named: imageNames[indexPath.row])
-        let color = indexPath.item != selectedMenuItem ? UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1) :
-            UIColor(red: 0, green: 138 / 255.0, blue: 190 / 255.0, alpha: 1)
-        
+        let color = indexPath.item != selectedMenuItem ? UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0,
+            alpha: 1) : UIColor(red: 0, green: 138 / 255.0, blue: 190 / 255.0, alpha: 1)
+
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as UITableViewCell
         cell.imageView!.image = image!.imageWithRenderingMode(.AlwaysTemplate)
         cell.imageView!.tintColor = color
         cell.textLabel!.font = UIFont(name: "HelveticaNeue-Light", size: 16)
         cell.textLabel!.text = titles[indexPath.row]
         cell.textLabel!.textColor = color
-        
+
         return cell
     }
-    
+
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 3
     }
-    
+
     // MARK: - Методы UITableViewDelegate
-    
+
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         highlightRowAtIndexPath(indexPath)
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        
+
         switch indexPath.item {
         case 0:
             ControllerManager.instance.slideMenuController.changeMainViewController(searchTableViewNavigationController,
                 close: true)
         case 1:
-            ControllerManager.instance.slideMenuController.changeMainViewController(downloadsTableViewNavigationController,
-                close: true)
+            ControllerManager.instance.slideMenuController.changeMainViewController(
+                downloadsTableViewNavigationController, close: true)
         case 2:
-            ControllerManager.instance.slideMenuController.changeMainViewController(favoritesTableViewNavigationController,
-                close: true)
+            ControllerManager.instance.slideMenuController.changeMainViewController(
+                favoritesTableViewNavigationController, close: true)
         default:
             break
         }
     }
-    
+
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 44
     }
-    
+
     // MARK: - Методы UIAlertViewDelegate
-    
+
     func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
         if buttonIndex == 0 { // "Выйти"
             UIView.transitionWithView(tableHeaderView, duration: 0.3, options: .TransitionCrossDissolve, animations: {
@@ -320,31 +325,32 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                 self.avatarView.removeFromSuperview()
                 self.fullNameLabel.removeFromSuperview()
                 }, completion: nil)
-            
+
             let standardUserDefaults = NSUserDefaults.standardUserDefaults()
             standardUserDefaults.removeObjectForKey("accessToken")
             standardUserDefaults.removeObjectForKey("fullName")
             standardUserDefaults.synchronize()
-            
-            let documentDirectory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
-            let avatarPath = documentDirectory.stringByAppendingPathComponent("avatar.jpg")
+
+            let fileManager = NSFileManager.defaultManager()
+            let avatarUrl = NSURL(string: "avatar.jpg", relativeToURL: fileManager.URLsForDirectory(.DocumentDirectory,
+                inDomains: .UserDomainMask)[0])!
 
             do {
-                try NSFileManager.defaultManager().removeItemAtPath(avatarPath)
+                try fileManager.removeItemAtURL(avatarUrl)
             } catch {
                 print("Не удалось удалить аватар")
             }
-            
+
             for currentDownload in DownloadManager.getCurrentDownloads() {
                 currentDownload.task.cancel()
             }
-            
+
             ControllerManager.instance.downloadsTableViewController.deleteAllBooks()
             ControllerManager.instance.favoritesTableViewController.deleteAllBooks()
             
             MisisBooksApi.instance.accessToken = nil
             MisisBooksApi.instance.vkAccessToken = nil
-            MisisBooksApi.instance.getPopular(count: 20, categoryId: 1)
+            MisisBooksApi.instance.getPopularBooksByCount(20, categoryId: 1)
         }
     }
 }

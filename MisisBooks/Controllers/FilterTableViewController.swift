@@ -13,7 +13,7 @@ import CoreGraphics
     Класс для представления контроллера фильтра
 */
 class FilterTableViewController: UITableViewController {
-    
+
     /// Цвета категорий
     private let categoryColors = [UIColor(red: 186 / 255.0, green: 186 / 255.0, blue: 186 / 255.0, alpha: 1),
         UIColor(red: 74 / 255.0, green: 191 / 255.0, blue: 180 / 255.0, alpha: 1),
@@ -22,37 +22,40 @@ class FilterTableViewController: UITableViewController {
         UIColor(red: 179 / 255.0, green: 200 / 255.0, blue: 51 / 255.0, alpha: 1),
         UIColor(red: 155 / 255.0, green: 89 / 255.0, blue: 182 / 255.0, alpha: 1),
         UIColor(red: 1, green: 145 / 255.0, blue: 0, alpha: 1),
-        UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1)]
-    
+        UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1),
+        UIColor(red: 69 / 255.0, green: 131 / 255.0, blue: 136 / 255.0, alpha: 1),
+        UIColor(red: 136 / 255.0, green: 69 / 255.0, blue: 69 / 255.0, alpha: 1),
+        UIColor(red: 96 / 255.0, green: 160 / 255.0, blue: 223 / 255.0, alpha: 1)]
+
     /// Названия категорий
     private let categoryNames = ["Все", "Пособия", "Дипломы", "Сборники научных трудов", "Монографии, научные издания",
-        "Книги «МИСиС»", "Авторефераты диссертаций", "Разное"]
-    
+        "Книги «МИСиС»", "Авторефераты диссертаций", "Разное", "Журналы", "Документы филиалов «МИСиС»", "УМКД"]
+
     /// Идентификатор выбранной категории
     var selectedCategoryId: Int!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "Close"), style: .Plain, target: self,
             action: "closeButtonPressed")
-        
+
         tableView.separatorColor = UIColor(red: 178 / 255.0, green: 178 / 255.0, blue: 178 / 255.0, alpha: 1)
         tableView.tableFooterView = UIView()
         tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        
+
         title = "Категории"
     }
-    
+
     /**
         Обрабатывает событие, когда нажата кнопка закрытия
     */
     func closeButtonPressed() {
         dismissViewControllerAnimated(true, completion: nil)
     }
-    
+
     // MARK: - Внутренние методы
-    
+
     /**
         Возвращает картинку с кругом (с добавленим отступа сверху)
 
@@ -61,7 +64,7 @@ class FilterTableViewController: UITableViewController {
 
         - returns: Картинка с кругом
     */
-    private func imageWithCircle(diameter: CGFloat, color: UIColor) -> UIImage {
+    private func imageWithCircleWithDiameter(diameter: CGFloat, color: UIColor) -> UIImage {
         let paddingTop: CGFloat = 2.0
         let imageSize = CGSizeMake(diameter, diameter + paddingTop)
         let circleSize = CGSizeMake(diameter, diameter)
@@ -71,43 +74,44 @@ class FilterTableViewController: UITableViewController {
         CGContextFillEllipseInRect(context, CGRect(origin: CGPointMake(0, paddingTop), size: circleSize))
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        
+
         return image
     }
-    
+
     // MARK: - Методы UITableViewDataSource
-    
+
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
     }
-    
+
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as UITableViewCell
-        cell.imageView?.image = imageWithCircle(14, color: categoryColors[indexPath.row])
+        cell.imageView?.image = imageWithCircleWithDiameter(14, color: categoryColors[indexPath.row])
         cell.textLabel?.font = UIFont(name: "HelveticaNeue-Light", size: 16)
         cell.textLabel?.text = categoryNames[indexPath.row]
         cell.textLabel?.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
-        
+
         if indexPath.row == selectedCategoryId - 1 {
             cell.accessoryType = .Checkmark
         }
-        
+
         return cell
     }
-    
+
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return categoryNames.count
     }
-    
+
     // MARK: - Методы UITableViewDelegate
-    
+
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.cellForRowAtIndexPath(NSIndexPath(forRow: selectedCategoryId - 1, inSection: 0))?.accessoryType = .None
+        tableView.cellForRowAtIndexPath(NSIndexPath(forRow: selectedCategoryId - 1, inSection: 0))?.accessoryType =
+            .None
         tableView.cellForRowAtIndexPath(indexPath)?.accessoryType = .Checkmark
         ControllerManager.instance.searchTableViewController.changeCategory(indexPath.row + 1)
         dismissViewControllerAnimated(true, completion: nil)
     }
-    
+
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 44
     }

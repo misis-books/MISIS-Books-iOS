@@ -73,7 +73,7 @@ class PlaceholderView: UIView {
         layoutIfNeeded()
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
 
@@ -81,7 +81,7 @@ class PlaceholderView: UIView {
         super.layoutSubviews()
 
         let navigationBarHeight = viewController.navigationController!.navigationBar.frame.size.height
-        frame = CGRectMake(0.0, -navigationBarHeight, viewController.view.bounds.width, viewController.view.bounds.height)
+        frame = CGRectMake(0, -navigationBarHeight, viewController.view.bounds.width, viewController.view.bounds.height)
         titleLabel.center = CGPointMake(frame.size.width / 2, frame.size.height / 2 - 50)
         subtitleLabel.center = CGPointMake(frame.size.width / 2, frame.size.height / 2)
         button.center = CGPointMake(frame.size.width / 2, frame.size.height / 2 + 60)

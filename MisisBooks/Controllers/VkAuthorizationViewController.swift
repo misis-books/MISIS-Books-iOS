@@ -12,36 +12,36 @@ import UIKit
     Класс для представления контроллера авторизации через ВКонтакте
 */
 class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
-    
+
     /// Индикатор активности
     private var activityIndicatorView: UIActivityIndicatorView!
-    
+
     /// Веб-страница
     private var webView: UIWebView!
 
     /// Поле с ошибкой соединения
-    private var errorLabel: UILabel?
+    private var errorLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "Close"), style: .Plain, target: self,
             action: "closeButtonPressed")
-        
+
         title = "Вход через ВКонтакте"
-        
+
         webView = UIWebView(frame: view.bounds)
         webView.backgroundColor = UIColor(red: 241 / 255.0, green: 239 / 255.0, blue: 237 / 255.0, alpha: 1)
         webView.delegate = self
         view.addSubview(webView)
-        
+
         activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
         activityIndicatorView.center = view.center
         view.addSubview(activityIndicatorView)
-        
+
         let parameters = ["client_id=4720039", "display=mobile", "redirect_uri=https://oauth.vk.com/blank.html",
             "response_type=token", "revoke=1", "scope=offline"]
-        let urlString = "https://oauth.vk.com/authorize?" + "&".join(parameters)
+        let urlString = "https://oauth.vk.com/authorize?" + parameters.joinWithSeparator("&")
 
         webView.loadRequest(NSURLRequest(URL: NSURL(string: urlString)!))
     }
@@ -51,6 +51,8 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
             errorLabel?.center = view.center
             webView.frame = view.bounds
     }
+
+    // MARK: - Внутренние методы
 
     /**
         Обрабатывает событие, когда нажата кнопка закрытия
@@ -67,15 +69,15 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         webView.scrollView.scrollEnabled = false
 
         errorLabel = UILabel()
-        errorLabel!.font = UIFont(name: "HelveticaNeue-Light", size: 14)
-        errorLabel!.lineBreakMode = .ByWordWrapping
-        errorLabel!.numberOfLines = 0
-        errorLabel!.text = "Невозможно загрузить страницу\nПроверьте соединение с Интернетом"
-        errorLabel!.textAlignment = .Center
-        errorLabel!.textColor = .blackColor()
-        errorLabel!.sizeToFit()
-        errorLabel!.center = view.center
-        view.addSubview(errorLabel!)
+        errorLabel.font = UIFont(name: "HelveticaNeue-Light", size: 14)
+        errorLabel.lineBreakMode = .ByWordWrapping
+        errorLabel.numberOfLines = 0
+        errorLabel.text = "Невозможно загрузить страницу\nПроверьте соединение с Интернетом"
+        errorLabel.textAlignment = .Center
+        errorLabel.textColor = .blackColor()
+        errorLabel.sizeToFit()
+        errorLabel.center = view.center
+        view.addSubview(errorLabel)
     }
 
     func webViewDidStartLoad(webView: UIWebView) {
@@ -88,15 +90,15 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         let urlString = webView.request!.mainDocumentURL!.absoluteString
         print("Открыта страница: \(urlString)")
 
-        let urlParts = split(urlString.characters) { $0 == "#" }.map { String($0) }
+        let urlParts = urlString.characters.split { $0 == "#" }.map { String($0) }
 
         if urlParts.count == 2 {
-            var parametersDictionary = [String: String]()
-            let parameters = split(urlParts[1].characters) { $0 == "&" }.map { String($0) }
+            var parametersDictionary = [String : String]()
+            let parameters = urlParts[1].characters.split { $0 == "&" }.map { String($0) }
 
             for parameter in parameters {
-                let parts = split(parameter.characters) { $0 == "=" }.map { String($0) }
-                
+                let parts = parameter.characters.split { $0 == "=" }.map { String($0) }
+
                 if parts.count == 2 {
                     parametersDictionary[parts[0]] = parts[1]
                 }
@@ -104,7 +106,7 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
 
             if let vkAccessToken = parametersDictionary["access_token"],
                 vkUserId = parametersDictionary["user_id"] {
-                    ControllerManager.instance.menuTableViewController.vkLogInSucceeded(vkAccessToken: vkAccessToken,
+                    ControllerManager.instance.menuTableViewController.vkLogInSucceededWithVkAccessToken(vkAccessToken,
                         vkUserId: vkUserId)
             } else {
                 ControllerManager.instance.menuTableViewController.vkLogInFailed()

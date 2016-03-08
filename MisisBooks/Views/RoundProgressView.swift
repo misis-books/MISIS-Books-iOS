@@ -37,7 +37,7 @@ class RoundProgressView: UIView {
         backgroundColor = .clearColor()
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
 
@@ -59,8 +59,8 @@ class RoundProgressView: UIView {
         let startAngle = CGFloat(-90 * M_PI / 180)
         let progressPath = UIBezierPath()
         progressPath.addArcWithCenter(CGPointMake(CGRectGetMidX(progressRect), CGRectGetMidY(progressRect)),
-            radius: CGRectGetWidth(progressRect) / 2, startAngle: startAngle,
-            endAngle: (CGFloat(270 * M_PI / 180) - startAngle) * percent / 100 + startAngle, clockwise: true)
+            radius: CGRectGetWidth(progressRect) / 2, startAngle: startAngle, endAngle:
+            (CGFloat(270 * M_PI / 180) - startAngle) * percent / 100 + startAngle, clockwise: true)
         mainColor.setStroke()
         progressPath.lineWidth = 0.8
         progressPath.lineCapStyle = .Round
@@ -75,7 +75,7 @@ class RoundProgressView: UIView {
 
             return
         } else if isWaiting {
-            drawPausePathToContext(context, rect: rect)
+            drawPausePathToContext(context!, rect: rect)
 
             return
         }

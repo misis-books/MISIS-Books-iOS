@@ -134,7 +134,7 @@ class PopUpMessage: UIView {
         self.init(view: nil, position: nil, title: title, subtitle: nil, tapHandler: nil)
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
 
@@ -258,20 +258,20 @@ class PopUpMessage: UIView {
         let oldPoint = activeLayer.position
         let newPoint = CGPointMake(oldPoint.x, layer.position.y + distanceToPush)
 
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-            self.layer.position = newPoint
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))),
+            dispatch_get_main_queue()) {
+                self.layer.position = newPoint
 
-            let moveLayer = CABasicAnimation(keyPath: "position")
-            moveLayer.fromValue = NSValue(CGPoint: oldPoint)
-            moveLayer.toValue = NSValue(CGPoint: newPoint)
-            moveLayer.duration = forward ? self.showAnimationDuration : self.hideAnimationDuration
-            moveLayer.timingFunction = forward ?
-                CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut) :
-                CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn)
-            moveLayer.delegate = self
-            moveLayer.setValue(self.kMovePopUpMessageKey, forKey: "animation")
+                let moveLayer = CABasicAnimation(keyPath: "position")
+                moveLayer.fromValue = NSValue(CGPoint: oldPoint)
+                moveLayer.toValue = NSValue(CGPoint: newPoint)
+                moveLayer.duration = forward ? self.showAnimationDuration : self.hideAnimationDuration
+                moveLayer.timingFunction = forward ? CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut) :
+                    CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn)
+                moveLayer.delegate = self
+                moveLayer.setValue(self.kMovePopUpMessageKey, forKey: "animation")
 
-            self.layer.addAnimation(moveLayer, forKey: self.kMovePopUpMessageKey)
+                self.layer.addAnimation(moveLayer, forKey: self.kMovePopUpMessageKey)
         }
     }
 
@@ -360,10 +360,10 @@ class PopUpMessage: UIView {
             }
 
             if currentAnimation != nil {
-                let remainingAnimationDuration = currentAnimation.duration - CACurrentMediaTime() + currentAnimation.beginTime
+                let remainingAnimationDuration = currentAnimation.duration - CACurrentMediaTime() +
+                    currentAnimation.beginTime
                 timingFunction = currentAnimation.timingFunction
                 positionAnimationDuration = remainingAnimationDuration
-
                 layer.removeAnimationForKey(currentAnimationKey!)
             }
 
@@ -410,7 +410,8 @@ class PopUpMessage: UIView {
         let superviewSize = UIScreen.mainScreen().bounds.size
         let maxLabelSize = CGSizeMake(superviewSize.width - 30, CGFloat.max)
         let titleLabelHeight = heightForText(titleLabel.text!, font: titleLabel.font, maxLabelSize: maxLabelSize)
-        let subtitleLabelHeight = heightForText(subtitleLabel.text!, font: subtitleLabel.font, maxLabelSize: maxLabelSize)
+        let subtitleLabelHeight = heightForText(subtitleLabel.text!, font: subtitleLabel.font, maxLabelSize:
+            maxLabelSize)
         let heightForSelf = titleLabelHeight + subtitleLabelHeight + 35
 
         let boundsAnimationDuration = kRotationDurationIPhone
@@ -432,8 +433,8 @@ class PopUpMessage: UIView {
         }
 
         titleLabel.frame = CGRectMake(15, 15, maxLabelSize.width, titleLabelHeight)
-        subtitleLabel.frame = CGRectMake(titleLabel.frame.origin.x, titleLabel.frame.origin.y + titleLabel.frame.size.height + 5,
-            maxLabelSize.width, subtitleLabelHeight)
+        subtitleLabel.frame = CGRectMake(titleLabel.frame.origin.x, titleLabel.frame.origin.y +
+            titleLabel.frame.size.height + 5, maxLabelSize.width, subtitleLabelHeight)
 
         if animated {
             UIView.commitAnimations()
@@ -469,7 +470,8 @@ class PopUpMessage: UIView {
 
         let maxLabelSize = CGSizeMake(superview.bounds.size.width - 30, CGFloat.max)
         let titleLabelHeight = heightForText(titleLabel.text!, font: titleLabel.font, maxLabelSize: maxLabelSize)
-        let subtitleLabelHeight = heightForText(subtitleLabel.text!, font: subtitleLabel.font, maxLabelSize: maxLabelSize)
+        let subtitleLabelHeight = heightForText(subtitleLabel.text!, font: subtitleLabel.font, maxLabelSize:
+            maxLabelSize)
         let heightForSelf = titleLabelHeight + subtitleLabelHeight + 35
 
         var frame = CGRectMake(0, 0, superview.bounds.size.width, heightForSelf)
@@ -495,10 +497,10 @@ class PopUpMessage: UIView {
         case .UnderNavigationBar:
             initialYCoord = -heightForSelf + UIApplication.sharedApplication().statusBarFrame.size.height + 44
         }
-
+        
         frame.origin.y = initialYCoord
         self.frame = frame
-
+        
         if position == .UnderNavigationBar {
             let maskLayer = CAShapeLayer()
             let maskRect = CGRectMake(0, frame.size.height, frame.size.width, superview.bounds.size.height)

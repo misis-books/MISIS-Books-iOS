@@ -8,6 +8,9 @@
 
 import UIKit
 
+/**
+    Перечисление для состояний вида-загрузчика
+*/
 enum PreloaderViewState {
     case Normal, Pulling, Loading
 }
@@ -80,7 +83,7 @@ class PreloaderView: UIView {
         loadState = .Normal
     }
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
 
@@ -98,9 +101,9 @@ class PreloaderView: UIView {
             let loading = delegate.preloaderViewDataSourceIsLoading()
 
             if loadState == .Pulling && offset < boundery && offset > scrollView.contentSize.height && !loading {
-                setLoadState(.Normal)
+                setState(.Normal)
             } else if loadState == .Normal && offset > boundery && !loading {
-                setLoadState(.Pulling)
+                setState(.Pulling)
             }
         }
     }
@@ -113,16 +116,16 @@ class PreloaderView: UIView {
 
             if offset >= boundery && !loading {
                 delegate.preloaderViewDidTriggerRefresh()
-                setLoadState(.Loading)
+                setState(.Loading)
             }
         }
     }
 
     func preloaderViewDataSourceDidFinishedLoading() {
-        setLoadState(.Normal)
+        setState(.Normal)
     }
 
-    private func setLoadState(state: PreloaderViewState) {
+    private func setState(state: PreloaderViewState) {
         label.layer.addAnimation({
             let animation = CATransition()
             animation.type = kCATransitionFade
@@ -170,7 +173,7 @@ class PreloaderView: UIView {
             arrowImage.hidden = true
             CATransaction.commit()
         }
-
+        
         loadState = state
     }
 }

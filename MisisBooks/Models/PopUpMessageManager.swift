@@ -86,10 +86,11 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
             dispatch_async(dispatch_get_main_queue()) {
                 popUpMessage.showPopUpMessage()
 
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-                    if popUpMessage != nil {
-                        self.hidePopUpMessage(popUpMessage)
-                    }
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))),
+                    dispatch_get_main_queue()) {
+                        if popUpMessage != nil {
+                            self.hidePopUpMessage(popUpMessage)
+                        }
                 }
             }
         }
@@ -161,7 +162,8 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
 
         for banner in bannersToPush {
             if banner.position == popUpMessage.position {
-                banner.pushPopUpMessage(popUpMessage.frame.size.height, forward: true, delay: popUpMessage.fadeInDuration)
+                banner.pushPopUpMessage(popUpMessage.frame.size.height, forward: true, delay:
+                    popUpMessage.fadeInDuration)
             }
         }
     }
@@ -263,7 +265,7 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
 
             let bottomBanners = popUpBanners.filter() { $0.position == .Bottom }
             var bottomYCoord = view.bounds.size.height
-
+            
             for popUpMessage in Array(bottomBanners.reverse()) {
                 popUpMessage.updateSizeAndSubviewsAnimated(true)
                 bottomYCoord -= popUpMessage.layer.bounds.size.height
