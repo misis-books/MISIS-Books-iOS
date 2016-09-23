@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		842723501D95BC0300A48064 /* ControllerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8427234F1D95BC0300A48064 /* ControllerManager.swift */; };
+		842723521D95BC0A00A48064 /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842723511D95BC0A00A48064 /* Database.swift */; };
+		842723541D95BC1100A48064 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842723531D95BC1100A48064 /* DownloadManager.swift */; };
+		842723561D95BC1800A48064 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842723551D95BC1800A48064 /* Api.swift */; };
+		842723581D95BC1D00A48064 /* PopUpMessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842723571D95BC1D00A48064 /* PopUpMessageManager.swift */; };
 		844224601B3A44D3001A11E3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8442245F1B3A44D3001A11E3 /* libsqlite3.tbd */; };
 		84CF493C1AF4EF380099A3AF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF493B1AF4EF380099A3AF /* AppDelegate.swift */; };
 		84CF49431AF4EF380099A3AF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84CF49421AF4EF380099A3AF /* Images.xcassets */; };
@@ -19,12 +24,7 @@
 		84CF496B1AF4F11E0099A3AF /* SearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49631AF4F11E0099A3AF /* SearchTableViewController.swift */; };
 		84CF496C1AF4F11E0099A3AF /* SlideMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49641AF4F11E0099A3AF /* SlideMenuController.swift */; };
 		84CF496D1AF4F11E0099A3AF /* VkAuthorizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49651AF4F11E0099A3AF /* VkAuthorizationViewController.swift */; };
-		84CF49741AF4F1690099A3AF /* PopUpMessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF496E1AF4F1690099A3AF /* PopUpMessageManager.swift */; };
 		84CF49751AF4F1690099A3AF /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF496F1AF4F1690099A3AF /* Book.swift */; };
-		84CF49761AF4F1690099A3AF /* ControllerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49701AF4F1690099A3AF /* ControllerManager.swift */; };
-		84CF49771AF4F1690099A3AF /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49711AF4F1690099A3AF /* Database.swift */; };
-		84CF49781AF4F1690099A3AF /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49721AF4F1690099A3AF /* DownloadManager.swift */; };
-		84CF49791AF4F1690099A3AF /* MisisBooksApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF49731AF4F1690099A3AF /* MisisBooksApi.swift */; };
 		84CF49811AF4F1990099A3AF /* PopUpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497A1AF4F1990099A3AF /* PopUpMessage.swift */; };
 		84CF49821AF4F1990099A3AF /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497B1AF4F1990099A3AF /* CustomButton.swift */; };
 		84CF49831AF4F1990099A3AF /* CustomLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF497C1AF4F1990099A3AF /* CustomLabel.swift */; };
@@ -35,6 +35,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8427234F1D95BC0300A48064 /* ControllerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerManager.swift; sourceTree = "<group>"; };
+		842723511D95BC0A00A48064 /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
+		842723531D95BC1100A48064 /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		842723551D95BC1800A48064 /* Api.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
+		842723571D95BC1D00A48064 /* PopUpMessageManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopUpMessageManager.swift; sourceTree = "<group>"; };
 		8442245F1B3A44D3001A11E3 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		84CF49361AF4EF380099A3AF /* MisisBooks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MisisBooks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84CF493A1AF4EF380099A3AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -49,12 +54,7 @@
 		84CF49631AF4F11E0099A3AF /* SearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SearchTableViewController.swift; path = Controllers/SearchTableViewController.swift; sourceTree = "<group>"; };
 		84CF49641AF4F11E0099A3AF /* SlideMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SlideMenuController.swift; path = Controllers/SlideMenuController.swift; sourceTree = "<group>"; };
 		84CF49651AF4F11E0099A3AF /* VkAuthorizationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VkAuthorizationViewController.swift; path = Controllers/VkAuthorizationViewController.swift; sourceTree = "<group>"; };
-		84CF496E1AF4F1690099A3AF /* PopUpMessageManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PopUpMessageManager.swift; path = Models/PopUpMessageManager.swift; sourceTree = "<group>"; };
 		84CF496F1AF4F1690099A3AF /* Book.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Book.swift; path = Models/Book.swift; sourceTree = "<group>"; };
-		84CF49701AF4F1690099A3AF /* ControllerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ControllerManager.swift; path = Models/ControllerManager.swift; sourceTree = "<group>"; };
-		84CF49711AF4F1690099A3AF /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Database.swift; path = Models/Database.swift; sourceTree = "<group>"; };
-		84CF49721AF4F1690099A3AF /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DownloadManager.swift; path = Models/DownloadManager.swift; sourceTree = "<group>"; };
-		84CF49731AF4F1690099A3AF /* MisisBooksApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MisisBooksApi.swift; path = Models/MisisBooksApi.swift; sourceTree = "<group>"; };
 		84CF497A1AF4F1990099A3AF /* PopUpMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PopUpMessage.swift; path = Views/PopUpMessage.swift; sourceTree = "<group>"; };
 		84CF497B1AF4F1990099A3AF /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomButton.swift; path = Views/CustomButton.swift; sourceTree = "<group>"; };
 		84CF497C1AF4F1990099A3AF /* CustomLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomLabel.swift; path = Views/CustomLabel.swift; sourceTree = "<group>"; };
@@ -99,6 +99,11 @@
 			isa = PBXGroup;
 			children = (
 				84CF493B1AF4EF380099A3AF /* AppDelegate.swift */,
+				842723551D95BC1800A48064 /* Api.swift */,
+				8427234F1D95BC0300A48064 /* ControllerManager.swift */,
+				842723511D95BC0A00A48064 /* Database.swift */,
+				842723531D95BC1100A48064 /* DownloadManager.swift */,
+				842723571D95BC1D00A48064 /* PopUpMessageManager.swift */,
 				84CF49421AF4EF380099A3AF /* Images.xcassets */,
 				84CF49441AF4EF380099A3AF /* LaunchScreen.xib */,
 				84CF495B1AF4EFE50099A3AF /* Models */,
@@ -121,11 +126,6 @@
 			isa = PBXGroup;
 			children = (
 				84CF496F1AF4F1690099A3AF /* Book.swift */,
-				84CF49701AF4F1690099A3AF /* ControllerManager.swift */,
-				84CF49711AF4F1690099A3AF /* Database.swift */,
-				84CF49721AF4F1690099A3AF /* DownloadManager.swift */,
-				84CF49731AF4F1690099A3AF /* MisisBooksApi.swift */,
-				84CF496E1AF4F1690099A3AF /* PopUpMessageManager.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -186,12 +186,13 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "Maxim Loskov";
 				TargetAttributes = {
 					84CF49351AF4EF380099A3AF = {
 						CreatedOnToolsVersion = 6.3;
 						DevelopmentTeam = GZS64MHF8K;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -230,8 +231,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84CF49741AF4F1690099A3AF /* PopUpMessageManager.swift in Sources */,
-				84CF49781AF4F1690099A3AF /* DownloadManager.swift in Sources */,
 				84CF49831AF4F1990099A3AF /* CustomLabel.swift in Sources */,
 				84CF49861AF4F1990099A3AF /* PreloaderView.swift in Sources */,
 				84CF49821AF4F1990099A3AF /* CustomButton.swift in Sources */,
@@ -243,14 +242,16 @@
 				84CF49661AF4F11E0099A3AF /* BookTableViewController.swift in Sources */,
 				84CF496C1AF4F11E0099A3AF /* SlideMenuController.swift in Sources */,
 				84CF493C1AF4EF380099A3AF /* AppDelegate.swift in Sources */,
+				842723541D95BC1100A48064 /* DownloadManager.swift in Sources */,
 				84CF49681AF4F11E0099A3AF /* FavoritesTableViewController.swift in Sources */,
 				84CF49751AF4F1690099A3AF /* Book.swift in Sources */,
 				84CF496D1AF4F11E0099A3AF /* VkAuthorizationViewController.swift in Sources */,
-				84CF49791AF4F1690099A3AF /* MisisBooksApi.swift in Sources */,
-				84CF49761AF4F1690099A3AF /* ControllerManager.swift in Sources */,
 				84CF49671AF4F11E0099A3AF /* DownloadsTableViewController.swift in Sources */,
-				84CF49771AF4F1690099A3AF /* Database.swift in Sources */,
+				842723501D95BC0300A48064 /* ControllerManager.swift in Sources */,
+				842723561D95BC1800A48064 /* Api.swift in Sources */,
+				842723581D95BC1D00A48064 /* PopUpMessageManager.swift in Sources */,
 				84CF496B1AF4F11E0099A3AF /* SearchTableViewController.swift in Sources */,
+				842723521D95BC0A00A48064 /* Database.swift in Sources */,
 				84CF49871AF4F1990099A3AF /* RoundProgressView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -282,8 +283,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -306,7 +309,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -328,8 +331,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -345,9 +350,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -362,12 +368,13 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = MisisBooks/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.maximloskov.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "MisisBooks-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -380,11 +387,12 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = MisisBooks/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.maximloskov.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "MisisBooks-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

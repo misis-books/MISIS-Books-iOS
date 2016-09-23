@@ -3,84 +3,73 @@
 //  MisisBooks
 //
 //  Created by Maxim Loskov on 08.12.14.
-//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2016 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
 
-/**
-    Перечисление для состояний вида-загрузчика
-*/
 enum PreloaderViewState {
-    case Normal, Pulling, Loading
+
+    case normal
+    case pulling
+    case loading
+
 }
 
 protocol PreloaderViewDelegate {
+
     func preloaderViewDataSourceIsLoading() -> Bool!
     func preloaderViewDidTriggerRefresh()
+
 }
 
-/**
-    Класс для представления вида-подгрузчика
-*/
 class PreloaderView: UIView {
 
-    /// Делегат
     private var delegate: PreloaderViewDelegate!
-
-    /// Текстовое поле
     var label: UILabel!
-
-    /// Сохраненный текст
     private var savedText: String?
-
-    /// Состояние загрузки
     private var loadState: PreloaderViewState?
-
-    /// Индикатор загрузки
     private var loadingIndicator: UIActivityIndicatorView!
-
-    /// Изображение стрелки
     private var arrowImage: CALayer!
 
     init(text: String, delegate: PreloaderViewDelegate) {
         self.delegate = delegate
 
-        super.init(frame: CGRectMake(0, 0, UIScreen.mainScreen().bounds.size.width, 44))
+        super.init(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: 44))
 
         let contentColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
 
         label = UILabel()
-        label.backgroundColor = .clearColor()
+        label.backgroundColor = .clear
         label.font = UIFont(name: "HelveticaNeue-Light", size: 13)
-        label.lineBreakMode = .ByWordWrapping
+        label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
-        label.shadowColor = .whiteColor()
-        label.shadowOffset = CGSizeMake(0, -1)
+        label.shadowColor = .white
+        label.shadowOffset = CGSize(width: 0, height: -1)
         label.text = text
-        label.textAlignment = .Center
+        label.textAlignment = .center
         label.textColor = contentColor
         addSubview(label)
 
         arrowImage = CALayer()
-        arrowImage.frame = CGRectMake(10, 6, 24, 20)
+        arrowImage.frame = CGRect(x: 10, y: 6, width: 24, height: 20)
         arrowImage.mask = {
             let mask = CALayer()
             mask.frame = self.arrowImage.bounds
-            mask.contents = UIImage(named: "Arrow")?.CGImage
+            mask.contents = UIImage(named: "Arrow")?.cgImage
             mask.contentsGravity = kCAGravityResizeAspect
-            mask.contentsScale = UIScreen.mainScreen().scale
+            mask.contentsScale = UIScreen.main.scale
 
             return mask
             }()
-        arrowImage.backgroundColor = contentColor.CGColor
+        arrowImage.backgroundColor = contentColor.cgColor
         layer.addSublayer(arrowImage)
 
-        loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-        loadingIndicator.frame = CGRectMake(12, 8, 22, 18)
+        loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        loadingIndicator.frame = CGRect(x: 12, y: 8, width: 22, height: 18)
         addSubview(loadingIndicator)
 
-        loadState = .Normal
+        loadState = .normal
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -90,43 +79,43 @@ class PreloaderView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        frame = CGRectMake(frame.origin.x, frame.origin.y, UIScreen.mainScreen().bounds.size.width, 44)
-        label.frame = CGRectMake(0, 0, frame.size.width, 34)
+        frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: UIScreen.main.bounds.size.width, height: 44)
+        label.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: 34)
     }
 
-    func preloaderViewScrollViewDidScroll(scrollView: UIScrollView) {
-        if loadState != .Loading && scrollView.dragging {
+    func preloaderViewScrollViewDidScroll(_ scrollView: UIScrollView) {
+        if loadState != .loading && scrollView.isDragging {
             let offset = scrollView.contentOffset.y + scrollView.frame.size.height
             let boundery = scrollView.contentSize.height + 64
             let loading = delegate.preloaderViewDataSourceIsLoading()
 
-            if loadState == .Pulling && offset < boundery && offset > scrollView.contentSize.height && !loading {
-                setState(.Normal)
-            } else if loadState == .Normal && offset > boundery && !loading {
-                setState(.Pulling)
+            if loadState == .pulling && offset < boundery && offset > scrollView.contentSize.height && !loading! {
+                setState(.normal)
+            } else if loadState == .normal && offset > boundery && !loading! {
+                setState(.pulling)
             }
         }
     }
 
-    func preloaderViewScrollViewDidEndDragging(scrollView: UIScrollView) {
-        if loadState != .Loading {
+    func preloaderViewScrollViewDidEndDragging(_ scrollView: UIScrollView) {
+        if loadState != .loading {
             let offset = scrollView.contentOffset.y + scrollView.frame.size.height
             let boundery = scrollView.contentSize.height + 64
             let loading = delegate.preloaderViewDataSourceIsLoading()
 
-            if offset >= boundery && !loading {
+            if offset >= boundery && !loading! {
                 delegate.preloaderViewDidTriggerRefresh()
-                setState(.Loading)
+                setState(.loading)
             }
         }
     }
 
     func preloaderViewDataSourceDidFinishedLoading() {
-        setState(.Normal)
+        setState(.normal)
     }
 
-    private func setState(state: PreloaderViewState) {
-        label.layer.addAnimation({
+    private func setState(_ state: PreloaderViewState) {
+        label.layer.add({
             let animation = CATransition()
             animation.type = kCATransitionFade
             animation.duration = 0.2
@@ -136,12 +125,12 @@ class PreloaderView: UIView {
             }(), forKey: "animation")
 
         switch state {
-        case .Normal:
+        case .normal:
             label.text = savedText
-            loadingIndicator.hidden = true
+            loadingIndicator.isHidden = true
             loadingIndicator.stopAnimating()
 
-            if loadState == .Pulling {
+            if loadState == .pulling {
                 CATransaction.begin()
                 CATransaction.setAnimationDuration(0.2)
                 arrowImage.transform = CATransform3DIdentity
@@ -150,30 +139,31 @@ class PreloaderView: UIView {
 
             CATransaction.begin()
             CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-            arrowImage.hidden = false
+            arrowImage.isHidden = false
             arrowImage.transform = CATransform3DIdentity
             CATransaction.commit()
-        case .Pulling:
+        case .pulling:
             savedText = label.text
             label.text = "Отпустите для продолжения"
-            loadingIndicator.hidden = true
+            loadingIndicator.isHidden = true
             loadingIndicator.stopAnimating()
 
             CATransaction.begin()
             CATransaction.setAnimationDuration(0.2)
             arrowImage.transform = CATransform3DMakeRotation(CGFloat(M_PI), 0, 0, 1)
             CATransaction.commit()
-        case .Loading:
+        case .loading:
             label.text = "Загрузка результатов..."
-            loadingIndicator.hidden = false
+            loadingIndicator.isHidden = false
             loadingIndicator.startAnimating()
 
             CATransaction.begin()
             CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-            arrowImage.hidden = true
+            arrowImage.isHidden = true
             CATransaction.commit()
         }
         
         loadState = state
     }
+
 }

@@ -8,15 +8,12 @@
 
 import UIKit
 
-/**
-    Класс для представления поля с внутренними отступами
-*/
 class CustomLabel: UILabel {
 
-    /// Верхний, левый, нижний и правый внутренние отступы
-    var edgeInsets = UIEdgeInsetsMake(0, 0, 0, 0)
+    var edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 
-    override func drawRect(rect: CGRect) {
-        super.drawTextInRect(UIEdgeInsetsInsetRect(rect, edgeInsets))
+    override func draw(_ rect: CGRect) {
+        super.drawText(in: UIEdgeInsetsInsetRect(rect, edgeInsets))
     }
+
 }

@@ -3,44 +3,24 @@
 //  MisisBooks
 //
 //  Created by Maxim Loskov on 06.12.14.
-//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2016 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
 
-/**
-    Класс для представления контроллера избранного
-*/
 class FavoritesTableViewController: BookTableViewController, PreloaderViewDelegate {
 
-    /// Действие
-    var action: MisisBooksApiAction!
-
-    /// Индикатор активности
+    var action: ApiAction!
     var activityIndicator: UIActivityIndicatorView!
-
-    /// Количество возвращаемых результатов
     private var count = 20
-
-    /// Флаг состояния готовности контроллера
     var isReady = false
-
-    /// Флаг состояния подгрузки
     private var loadingMore = false
-
-    /// Смещение выборки
     private var offset = 0
-
-    /// Вид-подгрузчик
     private var preloaderView: PreloaderView?
-
-    /// Вид-заполнитель
     var placeholderView: PlaceholderView?
-
-    /// Общее количество разультатов
     private var totalResults = 0
 
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         updateSectionTitle()
         isReady = true
     }
@@ -51,40 +31,35 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         tableView.allowsMultipleSelectionDuringEditing = true
         title = "Избранное"
 
-        activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-        activityIndicator.center = CGPointMake(view.bounds.size.width / 2, 18)
+        activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        activityIndicator.center = CGPoint(x: view.bounds.size.width / 2, y: 18)
         activityIndicator.startAnimating()
         view.addSubview(activityIndicator)
 
-        action = .GetFavorites
-        MisisBooksApi.instance.getFavoritesByCount(count, offset: offset)
+        action = .getFavorites
+        Api.instance.getFavoritesByCount(count, offset: offset)
     }
 
-    override func willAnimateRotationToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation,
-        duration: NSTimeInterval) {
-            if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
-                placeholderView?.setNeedsLayout()
-            }
+    override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation,
+                                      duration: TimeInterval) {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            placeholderView?.setNeedsLayout()
+        }
 
-            activityIndicator.center = CGPointMake(view.bounds.size.width / 2, 18)
+        activityIndicator.center = CGPoint(x: view.bounds.size.width / 2, y: 18)
     }
 
-    /**
-        Добавляет книгу в избранное
-
-        - parameter book: Книга
-    */
-    func addBook(book: Book) {
+    func addBook(_ book: Book) {
         for bookInSearch in ControllerManager.instance.searchTableViewController.books {
             if bookInSearch.id == book.id {
                 bookInSearch.isMarkedAsFavorite = true
             }
         }
 
-        books.insert(book, atIndex: 0)
+        books.insert(book, at: 0)
 
         if isReady {
-            tableView?.insertRowsAtIndexPaths([NSIndexPath(forRow: 0, inSection: 0)], withRowAnimation: .Automatic)
+            tableView?.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         }
 
         changeFavoriteState(true, bookId: book.id)
@@ -95,9 +70,6 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         hidePlaceholderView()
     }
 
-    /**
-        Удаляет все книги из избранного
-    */
     func deleteAllBooks() {
         for book in books {
             for bookInSearch in ControllerManager.instance.searchTableViewController.books {
@@ -109,25 +81,26 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
             changeFavoriteState(false, bookId: book.id)
         }
 
-        books.removeAll(keepCapacity: false)
-        tableView.reloadSections(NSIndexSet(index: 0), withRowAnimation: .Fade)
+        books.removeAll(keepingCapacity: false)
+        tableView.reloadSections(IndexSet(integer: 0), with: .fade)
         Database.instance.deleteAllBooksFromList("favorites")
         totalResults = 0
         offset = 0
         sectionTitleLabel1.text = textForSectionHeaderWithTotalResults(totalResults)
         removePreloaderView()
-        showPlaceholderView(PlaceholderView(viewController: self, title: "Нет документов",
-            subtitle: "Здесь появятся документы,\nотмеченные как избранные", buttonText: "Начать поиск") {
+        showPlaceholderView(
+            PlaceholderView(
+                viewController: self,
+                title: "Нет документов",
+                subtitle: "Здесь появятся документы,\nотмеченные как избранные",
+                buttonText: "Начать поиск"
+            ) {
                 self.showSearchController()
-            })
+            }
+        )
     }
 
-    /**
-        Удаляет книги из избранного
-
-        - parameter booksForDeletion: Книги для удаления
-    */
-    func deleteBooks(booksToDelete: [Book]) {
+    func deleteBooks(_ booksToDelete: [Book]) {
         for bookForDeletion in booksToDelete {
             for bookInSearch in ControllerManager.instance.searchTableViewController.books {
                 if bookInSearch.id == bookForDeletion.id {
@@ -139,11 +112,11 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
 
             for i in 0..<books.count {
                 if books[i].id == bookForDeletion.id {
-                    books.removeAtIndex(i)
+                    books.remove(at: i)
 
                     if isReady {
-                        tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: i, inSection: 0)], withRowAnimation:
-                            .Fade)
+                        tableView.deleteRows(at: [IndexPath(row: i, section: 0)], with:
+                            .fade)
                     }
 
                     break
@@ -157,18 +130,21 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         sectionTitleLabel1.text = textForSectionHeaderWithTotalResults(totalResults)
 
         if books.count == 0 {
-            showPlaceholderView(PlaceholderView(viewController: self, title: "Нет документов",
-                subtitle: "Здесь появятся документы,\nотмеченные как избранные", buttonText: "Начать поиск") {
+            showPlaceholderView(
+                PlaceholderView(
+                    viewController: self,
+                    title: "Нет документов",
+                    subtitle: "Здесь появятся документы,\nотмеченные как избранные",
+                    buttonText: "Начать поиск"
+                ) {
                     self.showSearchController()
-                })
+                }
+            )
         } else {
             showUpdateAndEditButtons()
         }
     }
 
-    /**
-        Обрабатывает событие, когда нажата кнопка удаления
-    */
     func deleteButtonPressed() {
         let selectedIndexPaths = tableView.indexPathsForSelectedRows
         let actionTitleSubstring: String
@@ -177,7 +153,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         if selectedIndexPaths?.count == 1 {
             actionTitleSubstring = "этот документ"
             numberOfBooksToDelete = 1
-        } else if selectedIndexPaths?.count > 1 {
+        } else if (selectedIndexPaths?.count)! > 1 {
             actionTitleSubstring = "эти документы"
             numberOfBooksToDelete = selectedIndexPaths!.count
         } else {
@@ -185,112 +161,133 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
             numberOfBooksToDelete = books.count
         }
 
-        let actionSheet = UIActionSheet(title: "Вы действительно хотите удалить из избранного \(actionTitleSubstring)?",
-            delegate: self, cancelButtonTitle: "Отмена", destructiveButtonTitle: "Удалить (\(numberOfBooksToDelete))")
-        actionSheet.actionSheetStyle = .Default
+        let actionSheet = UIActionSheet(
+            title: "Вы действительно хотите удалить из избранного \(actionTitleSubstring)?",
+            delegate: self,
+            cancelButtonTitle: "Отмена",
+            destructiveButtonTitle: "Удалить (\(numberOfBooksToDelete))"
+        )
+        actionSheet.actionSheetStyle = .default
         actionSheet.tag = 0
-        actionSheet.showInView(view)
+        actionSheet.show(in: view)
     }
 
-    /**
-        Загружает книги из базы данных
-    */
     func loadBooksFromDatabase() {
         activityIndicator.stopAnimating()
-        books = Array(Database.instance.booksForList("favorites").reverse())
+        books = Array(Database.instance.booksForList("favorites").reversed())
         totalResults = books.count
         sectionTitleLabel1.text = textForSectionHeaderWithTotalResults(totalResults)
 
         if books.count == 0 {
-            showPlaceholderView(PlaceholderView(viewController: self, title: "Нет документов",
-                subtitle: "Здесь появятся документы,\nотмеченные как избранные", buttonText: "Начать поиск") {
+            showPlaceholderView(
+                PlaceholderView(
+                    viewController: self,
+                    title: "Нет документов",
+                    subtitle: "Здесь появятся документы,\nотмеченные как избранные",
+                    buttonText: "Начать поиск"
+                ) {
                     self.showSearchController()
-                })
+                }
+            )
         } else {
             showUpdateAndEditButtons()
 
         }
 
-        let allDocuments = books.map { String($0.id) }.joinWithSeparator(", ")
+        let allDocuments = books.map { String($0.id) }.joined(separator: ", ")
         print("Избранные книги (\(books.count)): [\(allDocuments)]")
 
         tableView.reloadData()
     }
 
-    /**
-        Показывает кнопки для удаления документов и отмены редактирования таблицы
-    */
     func showDeleteAndCancelButtons() {
         setEditing(true, animated: true)
-        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Cancel"), style: .Plain, target:
-            self, action: "showUpdateAndEditButtons"), UIBarButtonItem(image: UIImage(named: "Trash"), style: .Plain,
-                target: self, action: "deleteButtonPressed")], animated: true)
+        navigationItem.setRightBarButtonItems(
+            [
+                UIBarButtonItem(
+                    image: UIImage(named: "Cancel"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(showUpdateAndEditButtons)
+                ),
+                UIBarButtonItem(
+                    image: UIImage(named: "Trash"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(deleteButtonPressed)
+                )
+            ],
+            animated: true
+        )
     }
 
-    /**
-        Показывает вид-заполнитель
-
-        - parameter placeholderView: Вид-заполнитель
-    */
-    func showPlaceholderView(placeholderView: PlaceholderView) {
+    func showPlaceholderView(_ placeholderView: PlaceholderView) {
         showUpdateButton()
         loadingMore = false
         activityIndicator.stopAnimating()
         self.placeholderView?.removeFromSuperview()
         self.placeholderView = placeholderView
-        books.removeAll(keepCapacity: false)
+        books.removeAll(keepingCapacity: false)
         tableView.reloadData()
         tableView.addSubview(self.placeholderView!)
         tableView.bounces = false
         setEditing(false, animated: true)
     }
 
-    /**
-        Показывает кнопки для обновления и редактирования таблицы
-    */
     func showUpdateAndEditButtons() {
         setEditing(false, animated: true)
-        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Edit"), style: .Plain, target:
-            self, action: "showDeleteAndCancelButtons"), UIBarButtonItem(image: UIImage(named: "Update"), style: .Plain,
-                target: self, action: "updateButtonPressed")], animated: true)
+        navigationItem.setRightBarButtonItems(
+            [
+                UIBarButtonItem(
+                    image: UIImage(named: "Edit"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(showDeleteAndCancelButtons)
+                ),
+                UIBarButtonItem(
+                    image: UIImage(named: "Update"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(updateButtonPressed)
+                )
+            ],
+            animated: true
+        )
     }
 
-    /**
-        Показывает кнопку для обновления таблицы
-    */
     func showUpdateButton() {
-        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Update"), style: .Plain, target:
-            self, action: "updateButtonPressed")], animated: true)
+        navigationItem.setRightBarButtonItems(
+            [
+                UIBarButtonItem(
+                    image: UIImage(named: "Update"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(updateButtonPressed)
+                )
+            ],
+            animated: true
+        )
     }
 
-    /**
-        Обрабатывает событие, когда нажата кнопка обновления
-    */
     func updateButtonPressed() {
-        books.removeAll(keepCapacity: false)
+        books.removeAll(keepingCapacity: false)
         sectionTitleLabel1.text = ""
         removePreloaderView()
         activityIndicator.startAnimating()
         placeholderView?.removeFromSuperview()
         placeholderView = nil
 
-        UIView.transitionWithView(self.tableView, duration: 0.2, options: .TransitionCrossDissolve, animations: {
+        UIView.transition(with: tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {
             self.tableView.reloadData()
             }, completion: nil)
 
         count = 20
         offset = 0
-        action = .GetFavorites
-        MisisBooksApi.instance.getFavoritesByCount(count, offset: offset)
+        action = .getFavorites
+        Api.instance.getFavoritesByCount(count, offset: offset)
     }
 
-    /**
-        Обновляет таблицу
-
-        - parameter receivedBooks: Полученные книги
-        - parameter totalResults: Общее количество результатов
-    */
-    func updateTable(receivedBooks: [Book], totalResults: Int) {
+    func updateTable(_ receivedBooks: [Book], totalResults: Int) {
         loadingMore = false
         activityIndicator.stopAnimating()
         placeholderView?.removeFromSuperview()
@@ -300,15 +297,21 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         if offset == 0 {
             books = receivedBooks
 
-            UIView.transitionWithView(self.tableView, duration: 0.2, options: .TransitionCrossDissolve, animations: {
+            UIView.transition(with: tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {
                 self.tableView.reloadData()
                 }, completion: nil)
 
             if totalResults == 0 {
-                showPlaceholderView(PlaceholderView(viewController: self, title: "Нет документов",
-                    subtitle: "Здесь появятся документы,\nотмеченные как избранные", buttonText: "Начать поиск") {
+                showPlaceholderView(
+                    PlaceholderView(
+                        viewController: self,
+                        title: "Нет документов",
+                        subtitle: "Здесь появятся документы,\nотмеченные как избранные",
+                        buttonText: "Начать поиск"
+                    ) {
                         self.showSearchController()
-                    })
+                    }
+                )
                 removePreloaderView()
             } else {
                 showUpdateAndEditButtons()
@@ -316,14 +319,14 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
             }
         } else {
             let totalBooks = books.count
-            var newPaths = [NSIndexPath]()
+            var newPaths = [IndexPath]()
 
             for i in 0..<receivedBooks.count {
                 books.append(receivedBooks[i])
-                newPaths.append(NSIndexPath(forRow: totalBooks + i, inSection: 0))
+                newPaths.append(IndexPath(row: totalBooks + i, section: 0))
             }
 
-            tableView.insertRowsAtIndexPaths(newPaths, withRowAnimation: .Automatic)
+            tableView.insertRows(at: newPaths, with: .automatic)
             preloaderView?.preloaderViewDataSourceDidFinishedLoading()
             updatePreloaderViewWithTotalResults(totalResults)
         }
@@ -331,7 +334,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         self.totalResults = totalResults
         sectionTitleLabel1.text = textForSectionHeaderWithTotalResults(totalResults)
 
-        for receivedBook in Array(receivedBooks.reverse()) {
+        for receivedBook in Array(receivedBooks.reversed()) {
             if !Database.instance.isBook(receivedBook, addedToList: "favorites") {
                 print("Добавляем " + receivedBook.name)
                 Database.instance.addBook(receivedBook, toList: "favorites")
@@ -341,21 +344,15 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
 
     // MARK: - Внутренние методы
 
-    /**
-        Изменяет состояние наличия в избранном книги во всех принадлежащих ей ячейках
-
-        - parameter isMarkedAsFavorite: Флаг наличия книги в избранном
-        - parameter bookId: Идентификатор книги
-    */
-    private func changeFavoriteState(isMarkedAsFavorite: Bool, bookId: Int) {
+    private func changeFavoriteState(_ isMarkedAsFavorite: Bool, bookId: Int) {
         let controllers = [ControllerManager.instance.searchTableViewController,
-            ControllerManager.instance.downloadsTableViewController,
-            ControllerManager.instance.favoritesTableViewController]
+                           ControllerManager.instance.downloadsTableViewController,
+                           ControllerManager.instance.favoritesTableViewController]
 
         for controller in controllers {
             if let indexPaths = controller.tableView.indexPathsForVisibleRows {
                 for indexPath in indexPaths {
-                    if let cell = controller.tableView.cellForRowAtIndexPath(indexPath) as? CustomTableViewCell {
+                    if let cell = controller.tableView.cellForRow(at: indexPath) as? CustomTableViewCell {
                         if cell.tag == bookId {
                             cell.starImage.tintColor = isMarkedAsFavorite ?
                                 UIColor(red: 1, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1) :
@@ -367,40 +364,24 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         }
     }
 
-    /**
-        Скрывает вид-заполнитель
-    */
     private func hidePlaceholderView() {
         tableView.bounces = true
         placeholderView?.removeFromSuperview()
     }
 
-    /**
-        Возвращает текст для вида-подгрузчика с количеством следующих и оставшихся результатов
-
-        - parameter nextResults: Количество следующих результатов
-        - parameter remainingResults: Количество оставшихся результатов
-
-        - returns: Текст для вида-подгрузчика
-    */
-    private func textForPreloaderViewWithNextResults(nextResults: Int, remainingResults: Int) -> String {
-        let pluralForms = ["Потяните вверх, чтобы увидеть\nследующий %d документ из %d",
+    private func textForPreloaderViewWithNextResults(_ nextResults: Int, remainingResults: Int) -> String {
+        let pluralForms = [
+            "Потяните вверх, чтобы увидеть\nследующий %d документ из %d",
             "Потяните вверх, чтобы увидеть\nследующие %d документа из %d",
-            "Потяните вверх, чтобы увидеть\nследующие %d документов из %d"]
+            "Потяните вверх, чтобы увидеть\nследующие %d документов из %d"
+        ]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
         let ending = nextResults % 100 > 4 && nextResults % 100 < 20 ? 2 : keys[nextResults % 10]
 
         return String(format: pluralForms[ending], nextResults, remainingResults)
     }
 
-    /**
-        Возвращает текст для заголовка секции
-
-        - parameter totalResults: Общее количество результатов
-
-        - returns: Текст для заголовка секции
-    */
-    private func textForSectionHeaderWithTotalResults(totalResults: Int) -> String {
+    private func textForSectionHeaderWithTotalResults(_ totalResults: Int) -> String {
         let pluralForms = ["%d ИЗБРАННЫЙ ДОКУМЕНТ", "%d ИЗБРАННЫХ ДОКУМЕНТА", "%d ИЗБРАННЫХ ДОКУМЕНТОВ"]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
         let ending = totalResults % 100 > 4 && totalResults % 100 < 20 ? 2 : keys[totalResults % 10]
@@ -408,29 +389,20 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         return totalResults == 0 ? "" : String(format: pluralForms[ending], totalResults)
     }
 
-    /**
-        Удаляет вид-продгрузчик
-    */
     private func removePreloaderView() {
         preloaderView = nil
         tableView.tableFooterView = UIView()
     }
 
-    /**
-        Показывает контроллер поиска
-    */
     private func showSearchController() {
         ControllerManager.instance.slideMenuController.changeMainViewController(
-            ControllerManager.instance.menuTableViewController.searchTableViewNavigationController, close: true)
-        ControllerManager.instance.menuTableViewController.highlightRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))
+            to: ControllerManager.instance.menuTableViewController.searchTableViewNavigationController,
+            close: true
+        )
+        ControllerManager.instance.menuTableViewController.highlightRowAtIndexPath(IndexPath(row: 0, section: 0))
     }
 
-    /**
-        Обновляет вид-подгрузчик
-
-        - parameter totalResults: Общее количество результатов
-    */
-    private func updatePreloaderViewWithTotalResults(totalResults: Int) {
+    private func updatePreloaderViewWithTotalResults(_ totalResults: Int) {
         let remainingResults = totalResults - offset - 20
         let nextResults = remainingResults >= 20 ? 20 : remainingResults
 
@@ -448,9 +420,6 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         }
     }
 
-    /**
-        Обновляет заголовок секции
-    */
     private func updateSectionTitle() {
         let totalBooks = books.count
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
@@ -462,50 +431,50 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
 
     // MARK: - Методы UITableViewDataSource
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         return CustomTableViewCell(book: books[indexPath.row], query: nil)
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return books.count
     }
 
     // MARK: - Методы UITableViewDelegate
 
-    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
     }
 
     // MARK: - Методы UIActionSheetDelegate
 
-    override func actionSheet(actionSheet: UIActionSheet, clickedButtonAtIndex buttonIndex: Int) {
-        super.actionSheet(actionSheet, clickedButtonAtIndex: buttonIndex)
+    override func actionSheet(_ actionSheet: UIActionSheet, clickedButtonAt buttonIndex: Int) {
+        super.actionSheet(actionSheet, clickedButtonAt: buttonIndex)
 
         if actionSheet.tag == 0 && buttonIndex == 0 {
             if let selectedIndexPaths = tableView.indexPathsForSelectedRows {
-                MisisBooksApi.instance.deleteBooksFromFavorites(selectedIndexPaths.map { self.books[$0.row] })
+                Api.instance.deleteBooksFromFavorites(selectedIndexPaths.map { self.books[($0 as NSIndexPath).row] })
             } else {
-                MisisBooksApi.instance.deleteAllBooksFromFavorites()
+                Api.instance.deleteAllBooksFromFavorites()
             }
         }
     }
-
+    
     // MARK: - Методы UIScrollViewDelegate
-
-    override func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         preloaderView?.preloaderViewScrollViewDidEndDragging(scrollView)
     }
-
-    override func scrollViewDidScroll(scrollView: UIScrollView) {
+    
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         preloaderView?.preloaderViewScrollViewDidScroll(scrollView)
     }
-
+    
     // MARK: - Методы PreloaderViewDelegate
-
+    
     func preloaderViewDataSourceIsLoading() -> Bool! {
         return loadingMore
     }
@@ -514,9 +483,11 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         loadingMore = true
         offset += count
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-            self.action = .GetFavorites
-            MisisBooksApi.instance.getFavoritesByCount(self.count, offset: self.offset)
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()
+            + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
+                self.action = .getFavorites
+                Api.instance.getFavoritesByCount(self.count, offset: self.offset)
         }
     }
+    
 }

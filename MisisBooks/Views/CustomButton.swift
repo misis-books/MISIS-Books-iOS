@@ -3,30 +3,28 @@
 //  MisisBooks
 //
 //  Created by Maxim Loskov on 25.03.15.
-//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2016 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
 
-/**
-    Класс для представления настраиваемой кнопки
-*/
 class CustomButton: UIButton {
 
     init(title: String, color: UIColor) {
-        super.init(frame: CGRectZero)
+        super.init(frame: .zero)
 
-        addTarget(self, action: "makeNormal", forControlEvents: .TouchCancel)
-        addTarget(self, action: "makeActive", forControlEvents: .TouchDown)
-        addTarget(self, action: "makeNormal", forControlEvents: .TouchUpInside)
-        setTitle(title, forState: .Normal)
-        setTitleColor(color, forState: .Normal)
-        backgroundColor = .clearColor()
-        contentEdgeInsets = UIEdgeInsetsMake(6, 8, 6, 8)
-        layer.borderColor = color.CGColor
+
+        backgroundColor = .clear
+        contentEdgeInsets = UIEdgeInsets(top: 6, left: 8, bottom: 6, right: 8)
+        layer.borderColor = color.cgColor
         layer.borderWidth = 1
         layer.cornerRadius = 2
         titleLabel!.font = UIFont(name: "HelveticaNeue", size: 14)
+        addTarget(self, action: #selector(makeActive), for: .touchDown)
+        addTarget(self, action: #selector(makeNormal), for: .touchCancel)
+        addTarget(self, action: #selector(makeNormal), for: .touchUpInside)
+        setTitle(title, for: .normal)
+        setTitleColor(color, for: .normal)
         sizeToFit()
     }
 
@@ -34,21 +32,18 @@ class CustomButton: UIButton {
         super.init(coder: aDecoder)
     }
 
-    /**
-        Делает кнопку активной
-    */
     func makeActive() {
-        UIView.animateWithDuration(0.25) {
-            self.layer.opacity = 0.5
+        changeOpacity(to: 0.5)
+    }
+
+    func makeNormal() {
+        changeOpacity(to: 1)
+    }
+
+    func changeOpacity(to opacity: Float) {
+        UIView.animate(withDuration: 0.25) {
+            self.layer.opacity = opacity
         }
     }
 
-    /**
-        Делает кнопку обычной
-    */
-    func makeNormal() {
-        UIView.animateWithDuration(0.25) {
-            self.layer.opacity = 1
-        }
-    }
 }

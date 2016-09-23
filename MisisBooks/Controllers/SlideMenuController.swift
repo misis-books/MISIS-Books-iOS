@@ -3,7 +3,7 @@
 //  MisisBooks
 //
 //  Created by Maxim Loskov on 26.01.15.
-//  Copyright (c) 2015 Maxim Loskov. All rights reserved.
+//  Copyright (c) 2016 Maxim Loskov. All rights reserved.
 //
 
 import UIKit
@@ -11,7 +11,7 @@ import UIKit
 class SlideMenuOption {
 
     let contentViewOpacity: Float = 0.5
-    let menuBezelWidth = UIScreen.mainScreen().bounds.width
+    let menuBezelWidth = UIScreen.main.bounds.width
     let menuViewWidth: CGFloat = 265
     let panFromBezel = true
     var pointOfNoReturnWidth: CGFloat = 20
@@ -19,21 +19,26 @@ class SlideMenuOption {
     init() { }
 }
 
-class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
+class SlideMenuController: UIViewController {
 
     enum SlideAction {
-        case Close, Open
+
+        case close
+        case open
+
     }
 
     struct PanInfo {
+
         var action: SlideAction
         var shouldBounce: Bool
         var velocity: CGFloat
+
     }
 
-    private var menuContainerView: UIView!
-    private var menuPanGesture: UIPanGestureRecognizer?
-    private var menuTapGetsture: UITapGestureRecognizer?
+    fileprivate var menuContainerView: UIView!
+    fileprivate var menuPanGesture: UIPanGestureRecognizer?
+    fileprivate var menuTapGetsture: UITapGestureRecognizer?
     private var menuViewController: UIViewController?
     private var mainContainerView: UIView!
     private var mainViewController: UIViewController?
@@ -47,15 +52,15 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         self.menuViewController = menuViewController
 
         mainContainerView = UIView(frame: view.bounds)
-        mainContainerView.backgroundColor = .clearColor()
-        mainContainerView.autoresizingMask = [.FlexibleHeight, .FlexibleWidth]
-        view.insertSubview(mainContainerView, atIndex: 0)
+        mainContainerView.backgroundColor = .clear
+        mainContainerView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        view.insertSubview(mainContainerView, at: 0)
 
         opacityView = UIView(frame: view.bounds)
-        opacityView.backgroundColor = .blackColor()
-        opacityView.autoresizingMask = [.FlexibleHeight, .FlexibleWidth]
+        opacityView.backgroundColor = .white
+        opacityView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         opacityView.layer.opacity = 0
-        view.insertSubview(opacityView, atIndex: 1)
+        view.insertSubview(opacityView, at: 1)
 
         var menuFrame = view.bounds
         menuFrame.size.width = options.menuViewWidth
@@ -66,25 +71,20 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         menuFrame.size.height = menuFrame.size.height - menuOffset
         menuContainerView = UIView(frame: menuFrame)
 
-        menuContainerView.backgroundColor = .clearColor()
-        menuContainerView.autoresizingMask = .FlexibleHeight
-        view.insertSubview(menuContainerView, atIndex: 2)
+        menuContainerView.backgroundColor = .clear
+        menuContainerView.autoresizingMask = .flexibleHeight
+        view.insertSubview(menuContainerView, at: 2)
 
         addMenuGestures()
     }
 
-    override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration:
-        NSTimeInterval) {
-            super.willRotateToInterfaceOrientation(toInterfaceOrientation, duration: duration)
+    override func viewWillTransition(to size: CGSize,
+                                     with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
 
-            menuContainerView.hidden = true
-    }
-
-    override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
-        super.didRotateFromInterfaceOrientation(fromInterfaceOrientation)
-
+        // menuContainerView.hidden = true
         closeMenuWithoutAnimation()
-        menuContainerView.hidden = false
+        menuContainerView.isHidden = false
         removeMenuGestures()
         addMenuGestures()
     }
@@ -92,7 +92,7 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        edgesForExtendedLayout = .None
+        edgesForExtendedLayout = UIRectEdge()
     }
 
     override func viewWillLayoutSubviews() {
@@ -112,13 +112,13 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     func addMenuGestures() {
         if menuViewController != nil {
             if menuPanGesture == nil {
-                menuPanGesture = UIPanGestureRecognizer(target: self, action: "handleMenuPanGesture:")
+                menuPanGesture = UIPanGestureRecognizer(target: self, action: #selector(handleMenuPanGesture(_:)))
                 menuPanGesture!.delegate = self
                 view.addGestureRecognizer(menuPanGesture!)
             }
 
             if menuTapGetsture == nil {
-                menuTapGetsture = UITapGestureRecognizer(target: self, action: "toggleMenu")
+                menuTapGetsture = UITapGestureRecognizer(target: self, action: #selector(toggleMenu))
                 menuTapGetsture!.delegate = self
                 view.addGestureRecognizer(menuTapGetsture!)
             }
@@ -138,71 +138,71 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     struct MenuPanState {
-        static var frameAtStartOfPan = CGRectZero
-        static var startPointOfPan = CGPointZero
+
+        static var frameAtStartOfPan: CGRect = .zero
+        static var startPointOfPan: CGPoint = .zero
         static var wasHiddenAtStartOfPan = false
         static var wasOpenAtStartOfPan = false
     }
 
-    func handleMenuPanGesture(panGesture: UIPanGestureRecognizer) {
+    func handleMenuPanGesture(_ panGesture: UIPanGestureRecognizer) {
         switch panGesture.state {
-        case .Began:
+        case .began:
             MenuPanState.frameAtStartOfPan = menuContainerView.frame
-            MenuPanState.startPointOfPan = panGesture.locationInView(view)
+            MenuPanState.startPointOfPan = panGesture.location(in: view)
             MenuPanState.wasOpenAtStartOfPan = isMenuOpen()
             MenuPanState.wasHiddenAtStartOfPan = isMenuHidden()
 
             menuViewController?.beginAppearanceTransition(MenuPanState.wasHiddenAtStartOfPan, animated: true)
             addBorderToView(menuContainerView)
-        case .Changed:
-            menuContainerView.frame = applyTranslation(panGesture.translationInView(panGesture.view!),
-                toFrame: MenuPanState.frameAtStartOfPan)
+        case .changed:
+            menuContainerView.frame = applyTranslation(panGesture.translation(in: panGesture.view!),
+                                                       toFrame: MenuPanState.frameAtStartOfPan)
             applyOpacity()
-        case .Ended:
+        case .ended:
             menuViewController?.beginAppearanceTransition(!MenuPanState.wasHiddenAtStartOfPan, animated: true)
-            let panInfo = panMenuResultInfoForVelocity(panGesture.velocityInView(panGesture.view))
+            let panInfo = panMenuResultInfoForVelocity(panGesture.velocity(in: panGesture.view))
 
-            panInfo.action == .Open ? openMenuWithVelocity(panInfo.velocity) : closeMenuWithVelocity(panInfo.velocity)
+            panInfo.action == .open ? openMenuWithVelocity(panInfo.velocity) : closeMenuWithVelocity(panInfo.velocity)
         default:
             break
         }
-
     }
 
-    func openMenuWithVelocity(velocity: CGFloat) {
+    func openMenuWithVelocity(_ velocity: CGFloat) {
         let xOrigin = menuContainerView.frame.origin.x
         let finalXOrigin: CGFloat = 0
 
         var frame = menuContainerView.frame
         frame.origin.x = finalXOrigin
 
-        let duration = velocity != 0 ? Double(fmax(0.1, fmin(1, fabs(xOrigin - finalXOrigin) / velocity))) : 0.3
+        let duration = velocity == 0 ? 0.3 : Double(fmax(0.1, fmin(1, fabs(xOrigin - finalXOrigin) / velocity)))
 
         addBorderToView(menuContainerView)
 
-        UIView.animateWithDuration(duration, delay: 0, options: .CurveEaseInOut, animations: {
+        UIView.animate(withDuration: duration, delay: 0, options: UIViewAnimationOptions(), animations: {
             self.menuContainerView.frame = frame
             self.opacityView.layer.opacity = Float(self.options.contentViewOpacity)
-            }) { _ in
-                self.mainContainerView.userInteractionEnabled = false
+        }) { _ in
+            self.mainContainerView.isUserInteractionEnabled = false
         }
     }
 
-    func closeMenuWithVelocity(velocity: CGFloat) {
+    func closeMenuWithVelocity(_ velocity: CGFloat) {
         let xOrigin = menuContainerView.frame.origin.x
         let finalXOrigin = menuMinOrigin()
 
         var frame = menuContainerView.frame
         frame.origin.x = finalXOrigin
 
-        let duration = velocity != 0 ? Double(fmax(0.1, fmin(1, fabs(xOrigin - finalXOrigin) / velocity))) : 0.3
+        let duration: Double = velocity == 0 ? 0.3 : Double(fmax(0.1, fmin(1, fabs(xOrigin - finalXOrigin) / velocity)))
 
-        UIView.animateWithDuration(duration, delay: 0, options: .CurveEaseInOut, animations: {
+        UIView.animate(withDuration: duration, delay: 0, options: UIViewAnimationOptions(), animations: {
             self.menuContainerView.frame = frame
             self.opacityView.layer.opacity = 0
-            }) { _ in
-                self.removeShadow(self.menuContainerView)
-                self.mainContainerView.userInteractionEnabled = true
+        }) { _ in
+            self.removeShadow(self.menuContainerView)
+            self.mainContainerView.isUserInteractionEnabled = true
         }
     }
 
@@ -222,28 +222,28 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         return -options.menuViewWidth
     }
 
-    private func panMenuResultInfoForVelocity(velocity: CGPoint) -> PanInfo {
+    private func panMenuResultInfoForVelocity(_ velocity: CGPoint) -> PanInfo {
         let leftOrigin = menuContainerView.frame.origin.x
         let pointOfNoReturn = floor(menuMinOrigin()) + options.pointOfNoReturnWidth
         let thresholdVelocity: CGFloat = 1000
 
-        var panInfo = PanInfo(action: .Close, shouldBounce: false, velocity: 0)
-        panInfo.action = leftOrigin <= pointOfNoReturn ? .Close : .Open
+        var panInfo = PanInfo(action: .close, shouldBounce: false, velocity: 0)
+        panInfo.action = leftOrigin <= pointOfNoReturn ? .close : .open
 
-        options.pointOfNoReturnWidth = panInfo.action == .Open ? options.menuViewWidth - 20 : 20
+        options.pointOfNoReturnWidth = panInfo.action == .open ? options.menuViewWidth - 20 : 20
 
         if velocity.x >= thresholdVelocity {
-            panInfo.action = .Open
+            panInfo.action = .open
             panInfo.velocity = velocity.x
         } else if velocity.x <= -thresholdVelocity {
-            panInfo.action = .Close
+            panInfo.action = .close
             panInfo.velocity = velocity.x
         }
 
         return panInfo
     }
 
-    private func applyTranslation(translation: CGPoint, toFrame: CGRect) -> CGRect {
+    private func applyTranslation(_ translation: CGPoint, toFrame: CGRect) -> CGRect {
         var newOrigin = toFrame.origin.x
         newOrigin += translation.x
 
@@ -263,30 +263,36 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     private func applyOpacity() {
-        opacityView.layer.opacity = options.contentViewOpacity * Float((menuContainerView.frame.origin.x -
-            menuMinOrigin()) / menuContainerView.frame.size.width)
+        opacityView.layer.opacity = options.contentViewOpacity
+            * Float((menuContainerView.frame.origin.x - menuMinOrigin()) / menuContainerView.frame.size.width)
     }
 
-    private func addBorderToView(targetContainerView: UIView) {
+    private func addBorderToView(_ targetContainerView: UIView) {
+        let borderColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
+
         let rightBorder = CALayer()
-        rightBorder.backgroundColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1).CGColor
-        rightBorder.frame = CGRectMake(targetContainerView.frame.width, 0, -0.5, targetContainerView.frame.height)
+        rightBorder.backgroundColor = borderColor.cgColor
+        rightBorder.frame = CGRect(x: targetContainerView.frame.width, y: 0, width: -0.5,
+                                   height: targetContainerView.frame.height)
         targetContainerView.layer.addSublayer(rightBorder)
+
+        let topBorder = CALayer()
+        topBorder.backgroundColor = borderColor.cgColor
+        topBorder.frame = CGRect(x: 0, y: 0, width: targetContainerView.frame.width, height: 0.5)
+        targetContainerView.layer.addSublayer(topBorder)
     }
 
-    private func removeShadow(targetContainerView: UIView) {
+    private func removeShadow(_ targetContainerView: UIView) {
         targetContainerView.layer.masksToBounds = true
         mainContainerView.layer.opacity = 1
     }
 
-
-
-    private func setUpViewController(taretView: UIView, targetViewController: UIViewController?) {
+    private func setUpViewController(_ taretView: UIView, targetViewController: UIViewController?) {
         if let viewController = targetViewController {
             addChildViewController(viewController)
             viewController.view.frame = taretView.bounds
             taretView.addSubview(viewController.view)
-            viewController.didMoveToParentViewController(self)
+            viewController.didMove(toParentViewController: self)
         }
     }
 
@@ -296,52 +302,51 @@ class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         menuContainerView.frame = frame
         opacityView.layer.opacity = 0
         removeShadow(menuContainerView)
-        mainContainerView.userInteractionEnabled = true
+        mainContainerView.isUserInteractionEnabled = true
     }
 
-    private func removeViewController(viewController: UIViewController?) {
+    private func removeViewController(_ viewController: UIViewController?) {
         if viewController != nil {
-            viewController!.willMoveToParentViewController(nil)
+            viewController!.willMove(toParentViewController: nil)
             viewController!.view.removeFromSuperview()
             viewController!.removeFromParentViewController()
         }
     }
 
-    func changeMainViewController(mainViewController: UIViewController, close: Bool) {
-        removeViewController(self.mainViewController)
-        self.mainViewController = mainViewController
-        setUpViewController(self.mainContainerView, targetViewController: self.mainViewController)
+    func changeMainViewController(to viewController: UIViewController, close: Bool) {
+        removeViewController(mainViewController)
+        mainViewController = viewController
+        setUpViewController(mainContainerView, targetViewController: mainViewController)
 
         if close {
             closeLeft()
         }
     }
 
-    private func slideMenuForGestureRecognizer(gesture: UIGestureRecognizer, point: CGPoint) -> Bool {
+    fileprivate func slideMenuForGestureRecognizer(_ gesture: UIGestureRecognizer, point: CGPoint) -> Bool {
         return isMenuOpen() || options.panFromBezel && isLeftPointContainedWithinBezelRect(point)
     }
 
-    private func isLeftPointContainedWithinBezelRect(point: CGPoint) -> Bool {
-        var bezelRect = CGRectZero
-        var tempRect = CGRectZero
-        let bezelWidth = options.menuBezelWidth
+    private func isLeftPointContainedWithinBezelRect(_ point: CGPoint) -> Bool {
+        let (slice, _) = view.bounds.divided(atDistance: options.menuBezelWidth, from: .minXEdge)
 
-        CGRectDivide(view.bounds, &bezelRect, &tempRect, bezelWidth, .MinXEdge)
-
-        return CGRectContainsPoint(bezelRect, point)
+        return slice.contains(point)
     }
 
-    // MARK: – Методы UIGestureRecognizerDelegate
+}
 
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
-        let point = touch.locationInView(view)
+extension SlideMenuController: UIGestureRecognizerDelegate {
 
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let point = touch.location(in: view)
+        
         if gestureRecognizer == menuPanGesture {
             return slideMenuForGestureRecognizer(gestureRecognizer, point: point)
         } else if gestureRecognizer == menuTapGetsture {
-            return isMenuOpen() && !CGRectContainsPoint(menuContainerView.frame, point)
+            return isMenuOpen() && !menuContainerView.frame.contains(point)
         }
         
         return true
     }
+    
 }
