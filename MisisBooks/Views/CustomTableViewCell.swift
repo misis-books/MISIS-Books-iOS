@@ -34,9 +34,9 @@ class CustomTableViewCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        let nameLabelSize = CustomTableViewCell.labelSizeWithText(nameLabel.text!, font: nameLabel.font)
-        let authorsLabelSize = CustomTableViewCell.labelSizeWithText(authorsLabel.text!, font: authorsLabel.font)
-        let categoryLabelSize = CustomTableViewCell.labelSizeWithText(categoryLabel.text!, font: categoryLabel.font)
+        let nameLabelSize = CustomTableViewCell.getLabelSize(withText: nameLabel.text!, font: nameLabel.font)
+        let authorsLabelSize = CustomTableViewCell.getLabelSize(withText: authorsLabel.text!, font: authorsLabel.font)
+        let categoryLabelSize = CustomTableViewCell.getLabelSize(withText: categoryLabel.text!, font: categoryLabel.font)
 
         nameLabel.frame = CGRect(x: 15, y: 8.5, width: nameLabelSize.width, height: nameLabelSize.height)
         authorsLabel.frame = CGRect(x: 15, y: nameLabelSize.height + 11, width: authorsLabelSize.width, height: authorsLabelSize.height)
@@ -46,71 +46,85 @@ class CustomTableViewCell: UITableViewCell {
         starImage.frame = CGRect(x: frame.width - 35, y: nameLabelSize.height + authorsLabelSize.height + 16.5, width: 20, height: 20)
     }
 
-    class func categoryName(_ categoryId: Int) -> String {
+    class func getCategoryName(byId categoryId: Int) -> String {
         let categoryNames = ["Все", "Пособия", "Дипломы", "Сборники научных трудов", "Монографии, научные издания",
             "Книги «МИСиС»", "Авторефераты диссертаций", "Разное", "Журналы", "Документы филиалов «МИСиС»", "УМКД"]
 
         return categoryNames[categoryId]
     }
 
-    class func font(_ fontId: Int) -> UIFont {
-        let fonts = [UIFont(name: "HelveticaNeue-Light", size: 14)!, UIFont(name: "HelveticaNeue-Light", size: 12)!,
-            UIFont(name: "HelveticaNeue", size: 12)!]
+    class func getFont(byId fontId: Int) -> UIFont {
+        let fonts = [
+            UIFont(name: "HelveticaNeue-Light", size: 14),
+            UIFont(name: "HelveticaNeue-Light", size: 12),
+            UIFont(name: "HelveticaNeue", size: 12)
+        ]
 
-        return fonts[fontId]
+        return fonts[fontId]!
     }
 
-    class func heightForRowWithBook(_ book: Book) -> CGFloat {
-        return CustomTableViewCell.labelSizeWithText(book.name, font: CustomTableViewCell.font(0)).height +
-            CustomTableViewCell.labelSizeWithText(book.authors, font: CustomTableViewCell.font(1)).height +
-            CustomTableViewCell.labelSizeWithText(CustomTableViewCell.categoryName(book.categoryId - 1),
-                font: CustomTableViewCell.font(2)).height + 35.5
+    class func getHeightForRow(withBook book: Book) -> CGFloat {
+        return CustomTableViewCell.getLabelSize(withText: book.name, font: CustomTableViewCell.getFont(byId: 0)).height
+            + CustomTableViewCell.getLabelSize(withText: book.authors, font: CustomTableViewCell.getFont(byId: 1)).height
+            + CustomTableViewCell.getLabelSize(
+                withText: CustomTableViewCell.getCategoryName(byId: book.categoryId - 1),
+                font: CustomTableViewCell.getFont(byId: 2)
+                ).height + 35.5
     }
 
-    class func labelSizeWithText(_ text: String, font: UIFont) -> CGSize {
+    class func getLabelSize(withText text: String, font: UIFont) -> CGSize {
         let mainScreenWidth = UIScreen.main.bounds.size.width
-        let size = CGSize(width: mainScreenWidth - 30, height: CGFloat.greatestFiniteMagnitude)
+        let size = CGSize(width: mainScreenWidth - 30, height: .greatestFiniteMagnitude)
 
         return (text == "" ? .zero : text.boundingRect(with: size, options: .usesLineFragmentOrigin,
             attributes: [NSFontAttributeName: font], context: nil)).size
     }
 
-    private func attributedStringForBookName(_ bookName: NSString, highlightedWords: NSString) -> NSMutableAttributedString {
-        let normalColor = UIColor(red: 59 / 255.0, green: 77 / 255.0, blue: 95 / 255.0, alpha: 1)
-        let highlightColor = UIColor(red: 253 / 255.0, green: 208 / 255.0, blue: 209 / 255.0, alpha: 1)
-        let result = NSMutableAttributedString(string: bookName as String)
-        result.addAttribute(NSForegroundColorAttributeName, value: normalColor, range: NSMakeRange(0, result.length))
 
-        /*
-        Заменить только пробелы: [ ]+
-        Заменить пробелы и табуляцию: [ \\t]+
-        Заменить пробелы, табуляцию и переводы строк: \\s+
-        */
-        let squashedString = highlightedWords.replacingOccurrences(of: "[ ]+", with: " ",
-            options: .regularExpression, range: NSMakeRange(0, highlightedWords.length))
+    private func getAttributedString(forBookName bookName: NSString, highlightedWords: NSString)
+        -> NSMutableAttributedString {
+            let normalColor = UIColor(red: 59 / 255.0, green: 77 / 255.0, blue: 95 / 255.0, alpha: 1)
+            let highlightColor = UIColor(red: 253 / 255.0, green: 208 / 255.0, blue: 209 / 255.0, alpha: 1)
+            let result = NSMutableAttributedString(string: bookName as String)
+            result.addAttribute(
+                NSForegroundColorAttributeName,
+                value: normalColor,
+                range: NSMakeRange(0, result.length)
+            )
 
-        let trimmedString = squashedString.trimmingCharacters(in: .whitespacesAndNewlines)
-        let words = trimmedString.characters.split { $0 == " " }.map { String($0) }
-        var foundRange, nextRange: NSRange
+            // Заменить только пробелы: [ ]+, пробелы и табуляцию: [ \\t]+, пробелы, табуляцию и переводы строк: \\s+
+            let squashedString = highlightedWords.replacingOccurrences(
+                of: "[ ]+",
+                with: " ",
+                options: .regularExpression,
+                range: NSMakeRange(0, highlightedWords.length)
+            )
 
-        for word in words {
-            foundRange = bookName.range(of: word, options: .caseInsensitive)
+            let trimmedString = squashedString.trimmingCharacters(in: .whitespacesAndNewlines)
+            let words = trimmedString.characters.split { $0 == " " }.map { String($0) }
+            var foundRange, nextRange: NSRange
 
-            while foundRange.location != NSNotFound {
-                result.addAttribute(NSBackgroundColorAttributeName, value: highlightColor, range: foundRange)
-                nextRange = NSMakeRange(foundRange.location + foundRange.length,
-                    bookName.length - foundRange.location - foundRange.length)
-                foundRange = bookName.range(of: word, options: .caseInsensitive, range: nextRange)
+            for word in words {
+                foundRange = bookName.range(of: word, options: .caseInsensitive)
+
+                while foundRange.location != NSNotFound {
+                    result.addAttribute(NSBackgroundColorAttributeName, value: highlightColor, range: foundRange)
+                    nextRange = NSMakeRange(
+                        foundRange.location + foundRange.length,
+                        bookName.length - foundRange.location - foundRange.length
+                    )
+                    foundRange = bookName.range(of: word, options: .caseInsensitive, range: nextRange)
+                }
             }
-        }
-
-        return result
+            
+            return result
     }
 
     private func configureWithBook(_ book: Book, query: String!) {
         self.book = book
 
-        let categoryColors = [UIColor(red: 186 / 255.0, green: 186 / 255.0, blue: 186 / 255.0, alpha: 1),
+        let categoryColors = [
+            UIColor(red: 186 / 255.0, green: 186 / 255.0, blue: 186 / 255.0, alpha: 1),
             UIColor(red: 74 / 255.0, green: 191 / 255.0, blue: 180 / 255.0, alpha: 1),
             UIColor(red: 253 / 255.0, green: 85 / 255.0, blue: 89 / 255.0, alpha: 1),
             UIColor(red: 184 / 255.0, green: 145 / 255.0, blue: 78 / 255.0, alpha: 1),
@@ -120,16 +134,20 @@ class CustomTableViewCell: UITableViewCell {
             UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1),
             UIColor(red: 69 / 255.0, green: 131 / 255.0, blue: 136 / 255.0, alpha: 1),
             UIColor(red: 136 / 255.0, green: 69 / 255.0, blue: 69 / 255.0, alpha: 1),
-            UIColor(red: 96 / 255.0, green: 160 / 255.0, blue: 223 / 255.0, alpha: 1)]
+            UIColor(red: 96 / 255.0, green: 160 / 255.0, blue: 223 / 255.0, alpha: 1)
+        ]
 
         nameLabel = UILabel()
-        nameLabel.font = CustomTableViewCell.font(0)
+        nameLabel.font = CustomTableViewCell.getFont(byId: 0)
 
         if query == nil {
             nameLabel.text = book.name
             nameLabel.textColor = UIColor(red: 59 / 255.0, green: 77 / 255.0, blue: 95 / 255.0, alpha: 1)
         } else {
-            nameLabel.attributedText = attributedStringForBookName(book.name as NSString, highlightedWords: query! as NSString)
+            nameLabel.attributedText = getAttributedString(
+                forBookName: book.name as NSString,
+                highlightedWords: query! as NSString
+            )
         }
 
         nameLabel.textColor = UIColor(red: 79 / 255.0, green: 97 / 255.0, blue: 115 / 255.0, alpha: 1)
@@ -138,7 +156,7 @@ class CustomTableViewCell: UITableViewCell {
         contentView.addSubview(nameLabel)
 
         authorsLabel = UILabel()
-        authorsLabel.font = CustomTableViewCell.font(1)
+        authorsLabel.font = CustomTableViewCell.getFont(byId: 1)
         authorsLabel.text = book.authors
         authorsLabel.textColor = UIColor(red: 79 / 255.0, green: 97 / 255.0, blue: 115 / 255.0, alpha: 0.75)
         authorsLabel.lineBreakMode = .byWordWrapping
@@ -147,8 +165,8 @@ class CustomTableViewCell: UITableViewCell {
 
         categoryLabel = CustomLabel()
         categoryLabel.edgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 5, right: 3)
-        categoryLabel.font = CustomTableViewCell.font(2)
-        categoryLabel.text = CustomTableViewCell.categoryName(book.categoryId - 1)
+        categoryLabel.font = CustomTableViewCell.getFont(byId: 2)
+        categoryLabel.text = CustomTableViewCell.getCategoryName(byId: book.categoryId - 1)
         categoryLabel.textColor = .white
         categoryLabel.layer.backgroundColor = categoryColors[book.categoryId - 1].cgColor
         categoryLabel.layer.cornerRadius = 2
@@ -160,7 +178,7 @@ class CustomTableViewCell: UITableViewCell {
         contentView.addSubview(roundProgressView)
 
         starImage = UIImageView(image: UIImage(named: "Favorites")!.withRenderingMode(.alwaysTemplate))
-        starImage.tintColor = book.isAddedToFavorites()
+        starImage.tintColor = book.isAddedToFavorites
             ? UIColor(red: 1, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1) : UIColor(white: 0.8, alpha: 1)
         contentView.addSubview(starImage)
 

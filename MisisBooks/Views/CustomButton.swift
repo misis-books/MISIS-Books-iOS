@@ -13,7 +13,6 @@ class CustomButton: UIButton {
     init(title: String, color: UIColor) {
         super.init(frame: .zero)
 
-
         backgroundColor = .clear
         contentEdgeInsets = UIEdgeInsets(top: 6, left: 8, bottom: 6, right: 8)
         layer.borderColor = color.cgColor

@@ -158,22 +158,6 @@ class PopUpMessage: UIView, CAAnimationDelegate {
         }
     }
 
-    class func popUpMessagesInView(_ view: UIView) -> [PopUpMessage] {
-        return PopUpMessageManager.instance.popUpMessagesInView(view)
-    }
-
-    class func forceHideAllPopUpMessagesInView(_ view: UIView) {
-        PopUpMessageManager.instance.forceHideAllPopUpMessagesInView(view)
-    }
-
-    class func hideAllPopUpMessages() {
-        PopUpMessageManager.instance.hideAllPopUpMessages()
-    }
-
-    class func hidePopUpMessagesInView(_ view: UIView) {
-        PopUpMessageManager.instance.hidePopUpMessagesInView(view)
-    }
-
     func hidePopUpMessage() {
         delegate.popUpMessageWillHide(self, inView: superview!)
 
@@ -245,7 +229,8 @@ class PopUpMessage: UIView, CAAnimationDelegate {
         let oldPoint = activeLayer.position
         let newPoint = CGPoint(x: oldPoint.x, y: layer.position.y + distanceToPush)
 
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
+        DispatchQueue.main.asyncAfter(deadline: .now()
+            + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
                 self.layer.position = newPoint
 
                 let moveLayer = CABasicAnimation(keyPath: "position")
@@ -275,8 +260,9 @@ class PopUpMessage: UIView, CAAnimationDelegate {
 
         state = .showing
 
-        let time = DispatchTime.now() + Double(Int64(fadeInDuration * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-        DispatchQueue.main.asyncAfter(deadline: time) {
+        let deadline: DispatchTime = .now()
+            + Double(Int64(fadeInDuration * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        DispatchQueue.main.asyncAfter(deadline: deadline) {
             if self.position == .underNavigationBar {
                 let currentPoint = self.layer.mask!.position
                 let newPoint = CGPoint(x: 0, y: -self.frame.size.height)
@@ -394,7 +380,7 @@ class PopUpMessage: UIView, CAAnimationDelegate {
 
     func updateSizeAndSubviewsAnimated(_ animated: Bool) {
         let superviewSize = UIScreen.main.bounds.size
-        let maxLabelSize = CGSize(width: superviewSize.width - 30, height: CGFloat.greatestFiniteMagnitude)
+        let maxLabelSize = CGSize(width: superviewSize.width - 30, height: .greatestFiniteMagnitude)
         let titleLabelHeight = heightForText(titleLabel.text!, font: titleLabel.font, maxLabelSize: maxLabelSize)
         let subtitleLabelHeight = heightForText(subtitleLabel.text!, font: subtitleLabel.font, maxLabelSize:
             maxLabelSize)
@@ -431,7 +417,6 @@ class PopUpMessage: UIView, CAAnimationDelegate {
         }
     }
 
-    // MARK: - Внутренние методы
 
     private func heightForText(_ text: String, font: UIFont, maxLabelSize: CGSize) -> CGFloat {
         return (text == "" ? .zero : text.boundingRect(with: maxLabelSize, options: .usesLineFragmentOrigin,
@@ -458,7 +443,7 @@ class PopUpMessage: UIView, CAAnimationDelegate {
         parentFrameUponCreation = superview.bounds
         let isSuperviewKindOfWindow = superview.isKind(of: UIWindow.self)
 
-        let maxLabelSize = CGSize(width: superview.bounds.size.width - 30, height: CGFloat.greatestFiniteMagnitude)
+        let maxLabelSize = CGSize(width: superview.bounds.size.width - 30, height: .greatestFiniteMagnitude)
         let titleLabelHeight = heightForText(titleLabel.text!, font: titleLabel.font, maxLabelSize: maxLabelSize)
         let subtitleLabelHeight = heightForText(subtitleLabel.text!, font: subtitleLabel.font, maxLabelSize:
             maxLabelSize)
@@ -493,7 +478,12 @@ class PopUpMessage: UIView, CAAnimationDelegate {
         
         if position == .underNavigationBar {
             let maskLayer = CAShapeLayer()
-            let maskRect = CGRect(x: 0, y: frame.size.height, width: frame.size.width, height: superview.bounds.size.height)
+            let maskRect = CGRect(
+                x: 0,
+                y: frame.size.height,
+                width: frame.size.width,
+                height: superview.bounds.size.height
+            )
             maskLayer.path = CGPath(rect: maskRect, transform: nil)
             layer.mask = maskLayer
             layer.mask!.position = .zero

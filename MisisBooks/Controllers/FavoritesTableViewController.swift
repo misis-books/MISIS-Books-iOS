@@ -12,12 +12,12 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
 
     var action: ApiAction!
     var activityIndicator: UIActivityIndicatorView!
-    private var count = 20
     var isReady = false
+    var placeholderView: PlaceholderView?
+    private var count = 20
     private var loadingMore = false
     private var offset = 0
     private var preloaderView: PreloaderView?
-    var placeholderView: PlaceholderView?
     private var totalResults = 0
 
     override func viewDidAppear(_ animated: Bool) {
@@ -37,11 +37,10 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         view.addSubview(activityIndicator)
 
         action = .getFavorites
-        Api.instance.getFavoritesByCount(count, offset: offset)
+        Api.instance.getFavorites(byCount: count, offset: offset)
     }
 
-    override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation,
-                                      duration: TimeInterval) {
+    override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
         if UIDevice.current.userInterfaceIdiom == .pad {
             placeholderView?.setNeedsLayout()
         }
@@ -62,7 +61,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
             tableView?.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         }
 
-        changeFavoriteState(true, bookId: book.id)
+        changeFavoriteState(to: true, bookId: book.id)
         Database.instance.addBook(book, toList: "favorites")
         totalResults += 1
         sectionTitleLabel1.text = textForSectionHeaderWithTotalResults(totalResults)
@@ -78,12 +77,12 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
                 }
             }
 
-            changeFavoriteState(false, bookId: book.id)
+            changeFavoriteState(to: false, bookId: book.id)
         }
 
         books.removeAll(keepingCapacity: false)
         tableView.reloadSections(IndexSet(integer: 0), with: .fade)
-        Database.instance.deleteAllBooksFromList("favorites")
+        Database.instance.deleteAllBooks(fromList: "favorites")
         totalResults = 0
         offset = 0
         sectionTitleLabel1.text = textForSectionHeaderWithTotalResults(totalResults)
@@ -107,7 +106,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
                     bookInSearch.isMarkedAsFavorite = false
                 }
 
-                changeFavoriteState(false, bookId: bookForDeletion.id)
+                changeFavoriteState(to: false, bookId: bookForDeletion.id)
             }
 
             for i in 0..<books.count {
@@ -174,7 +173,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
 
     func loadBooksFromDatabase() {
         activityIndicator.stopAnimating()
-        books = Array(Database.instance.booksForList("favorites").reversed())
+        books = Array(Database.instance.getBooks(fromList: "favorites").reversed())
         totalResults = books.count
         sectionTitleLabel1.text = textForSectionHeaderWithTotalResults(totalResults)
 
@@ -284,7 +283,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         count = 20
         offset = 0
         action = .getFavorites
-        Api.instance.getFavoritesByCount(count, offset: offset)
+        Api.instance.getFavorites(byCount: count, offset: offset)
     }
 
     func updateTable(_ receivedBooks: [Book], totalResults: Int) {
@@ -342,21 +341,21 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         }
     }
 
-    // MARK: - Внутренние методы
-
-    private func changeFavoriteState(_ isMarkedAsFavorite: Bool, bookId: Int) {
-        let controllers = [ControllerManager.instance.searchTableViewController,
-                           ControllerManager.instance.downloadsTableViewController,
-                           ControllerManager.instance.favoritesTableViewController]
+    private func changeFavoriteState(to isMarkedAsFavorite: Bool, bookId: Int) {
+        let controllers = [
+            ControllerManager.instance.searchTableViewController,
+            ControllerManager.instance.downloadsTableViewController,
+            ControllerManager.instance.favoritesTableViewController
+        ]
 
         for controller in controllers {
             if let indexPaths = controller.tableView.indexPathsForVisibleRows {
                 for indexPath in indexPaths {
                     if let cell = controller.tableView.cellForRow(at: indexPath) as? CustomTableViewCell {
                         if cell.tag == bookId {
-                            cell.starImage.tintColor = isMarkedAsFavorite ?
-                                UIColor(red: 1, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1) :
-                                UIColor(white: 0.8, alpha: 1)
+                            cell.starImage.tintColor = isMarkedAsFavorite
+                                ? UIColor(red: 1, green: 70 / 255.0, blue: 70 / 255.0, alpha: 1)
+                                : UIColor(white: 0.8, alpha: 1)
                         }
                     }
                 }
@@ -446,7 +445,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
     // MARK: - Методы UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
+        return CustomTableViewCell.getHeightForRow(withBook: books[indexPath.row])
     }
 
     // MARK: - Методы UIActionSheetDelegate
@@ -456,7 +455,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
 
         if actionSheet.tag == 0 && buttonIndex == 0 {
             if let selectedIndexPaths = tableView.indexPathsForSelectedRows {
-                Api.instance.deleteBooksFromFavorites(selectedIndexPaths.map { self.books[($0 as NSIndexPath).row] })
+                Api.instance.deleteBooksFromFavorites(selectedIndexPaths.map { self.books[$0.row] })
             } else {
                 Api.instance.deleteAllBooksFromFavorites()
             }
@@ -483,10 +482,10 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         loadingMore = true
         offset += count
         
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()
+        DispatchQueue.main.asyncAfter(deadline: .now()
             + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
                 self.action = .getFavorites
-                Api.instance.getFavoritesByCount(self.count, offset: self.offset)
+                Api.instance.getFavorites(byCount: self.count, offset: self.offset)
         }
     }
     

@@ -10,7 +10,7 @@ import Foundation
 
 class DownloadManager: NSObject, URLSessionDelegate {
 
-    static let instance = DownloadManager() // instance?.initSessionDownload()
+    static let instance = DownloadManager()
     var downloads = [FileInformation]()
     let identifierDownload = "com.maximloskov.MisisBooks"
     var session: Foundation.URLSession!
@@ -118,10 +118,9 @@ class DownloadManager: NSObject, URLSessionDelegate {
 
     class func setDestinationDownload(_ currentDownload: FileInformation, destinationUrl: URL?) -> NSError? {
         let fileManager = FileManager.default
-        let documentDirectoryUrl = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0] as URL
+        let documentDirectoryUrl = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
         if destinationUrl == nil {
-            print("destUrl is not set")
             currentDownload.destinationUrl = documentDirectoryUrl.appendingPathComponent(currentDownload.fileName)
         } else {
             let url = documentDirectoryUrl.appendingPathComponent(destinationUrl!.path)
@@ -185,7 +184,6 @@ class DownloadManager: NSObject, URLSessionDelegate {
         }
     }
 
-    // MARK: - Внутренние методы
 
     private func initSessionDownload() {
         let sessionConfiguration: URLSessionConfiguration

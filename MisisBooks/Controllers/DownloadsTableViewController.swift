@@ -22,7 +22,7 @@ class DownloadsTableViewController: BookTableViewController {
         tableView.allowsMultipleSelectionDuringEditing = true
         title = "Загрузки"
 
-        books = Array(Database.instance.booksForList("downloads").reversed())
+        books = Array(Database.instance.getBooks(fromList: "downloads").reversed())
         books.count == 0 ? showPlaceholderView() : showEditButton()
 
         print("Загруженные книги (\(books.count)): [\(getAllDocuments())]")
@@ -38,7 +38,7 @@ class DownloadsTableViewController: BookTableViewController {
     func addBook(_ book: Book) {
         books.insert(book, at: 0)
         tableView.insertRows(at: [IndexPath(row: 0, section: 1)], with: .automatic)
-        changeDownloadProgress(1, isWaiting: false, bookId: book.id)
+        changeDownloadProgress(to: 1, isWaiting: false, bookId: book.id)
         Database.instance.addBook(book, toList: "downloads")
         updateSectionTitle()
         hidePlaceholderView()
@@ -48,25 +48,25 @@ class DownloadsTableViewController: BookTableViewController {
     func addDownloadableBook(_ downloadableBook: Book) {
         downloadableBooks.insert(downloadableBook, at: 0)
         tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
-        changeDownloadProgress(0.001, isWaiting: false, bookId: downloadableBook.id)
+        changeDownloadProgress(to: 0.001, isWaiting: false, bookId: downloadableBook.id)
         updateSectionTitle()
         hidePlaceholderView()
     }
 
     func deleteAllBooks() {
         for book in Array(books.reversed()) {
-            changeDownloadProgress(0, isWaiting: false, bookId: book.id)
+            changeDownloadProgress(to: 0, isWaiting: false, bookId: book.id)
 
             do {
-                try FileManager.default.removeItem(atPath: book.localUrl().path)
+                try FileManager.default.removeItem(atPath: book.localUrl.path)
             } catch {
-                print("Не удалось удалить книгу \(book.localUrl())")
+                print("Не удалось удалить книгу \(book.localUrl)")
             }
         }
 
         books.removeAll(keepingCapacity: false)
         tableView.reloadSections(IndexSet(integer: 1), with: .fade)
-        Database.instance.deleteAllBooksFromList("downloads")
+        Database.instance.deleteAllBooks(fromList: "downloads")
         updateSectionTitle()
 
         if downloadableBooks.count == 0 {
@@ -82,12 +82,12 @@ class DownloadsTableViewController: BookTableViewController {
             for i in 0..<books.count {
                 if books[i].id == bookForDeletion.id {
                     do {
-                        try FileManager.default.removeItem(atPath: books[i].localUrl().path)
+                        try FileManager.default.removeItem(atPath: books[i].localUrl.path)
                     } catch {
-                        print("Не удалось удалить книгу \(books[i].localUrl())")
+                        print("Не удалось удалить книгу \(books[i].localUrl)")
                     }
 
-                    changeDownloadProgress(0, isWaiting: false, bookId: books[i].id)
+                    changeDownloadProgress(to: 0, isWaiting: false, bookId: books[i].id)
                     books.remove(at: i)
                     tableView.deleteRows(at: [IndexPath(row: i, section: 1)], with: .fade)
 
@@ -130,8 +130,12 @@ class DownloadsTableViewController: BookTableViewController {
             return
         }
 
-        let actionSheet = UIActionSheet(title: "Вы действительно хотите удалить из загрузок \(actionTitleSubstring)?",
-            delegate: self, cancelButtonTitle: "Отмена", destructiveButtonTitle: "Удалить (\(numberOfBooksToDelete))")
+        let actionSheet = UIActionSheet(
+            title: "Вы действительно хотите удалить из загрузок \(actionTitleSubstring)?",
+            delegate: self,
+            cancelButtonTitle: "Отмена",
+            destructiveButtonTitle: "Удалить (\(numberOfBooksToDelete))"
+        )
         actionSheet.actionSheetStyle = .default
         actionSheet.tag = 0
         actionSheet.show(in: view)
@@ -175,7 +179,11 @@ class DownloadsTableViewController: BookTableViewController {
                 _ = DownloadManager.download("\(book.id).pdf", destinationUrl: nil, sourceUrl: sourceUrl, progressBlock: {
                     progressPercentage, _ in
                     DispatchQueue.main.async {
-                        self.changeDownloadProgress(Float(progressPercentage) / 100, isWaiting: false, bookId: book.id)
+                        self.changeDownloadProgress(
+                            to: Float(progressPercentage) / 100,
+                            isWaiting: false,
+                            bookId: book.id
+                        )
                     }
                     }) { error, fileInformation in
                         DispatchQueue.main.async {
@@ -199,7 +207,7 @@ class DownloadsTableViewController: BookTableViewController {
                                 print(error.debugDescription)
 
                                 PopUpMessage(title: "Не удалось загрузить документ", subtitle: errorDescription).show()
-                                self.changeDownloadProgress(0, isWaiting: false, bookId: book.id)
+                                self.changeDownloadProgress(to: 0, isWaiting: false, bookId: book.id)
                                 self.deleteDownloadableBook(book)
                             }
                         }
@@ -207,7 +215,7 @@ class DownloadsTableViewController: BookTableViewController {
             } else {
                 DispatchQueue.main.async {
                     PopUpMessage(title: "Невозможно начать загрузку", subtitle: "Получен некорректный URL").show()
-                    self.changeDownloadProgress(0, isWaiting: false, bookId: book.id)
+                    self.changeDownloadProgress(to: 0, isWaiting: false, bookId: book.id)
                     self.deleteDownloadableBook(book)
                 }
             }
@@ -221,8 +229,13 @@ class DownloadsTableViewController: BookTableViewController {
         if let task = book.getDownloadTask() {
             DownloadManager.pauseDownloadTask(task)
 
-            let fileInformation = DownloadManager.getFileInformationByTaskId(task.taskIdentifier)
-            changeDownloadProgress(Float((fileInformation?.progressPercentage)!) / 100, isWaiting: true, bookId: book.id)
+            if let fileInformation = DownloadManager.getFileInformationByTaskId(task.taskIdentifier) {
+                changeDownloadProgress(
+                    to: Float(fileInformation.progressPercentage) / 100,
+                    isWaiting: true,
+                    bookId: book.id
+                )
+            }
         }
     }
 
@@ -230,8 +243,13 @@ class DownloadsTableViewController: BookTableViewController {
         if let task = book.getDownloadTask() {
             DownloadManager.resumeDownloadTask(task)
 
-            let fileInformation = DownloadManager.getFileInformationByTaskId(task.taskIdentifier)
-            changeDownloadProgress(Float((fileInformation?.progressPercentage)!) / 100, isWaiting: false, bookId: book.id)
+            if let fileInformation = DownloadManager.getFileInformationByTaskId(task.taskIdentifier) {
+                changeDownloadProgress(
+                    to: Float(fileInformation.progressPercentage) / 100,
+                    isWaiting: false,
+                    bookId: book.id
+                )
+            }
         }
     }
 
@@ -243,15 +261,31 @@ class DownloadsTableViewController: BookTableViewController {
 
     func showDeleteAndCancelButtons() {
         setEditing(true, animated: true)
-        navigationItem.setRightBarButtonItems([UIBarButtonItem(image: UIImage(named: "Cancel"), style: .plain,
-            target: self, action: #selector(showEditButton)), UIBarButtonItem(image: UIImage(named: "Trash"),
-                style: .plain, target: self, action: #selector(deleteButtonPressed))], animated: true)
+        navigationItem.setRightBarButtonItems(
+            [
+                UIBarButtonItem(
+                    image: UIImage(named: "Cancel"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(showEditButton)
+                ),
+                UIBarButtonItem(
+                    image: UIImage(named: "Trash"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(deleteButtonPressed)
+                )
+            ],
+            animated: true
+        )
     }
 
-    private func changeDownloadProgress(_ progress: Float, isWaiting: Bool, bookId: Int) {
-        let controllers = [ControllerManager.instance.searchTableViewController,
+    private func changeDownloadProgress(to progress: Float, isWaiting: Bool, bookId: Int) {
+        let controllers = [
+            ControllerManager.instance.searchTableViewController,
             ControllerManager.instance.downloadsTableViewController,
-            ControllerManager.instance.favoritesTableViewController]
+            ControllerManager.instance.favoritesTableViewController
+        ]
 
         for controller in controllers {
             if let indexPaths = controller.tableView.indexPathsForVisibleRows {
@@ -327,8 +361,9 @@ class DownloadsTableViewController: BookTableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return indexPath.section == 0 ? CustomTableViewCell(book: downloadableBooks[indexPath.row], query: nil) :
-            CustomTableViewCell(book: books[indexPath.row], query: nil)
+        return indexPath.section == 0
+            ? CustomTableViewCell(book: downloadableBooks[indexPath.row], query: nil)
+            : CustomTableViewCell(book: books[indexPath.row], query: nil)
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -338,8 +373,9 @@ class DownloadsTableViewController: BookTableViewController {
     // MARK: - Методы UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return indexPath.section == 0 ? CustomTableViewCell.heightForRowWithBook(downloadableBooks[indexPath.row]) :
-            CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
+        return indexPath.section == 0
+            ? CustomTableViewCell.getHeightForRow(withBook: downloadableBooks[indexPath.row])
+            : CustomTableViewCell.getHeightForRow(withBook: books[indexPath.row])
     }
 
     // MARK: - Методы UIActionSheetDelegate
@@ -349,7 +385,7 @@ class DownloadsTableViewController: BookTableViewController {
 
         if actionSheet.tag == 0 && buttonIndex == 0 { // Таблица редактируется
             if let selectedIndexPaths = tableView.indexPathsForSelectedRows {
-                deleteBooks(selectedIndexPaths.map { self.books[($0 as NSIndexPath).row] })
+                deleteBooks(selectedIndexPaths.map { self.books[$0.row] })
             } else {
                 deleteAllBooks()
             }

@@ -34,7 +34,7 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
     private let bottomPositionSemaphore: DispatchSemaphore
     private let topPositionSemaphore: DispatchSemaphore
     private let navigationBarPositionSemaphore: DispatchSemaphore
-    private var popUpBanners: [PopUpMessage]
+    private var popUpMessages: [PopUpMessage]
     private var bannerViews: [UIView]
 
 
@@ -49,7 +49,7 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
         navigationBarPositionSemaphore.signal()
 
         bannerViews = [UIView]()
-        popUpBanners = [PopUpMessage]()
+        popUpMessages = [PopUpMessage]()
 
         super.init()
 
@@ -134,9 +134,9 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
             bannerViews.append(view)
         }
 
-        let bannersToPush = Array(popUpBanners)
+        let bannersToPush = Array(popUpMessages)
 
-        popUpBanners.append(popUpMessage)
+        popUpMessages.append(popUpMessage)
 
         for banner in bannersToPush {
             if banner.position == popUpMessage.position {
@@ -162,7 +162,7 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
     }
 
     func popUpMessageWillHide(_ popUpMessage: PopUpMessage, inView view: UIView) {
-        let bannersInSamePosition = popUpBanners.filter() { $0.position == popUpMessage.position }
+        let bannersInSamePosition = popUpMessages.filter() { $0.position == popUpMessage.position }
         let index = bannersInSamePosition.index(of: popUpMessage)
 
         if index != NSNotFound && index > 0 {
@@ -173,7 +173,7 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
     }
 
     func popUpMessageDidHide(_ popUpMessage: PopUpMessage, inView view: UIView) {
-        let bannersArray = popUpBanners.filter() { $0 != popUpMessage }
+        let bannersArray = popUpMessages.filter() { $0 != popUpMessage }
 
         if bannersArray.count == 0 {
             bannerViews = bannerViews.filter() { $0 != view }
@@ -195,31 +195,21 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
         }
     }
 
-    func popUpMessagesInView(_ view: UIView) -> [PopUpMessage] {
-        return popUpBanners
-    }
-
-    func hidePopUpMessagesInView(_ view: UIView) {
-        for popUpMessage in popUpMessagesInView(view) {
+    func hidePopUpMessages() {
+        for popUpMessage in popUpMessages {
             hidePopUpMessage(popUpMessage, forced: false)
         }
     }
 
-    func hideAllPopUpMessages() {
-        for view in bannerViews {
-            hidePopUpMessagesInView(view)
-        }
-    }
-
-    func forceHideAllPopUpMessagesInView(_ view: UIView) {
-        for popUpMessage in popUpMessagesInView(view) {
+    func forceHideAllPopUpMessages() {
+        for popUpMessage in popUpMessages {
             hidePopUpMessage(popUpMessage, forced: true)
         }
     }
 
     func didRotate(_ note: Notification) {
         for view in bannerViews {
-            let topBanners = popUpBanners.filter() { $0.position == .top }
+            let topBanners = popUpMessages.filter() { $0.position == .top }
             var topYCoord: CGFloat = 0
 
             if topBanners.count > 0 {
@@ -241,7 +231,7 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
                 topYCoord += popUpMessage.layer.bounds.size.height
             }
 
-            let bottomBanners = popUpBanners.filter() { $0.position == .bottom }
+            let bottomBanners = popUpMessages.filter() { $0.position == .bottom }
             var bottomYCoord = view.bounds.size.height
             
             for popUpMessage in Array(bottomBanners.reversed()) {

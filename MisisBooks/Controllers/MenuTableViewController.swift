@@ -40,8 +40,10 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         tableHeaderView.layer.insertSublayer(gradient, at: 0)
 
         activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .white)
-        activityIndicatorView.center = CGPoint(x: SlideMenuOption().menuViewWidth / 2,
-                                               y: tableHeaderView.frame.height / 2)
+        activityIndicatorView.center = CGPoint(
+            x: SlideMenuOption().menuViewWidth / 2,
+            y: tableHeaderView.frame.height / 2
+        )
         tableHeaderView.addSubview(activityIndicatorView)
 
         logInButton = CustomButton(title: "Авторизоваться", color: .white)
@@ -51,8 +53,10 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
 
         logOutButton = CustomButton(title: "Выйти", color: .white)
         logOutButton.addTarget(self, action: #selector(logOutButtonPressed), for: .touchUpInside)
-        logOutButton.center = CGPoint(x: SlideMenuOption().menuViewWidth - logOutButton.frame.width / 2 - 10,
-                                      y: logOutButton.frame.height / 2 + 10)
+        logOutButton.center = CGPoint(
+            x: SlideMenuOption().menuViewWidth - logOutButton.frame.width / 2 - 10,
+            y: logOutButton.frame.height / 2 + 10
+        )
         logOutButton.isHidden = true
         tableHeaderView.addSubview(logOutButton)
 
@@ -120,10 +124,10 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             )!.path
 
         if fileManager.fileExists(atPath: avatarPath) {
-            showAvatarViewWithImage(UIImage(contentsOfFile: avatarPath)!)
+            showAvatarView(withImage: UIImage(contentsOfFile: avatarPath)!)
 
             if let fullName = UserDefaults.standard.string(forKey: "fullName") {
-                showLabelWithFullName(fullName)
+                showLabel(withFullName: fullName)
             }
 
             logInButton.isHidden = true
@@ -141,7 +145,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                         standardUserDefaults.set(fullName, forKey: "fullName")
                         standardUserDefaults.synchronize()
 
-                        self.showLabelWithFullName(fullName)
+                        self.showLabel(withFullName: fullName)
 
                         DispatchQueue.main.async {
                             if let imageUrl = URL(string: photoUrlString),
@@ -150,7 +154,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                                 try? UIImageJPEGRepresentation(image, 100)!
                                     .write(to: URL(fileURLWithPath: avatarPath), options: [.atomic])
 
-                                self.showAvatarViewWithImage(image)
+                                self.showAvatarView(withImage: image)
                             }
                         }
                     }
@@ -183,22 +187,19 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
                 searchTableViewController.activityIndicator?.startAnimating()
                 searchTableViewController.placeholderView?.removeFromSuperview()
                 searchTableViewController.placeholderView = nil
-                Api.instance.getPopularBooksByCount(20, categoryId: 1)
+                Api.instance.getPopularBooks(byCategoryId: 1, count: 20)
             }
 
-            if favoritesTableViewController.isReady &&
-                favoritesTableViewController.action == ApiAction.getFavorites {
+            if favoritesTableViewController.isReady && favoritesTableViewController.action == .getFavorites {
                 favoritesTableViewController.activityIndicator?.startAnimating()
                 favoritesTableViewController.placeholderView?.removeFromSuperview()
                 favoritesTableViewController.placeholderView = nil
-                Api.instance.getFavoritesByCount(20, offset: 0)
+                Api.instance.getFavorites(byCount: 20, offset: 0)
             }
         }
     }
 
-    // MARK: - Внутренние методы
-
-    private func showAvatarViewWithImage(_ image: UIImage) {
+    private func showAvatarView(withImage image: UIImage) {
         avatarView = UIImageView(image: image)
         avatarView.layer.borderColor = UIColor.white.cgColor
         avatarView.layer.borderWidth = 1
@@ -212,7 +213,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             }, completion: nil)
     }
 
-    private func showLabelWithFullName(_ fullName: String) {
+    private func showLabel(withFullName fullName: String) {
         fullNameLabel = UILabel()
         fullNameLabel.font = UIFont(name: "HelveticaNeue", size: 14)
         fullNameLabel.text = fullName
@@ -316,7 +317,7 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             
             Api.instance.accessToken = nil
             Api.instance.vkAccessToken = nil
-            Api.instance.getPopularBooksByCount(20, categoryId: 1)
+            Api.instance.getPopularBooks(byCategoryId: 1, count: 20)
         }
     }
 

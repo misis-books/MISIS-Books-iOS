@@ -50,19 +50,24 @@ class RoundProgressView: UIView {
 
         let startAngle = CGFloat(-90 * M_PI / 180)
         let progressPath = UIBezierPath()
-        progressPath.addArc(withCenter: CGPoint(x: progressRect.midX, y: progressRect.midY),
-                            radius: progressRect.width / 2, startAngle: startAngle, endAngle:
-            (CGFloat(270 * M_PI / 180) - startAngle) * percent / 100 + startAngle, clockwise: true)
+        progressPath.addArc(
+            withCenter: CGPoint(x: progressRect.midX, y: progressRect.midY),
+            radius: progressRect.width / 2,
+            startAngle: startAngle,
+            endAngle: (CGFloat(270 * M_PI / 180) - startAngle) * percent / 100 + startAngle,
+            clockwise: true
+        )
         mainColor.setStroke()
         progressPath.lineWidth = 0.8
         progressPath.lineCapStyle = .round
         progressPath.stroke()
 
         if percent == 100 {
-            let circlePath = UIBezierPath(ovalIn: CGRect(x: rect.minX + rect.size.width / 4,
-                                                         y: rect.minY + rect.size.height / 4,
-                                                         width: rect.size.width / 2,
-                                                         height: rect.size.height / 2)
+            let circlePath = UIBezierPath(
+                ovalIn: CGRect(x: rect.minX + rect.size.width / 4,
+                               y: rect.minY + rect.size.height / 4,
+                               width: rect.size.width / 2,
+                               height: rect.size.height / 2)
             )
             mainColor.setStroke()
             circlePath.lineWidth = 0.8
@@ -70,7 +75,7 @@ class RoundProgressView: UIView {
 
             return
         } else if isWaiting {
-            drawPausePathToContext(context!, rect: rect)
+            drawPausePath(toContext: context!, rect: rect)
 
             return
         }
@@ -89,13 +94,17 @@ class RoundProgressView: UIView {
                                              context: nil).height
         context?.saveGState()
         context?.clip(to: titleRect)
-        title.draw(in: CGRect(x: titleRect.minX,
-                              y: titleRect.minY + (titleRect.height - titleHeight) / 2, width: titleRect.width,
-                              height: titleHeight), withAttributes: titleFontAttributes)
+        title.draw(
+            in: CGRect(x: titleRect.minX,
+                       y: titleRect.minY + (titleRect.height - titleHeight) / 2,
+                       width: titleRect.width,
+                       height: titleHeight),
+            withAttributes: titleFontAttributes
+        )
         context?.restoreGState()
     }
 
-    private func drawPausePathToContext(_ context: CGContext, rect: CGRect) {
+    private func drawPausePath(toContext context: CGContext, rect: CGRect) {
         context.translateBy(x: rect.width / 4, y: rect.height / 4)
         context.scaleBy(x: 0.5, y: 0.5)
         context.setFillColor(mainColor.cgColor)

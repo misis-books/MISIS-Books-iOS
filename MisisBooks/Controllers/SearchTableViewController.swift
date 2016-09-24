@@ -44,7 +44,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         view.addSubview(activityIndicator)
 
         action = .getPopular
-        Api.instance.getPopularBooksByCount(count, categoryId: categoryId)
+        Api.instance.getPopularBooks(byCategoryId: categoryId, count: count)
 
         Timer.scheduledTimer(timeInterval: 0.8, target: self, selector: #selector(checkInput), userInfo: nil,
                              repeats: true)
@@ -71,11 +71,11 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
 
         if searchBar.text == "" {
             action = .getPopular
-            Api.instance.getPopularBooksByCount(count, categoryId: categoryId)
+            Api.instance.getPopularBooks(byCategoryId: categoryId, count: count)
         } else {
             offset = 0
             action = .search
-            Api.instance.searchBooksByQuery(lastInput, count: count, offset: offset, categoryId: categoryId)
+            Api.instance.searchBooks(byQuery: lastInput, count: count, offset: offset, categoryId: categoryId)
         }
     }
 
@@ -93,11 +93,11 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
 
             if searchBar.text == "" {
                 action = .getPopular
-                Api.instance.getPopularBooksByCount(count, categoryId: categoryId)
+                Api.instance.getPopularBooks(byCategoryId: categoryId, count: count)
             } else {
                 offset = 0
                 action = .search
-                Api.instance.searchBooksByQuery(lastInput, count: count, offset: offset, categoryId:
+                Api.instance.searchBooks(byQuery: lastInput, count: count, offset: offset, categoryId:
                     categoryId)
             }
         }
@@ -127,7 +127,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         tableView.bounces = false
     }
 
-    func updateTableWithReceivedBooks(_ receivedBooks: [Book], totalResults: Int) {
+    func updateTable(withReceivedBooks receivedBooks: [Book], totalResults: Int) {
         loadingMore = false
         activityIndicator.stopAnimating()
         placeholderView?.removeFromSuperview()
@@ -230,7 +230,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return CustomTableViewCell.heightForRowWithBook(books[indexPath.row])
+        return CustomTableViewCell.getHeightForRow(withBook: books[indexPath.row])
     }
 
     // MARK: - Методы UIScrollViewDelegate
@@ -282,11 +282,15 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         loadingMore = true
         offset += count
         
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()
+        DispatchQueue.main.asyncAfter(deadline: .now()
             + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
                 self.action = .search
-                Api.instance.searchBooksByQuery(self.lastInput, count: self.count, offset: self.offset,
-                                                categoryId: self.categoryId)
+                Api.instance.searchBooks(
+                    byQuery: self.lastInput,
+                    count: self.count,
+                    offset: self.offset,
+                    categoryId: self.categoryId
+                )
         }
     }
     

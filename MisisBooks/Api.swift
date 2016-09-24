@@ -119,7 +119,7 @@ class Api {
         // TODO: Доделать
     }
 
-    func getPopularBooksByCount(_ count: Int, categoryId: Int) {
+    func getPopularBooks(byCategoryId categoryId: Int, count: Int) {
         if accessToken != nil {
             let parameters = ["access_token=\(accessToken!)", "category=\(categoryId)", "count=\(count)", "fields=all"]
             let urlString = "\(baseUrlString)/materials.getPopular?" + parameters.joined(separator: "&")
@@ -130,18 +130,20 @@ class Api {
                 } else if let response = json!["response"] as? [String: AnyObject],
                     let items = response["items"] as? [AnyObject],
                     let totalResults = response["all_items_count"] as? Int {
-                    ControllerManager.instance.searchTableViewController.updateTableWithReceivedBooks(
-                        self.getReceivedBooksFromItems(items), totalResults: totalResults)
+                    ControllerManager.instance.searchTableViewController.updateTable(
+                        withReceivedBooks: self.getReceivedBooks(fromItems: items),
+                        totalResults: totalResults
+                    )
                 }
             }
         } else {
             signIn {
-                self.getPopularBooksByCount(count, categoryId: categoryId)
+                self.getPopularBooks(byCategoryId: categoryId, count: count)
             }
         }
     }
 
-    func getPopularBooksForWeekByCount(_ count: Int, categoryId: Int) {
+    func getPopularBooksForWeek(byCategoryId categoryId: Int, count: Int) {
         if accessToken != nil {
             let parameters = ["access_token=\(accessToken!)", "category=\(categoryId)", "count=\(count)", "fields=all"]
             let urlString = "\(baseUrlString)/materials.getPopularForWeek?" + parameters.joined(separator: "&")
@@ -152,18 +154,20 @@ class Api {
                 } else if let response = json!["response"] as? [String: AnyObject],
                     let items = response["items"] as? [AnyObject],
                     let totalResults = response["all_items_count"] as? Int {
-                    ControllerManager.instance.searchTableViewController.updateTableWithReceivedBooks(
-                        self.getReceivedBooksFromItems(items), totalResults: totalResults)
+                    ControllerManager.instance.searchTableViewController.updateTable(
+                        withReceivedBooks: self.getReceivedBooks(fromItems: items),
+                        totalResults: totalResults
+                    )
                 }
             }
         } else {
             signIn {
-                self.getPopularBooksForWeekByCount(count, categoryId: categoryId)
+                self.getPopularBooksForWeek(byCategoryId: categoryId, count: count)
             }
         }
     }
 
-    func searchBooksByQuery(_ query: String, count: Int, offset: Int, categoryId: Int) {
+    func searchBooks(byQuery query: String, count: Int, offset: Int, categoryId: Int) {
         if accessToken != nil {
             let parameters = [
                 "access_token=\(accessToken!)",
@@ -181,13 +185,15 @@ class Api {
                 } else if let response = json!["response"] as? [String: AnyObject],
                     let items = response["items"] as? [AnyObject],
                     let totalResults = response["all_items_count"] as? Int {
-                    ControllerManager.instance.searchTableViewController.updateTableWithReceivedBooks(
-                        self.getReceivedBooksFromItems(items), totalResults: totalResults)
+                    ControllerManager.instance.searchTableViewController.updateTable(
+                        withReceivedBooks: self.getReceivedBooks(fromItems: items),
+                        totalResults: totalResults
+                    )
                 }
             }
         } else {
             signIn {
-                self.searchBooksByQuery(query, count: count, offset: offset, categoryId: categoryId)
+                self.searchBooks(byQuery: query, count: count, offset: offset, categoryId: categoryId)
             }
         }
     }
@@ -203,11 +209,15 @@ class Api {
                     let result = response["result"] as? Bool {
                     if result {
                         ControllerManager.instance.favoritesTableViewController.addBook(book)
-                        PopUpMessage(title: "Сервер принял запрос", subtitle:
-                            "Документ успешно добавлен в избранное").show()
+                        PopUpMessage(
+                            title: "Сервер принял запрос",
+                            subtitle: "Документ успешно добавлен в избранное"
+                            ).show()
                     } else {
-                        PopUpMessage(title: "Сервер отклонил запрос", subtitle:
-                            "Не удалось добавить документ в избранное").show()
+                        PopUpMessage(
+                            title: "Сервер отклонил запрос",
+                            subtitle: "Не удалось добавить документ в избранное"
+                            ).show()
                     }
                 }
             }
@@ -218,7 +228,7 @@ class Api {
         }
     }
 
-    func getFavoritesByCount(_ count: Int, offset: Int) {
+    func getFavorites(byCount count: Int, offset: Int) {
         if accessToken != nil {
             let parameters = ["access_token=\(accessToken!)", "count=\(count)", "fields=all", "offset=\(offset)"]
             let urlString = "\(baseUrlString)/fave.getDocuments?" + parameters.joined(separator: "&")
@@ -236,12 +246,14 @@ class Api {
                     let items = response["items"] as? [AnyObject],
                     let totalResults = response["all_items_count"] as? Int {
                     ControllerManager.instance.favoritesTableViewController.updateTable(
-                        self.getReceivedBooksFromItems(items), totalResults: totalResults)
+                        self.getReceivedBooks(fromItems: items),
+                        totalResults: totalResults
+                    )
                 }
             }
         } else {
             signIn {
-                self.getFavoritesByCount(count, offset: offset)
+                self.getFavorites(byCount: count, offset: offset)
             }
         }
     }
@@ -257,11 +269,15 @@ class Api {
                     let result = response["result"] as? Bool {
                     if result {
                         ControllerManager.instance.favoritesTableViewController.deleteAllBooks()
-                        PopUpMessage(title: "Сервер принял запрос", subtitle:
-                            "Все документы удалены из избранного").show()
+                        PopUpMessage(
+                            title: "Сервер принял запрос",
+                            subtitle: "Все документы удалены из избранного"
+                            ).show()
                     } else {
-                        PopUpMessage(title: "Сервер отклонил запрос", subtitle:
-                            "Не удалось удалить все документы из избранного").show()
+                        PopUpMessage(
+                            title: "Сервер отклонил запрос",
+                            subtitle: "Не удалось удалить все документы из избранного"
+                            ).show()
                     }
                 }
             }
@@ -464,7 +480,7 @@ class Api {
         task.resume()
     }
 
-    private func formattedStringWithAuthors(_ authors: [String]) -> String {
+    private func formattedString(withAuthors authors: [String]) -> String {
         var result = authors.joined(separator: "|")
         let from = [" ", "|", ".", "\u{00a0}\u{00a0}", ".\u{00a0},"]
         let to = ["\u{00a0}", ", ", ".\u{00a0}", "\u{00a0}", ".,"]
@@ -476,7 +492,7 @@ class Api {
         return result
     }
 
-    private func formattedStringWithFileSize(_ fileSize: String) -> String {
+    private func formattedString(withFileSize fileSize: String) -> String {
         var result = fileSize
         let from = ["Mb", "Kb"]
         let to = ["\u{00a0}МБ", "\u{00a0}КБ"]
@@ -488,7 +504,7 @@ class Api {
         return result
     }
 
-    private func getReceivedBooksFromItems(_ items: [AnyObject]) -> [Book] {
+    private func getReceivedBooks(fromItems items: [AnyObject]) -> [Book] {
         var receivedBooks = [Book]()
 
         for item in items {
@@ -503,9 +519,9 @@ class Api {
                 let name = item["name"] as? String,
                 let smallPreviewUrl = item["photo_small"] as? String {
                 receivedBooks.append(
-                    Book(authors: formattedStringWithAuthors(authors), bigPreviewUrl: bigPreviewUrl,
+                    Book(authors: formattedString(withAuthors: authors), bigPreviewUrl: bigPreviewUrl,
                          categoryId: categoryId, downloadUrl: downloadUrl,
-                         fileSize: formattedStringWithFileSize(fileSize), id: id,
+                         fileSize: formattedString(withFileSize: fileSize), id: id,
                          isMarkedAsFavorite: isMarkedAsFavorite, name: name, smallPreviewUrl: smallPreviewUrl)
                 )
             }

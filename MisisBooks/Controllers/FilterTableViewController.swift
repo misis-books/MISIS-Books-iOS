@@ -24,10 +24,19 @@ class FilterTableViewController: UITableViewController {
         UIColor(red: 136 / 255.0, green: 69 / 255.0, blue: 69 / 255.0, alpha: 1),
         UIColor(red: 96 / 255.0, green: 160 / 255.0, blue: 223 / 255.0, alpha: 1)
     ]
-
-    private let categoryNames = ["Все", "Пособия", "Дипломы", "Сборники научных трудов", "Монографии, научные издания",
-                                 "Книги «МИСиС»", "Авторефераты диссертаций", "Разное", "Журналы",
-                                 "Документы филиалов «МИСиС»", "УМКД"]
+    private let categoryNames = [
+        "Все",
+        "Пособия",
+        "Дипломы",
+        "Сборники научных трудов",
+        "Монографии, научные издания",
+        "Книги «МИСиС»",
+        "Авторефераты диссертаций",
+        "Разное",
+        "Журналы",
+        "Документы филиалов «МИСиС»",
+        "УМКД"
+    ]
 
     var selectedCategoryId: Int!
 
@@ -52,9 +61,7 @@ class FilterTableViewController: UITableViewController {
         dismiss(animated: true, completion: nil)
     }
 
-    // MARK: - Внутренние методы
-
-    private func imageWithCircleWithDiameter(_ diameter: CGFloat, color: UIColor) -> UIImage {
+    private func getCircle(withDiameter diameter: CGFloat, color: UIColor) -> UIImage {
         let paddingTop: CGFloat = 2.0
         let imageSize = CGSize(width: diameter, height: diameter + paddingTop)
         let circleSize = CGSize(width: diameter, height: diameter)
@@ -75,8 +82,8 @@ class FilterTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as UITableViewCell
-        cell.imageView?.image = imageWithCircleWithDiameter(14, color: categoryColors[indexPath.row])
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.imageView?.image = getCircle(withDiameter: 14, color: categoryColors[indexPath.row])
         cell.textLabel?.font = UIFont(name: "HelveticaNeue-Light", size: 16)
         cell.textLabel?.text = categoryNames[indexPath.row]
         cell.textLabel?.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)

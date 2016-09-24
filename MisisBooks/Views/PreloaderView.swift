@@ -25,8 +25,8 @@ protocol PreloaderViewDelegate {
 
 class PreloaderView: UIView {
 
-    private var delegate: PreloaderViewDelegate!
     var label: UILabel!
+    private var delegate: PreloaderViewDelegate!
     private var savedText: String?
     private var loadState: PreloaderViewState?
     private var loadingIndicator: UIActivityIndicatorView!

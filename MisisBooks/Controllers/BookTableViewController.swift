@@ -51,12 +51,12 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
 
     override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return numberOfSections(in: tableView) == 2 && (section == 0 && downloadableBooks.count == 0 ||
-            section == 1 && books.count == 0) ? CGFloat.leastNormalMagnitude : 8
+            section == 1 && books.count == 0) ? .leastNormalMagnitude : 8
     }
 
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return numberOfSections(in: tableView) == 2 && (section == 0 && downloadableBooks.count == 0 ||
-            section == 1 && books.count == 0) ? CGFloat.leastNormalMagnitude : 26
+            section == 1 && books.count == 0) ? .leastNormalMagnitude : 26
     }
 
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -82,10 +82,10 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         selectedBook = indexPath.section == 0 && numberOfSections(in: tableView) == 2 ?
             downloadableBooks[indexPath.row] : books[indexPath.row]
 
-        let titleForFavorites = selectedBook.isAddedToFavorites() ? "Удалить из избранного" : "Добавить в избранное"
+        let titleForFavorites = selectedBook.isAddedToFavorites ? "Удалить из избранного" : "Добавить в избранное"
         let actionSheet: UIActionSheet!
 
-        if selectedBook.isAddedToDownloads() { // Документ загружен
+        if selectedBook.isAddedToDownloads { // Документ загружен
             actionSheet = UIActionSheet(
                 title: selectedBook.name,
                 delegate: self,
@@ -96,10 +96,10 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
             )
             actionSheet.destructiveButtonIndex = 4
             actionSheet.tag = 1
-        } else if selectedBook.isExistsInCurrentDownloads() { // Документ загружается
+        } else if selectedBook.isExistsInCurrentDownloads { // Документ загружается
             var titleForManageDownload = ""
 
-            if let isBookDownloading = selectedBook.isDownloading() {
+            if let isBookDownloading = selectedBook.isDownloading {
                 titleForManageDownload = isBookDownloading ? "Приостановить загрузку" : "Возобновить загрузку"
             }
 
@@ -137,18 +137,18 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         case 1: // Документ загружен
             switch buttonIndex {
             case 1: // "Просмотреть"
-                documentInteractionController = UIDocumentInteractionController(url: selectedBook.localUrl() as URL)
+                documentInteractionController = UIDocumentInteractionController(url: selectedBook.localUrl)
                 documentInteractionController.delegate = self
                 documentInteractionController.name = selectedBook.name
                 documentInteractionController.uti = "com.adobe.pdf"
                 documentInteractionController.presentPreview(animated: true)
             case 2: // "Открыть в другом приложении"
-                documentInteractionController = UIDocumentInteractionController(url: selectedBook.localUrl() as URL)
+                documentInteractionController = UIDocumentInteractionController(url: selectedBook.localUrl)
                 documentInteractionController.delegate = self
                 documentInteractionController.uti = "com.adobe.pdf"
                 documentInteractionController.presentOpenInMenu(from: .zero, in: self.view, animated: true)
             case 3: // "Добавить/удалить из избранного"
-                selectedBook.isAddedToFavorites() ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
+                selectedBook.isAddedToFavorites ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
                     Api.instance.addBookToFavorites(selectedBook)
             case 4: // "Удалить файл"
                 ControllerManager.instance.downloadsTableViewController.deleteBooks([selectedBook])
@@ -158,15 +158,15 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         case 2: // Документ загружается
             switch buttonIndex {
             case 1: // "Приостановить/возобновить загрузку"
-                if let isBookDownloading = selectedBook.isDownloading() {
-                    isBookDownloading ? ControllerManager.instance.downloadsTableViewController.pauseDownloadBook(
-                        selectedBook) : ControllerManager.instance.downloadsTableViewController.resumeDownloadBook(
-                            selectedBook)
+                if let isBookDownloading = selectedBook.isDownloading {
+                    isBookDownloading
+                        ? ControllerManager.instance.downloadsTableViewController.pauseDownloadBook(selectedBook)
+                        : ControllerManager.instance.downloadsTableViewController.resumeDownloadBook(selectedBook)
                 }
             case 2: // "Отменить загрузку"
                 ControllerManager.instance.downloadsTableViewController.cancelDownloadBook(selectedBook)
             case 3: // "Добавить/удалить из избранного"
-                selectedBook.isAddedToFavorites() ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
+                selectedBook.isAddedToFavorites ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
                     Api.instance.addBookToFavorites(selectedBook)
             default:
                 break
@@ -176,7 +176,7 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
             case 1: // "Загрузить"
                 ControllerManager.instance.downloadsTableViewController.downloadBook(selectedBook)
             case 2: // "Добавить/удалить из избранного"
-                selectedBook.isAddedToFavorites() ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
+                selectedBook.isAddedToFavorites ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
                     Api.instance.addBookToFavorites(selectedBook)
             default:
                 break

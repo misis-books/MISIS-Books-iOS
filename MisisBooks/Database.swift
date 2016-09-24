@@ -11,32 +11,38 @@ import UIKit
 class Database {
 
     static let instance = Database()
+    private let fields = [
+        ("id", "INTEGER"),
+        ("name", "VARCHAR"),
+        ("authors", "VARCHAR"),
+        ("category_id", "INTEGER"),
+        ("file_size", "VARCHAR"),
+        ("big_preview_url", "VARCHAR"),
+        ("small_preview_url", "VARCHAR"),
+        ("download_url", "VARCHAR"),
+        ("list", "VARCHAR")
+    ]
     private var database: OpaquePointer? = nil
+    private var databasePath: String {
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+
+        return URL(string: "database.sqlite", relativeTo: url)!.path
+    }
 
     init() {
-        let fileManager = FileManager.default
+        let fileManager: FileManager = .default
 
-        if !fileManager.fileExists(atPath: databasePath()) {
-            if !fileManager.createFile(atPath: databasePath(), contents: nil, attributes: nil) {
+        if !fileManager.fileExists(atPath: databasePath) {
+            if !fileManager.createFile(atPath: databasePath, contents: nil, attributes: nil) {
                 return
             }
         }
 
-        if sqlite3_open(databasePath().cString(using: String.Encoding.utf8)!, &database) != SQLITE_OK {
+        if sqlite3_open(databasePath.cString(using: String.Encoding.utf8)!, &database) != SQLITE_OK {
             sqlite3_close(database)
         } else {
-            let columns = [
-                "`id` INTEGER",
-                "`name` VARCHAR",
-                "`authors` VARCHAR",
-                "`category_id` INTEGER",
-                "`file_size` VARCHAR",
-                "`big_preview_url` VARCHAR",
-                "`small_preview_url` VARCHAR",
-                "`download_url` VARCHAR",
-                "`list` VARCHAR"
-            ]
-            let query = "CREATE TABLE IF NOT EXISTS `Books` (" + columns.joined(separator: ", ") + ")"
+            let separatedFields = fields.map { "`\($0)` \($1)" }.joined(separator: ", ")
+            let query = "CREATE TABLE IF NOT EXISTS `Books` (" + separatedFields + ")"
             sqlite3_exec(database, query.cString(using: String.Encoding.utf8)!, nil, nil, nil)
         }
     }
@@ -47,18 +53,9 @@ class Database {
 
     func addBook(_ book: Book, toList list: String) {
         var statement: OpaquePointer? = nil
-        let columns = [
-            "`id`",
-            "`name`",
-            "`authors`",
-            "`category_id`",
-            "`file_size`",
-            "`big_preview_url`",
-            "`small_preview_url`",
-            "`download_url`",
-            "`list`"
-        ]
-        let query = "INSERT INTO `Books` (" + columns.joined(separator: ", ") + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        let separatedFields = fields.map { "`\($0.0)`" }.joined(separator: ", ")
+        let separatedValues = Array(repeating: "?", count: fields.count).joined(separator: ", ")
+        let query = "INSERT INTO `Books` (\(separatedFields)) VALUES (\(separatedValues))"
 
         if sqlite3_prepare_v2(database, query.cString(using: String.Encoding.utf8)!, -1, &statement, nil) == SQLITE_OK {
             let transient = unsafeBitCast(UnsafeMutablePointer<Int>(bitPattern: -1), to: sqlite3_destructor_type.self)
@@ -84,13 +81,12 @@ class Database {
         sqlite3_finalize(statement)
     }
 
-    func booksForList(_ list: String) -> [Book] {
+    func getBooks(fromList list: String) -> [Book] {
         var statement: OpaquePointer? = nil
         var books = [Book]()
         let query = "SELECT * FROM `Books` WHERE `list` = '\(list)'"
 
-        if sqlite3_prepare_v2(database, query.cString(using: String.Encoding.utf8)!, -1, &statement, nil)
-            != SQLITE_OK {
+        if sqlite3_prepare_v2(database, query.cString(using: String.Encoding.utf8)!, -1, &statement, nil) != SQLITE_OK {
             print(statement.debugDescription)
             sqlite3_finalize(statement)
 
@@ -140,7 +136,7 @@ class Database {
         return isBookAdded
     }
 
-    func deleteAllBooksFromList(_ list: String) {
+    func deleteAllBooks(fromList list: String) {
         let query = "DELETE FROM `Books` WHERE `list` = '\(list)'"
         sqlite3_exec(database, query.cString(using: String.Encoding.utf8)!, nil, nil, nil)
     }
@@ -148,11 +144,6 @@ class Database {
     func deleteBook(_ book: Book, fromList list: String) {
         let query = "DELETE FROM `Books` WHERE `id` = \(book.id) AND `list` = '\(list)'"
         sqlite3_exec(database, query.cString(using: String.Encoding.utf8)!, nil, nil, nil)
-    }
-
-    private func databasePath() -> String {
-        return URL(string: "database.sqlite", relativeTo: FileManager.default.urls(
-            for: .documentDirectory, in: .userDomainMask)[0])!.path
     }
     
 }
