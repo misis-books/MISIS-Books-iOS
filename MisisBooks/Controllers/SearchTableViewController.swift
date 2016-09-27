@@ -9,11 +9,9 @@
 import UIKit
 
 class SearchTableViewController: BookTableViewController, UISearchBarDelegate, PreloaderViewDelegate {
-
-    var action: ApiAction!
     var activityIndicator: UIActivityIndicatorView!
-    private var categoryId = 1
-    private var count = 20
+    var categoryId = 1
+    var count = 20
     private var filterButton: UIBarButtonItem!
     private var lastInput = ""
     private var loadingMore = false
@@ -25,8 +23,12 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "Filter"), style: .plain, target:
-            self, action: #selector(filterButtonPressed))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "Filter"),
+            style: .plain,
+            target: self,
+            action: #selector(filterButtonPressed)
+        )
 
         searchBar = UISearchBar()
         searchBar.autocapitalizationType = .none
@@ -43,11 +45,52 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         activityIndicator.startAnimating()
         view.addSubview(activityIndicator)
 
-        action = .getPopular
-        Api.instance.getPopularBooks(byCategoryId: categoryId, count: count)
+        getPopularBooks()
 
-        Timer.scheduledTimer(timeInterval: 0.8, target: self, selector: #selector(checkInput), userInfo: nil,
-                             repeats: true)
+        Timer.scheduledTimer(
+            timeInterval: 0.8,
+            target: self,
+            selector: #selector(checkInput),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+
+    func getPopularBooks() {
+        Api.instance.getPopularBooks(byCategoryId: categoryId, count: count, failure: { error in
+            // PopUpMessage(title: "Ошибка", subtitle: error.description).show()
+            self.showPlaceholderView(
+                PlaceholderView(
+                    viewController: self,
+                    title: "Ошибка",
+                    subtitle: error.description,
+                    buttonText: "Повторить попытку"
+                ) {
+                    self.getPopularBooks()
+                }
+            )
+        }) { receivedBooks, totalResults in
+            self.updateTable(withReceivedBooks: receivedBooks, totalResults: totalResults, isGetPopular: true)
+        }
+    }
+
+    private func searchBooks() {
+        Api.instance.searchBooks(byQuery: lastInput, count: count, offset: offset, categoryId: categoryId,
+                                 failure: { error in
+                                    // PopUpMessage(title: "Ошибка", subtitle: error.description).show()
+                                    self.showPlaceholderView(
+                                        PlaceholderView(
+                                            viewController: self,
+                                            title: "Ошибка",
+                                            subtitle: error.description,
+                                            buttonText: "Повторить попытку"
+                                        ) {
+                                            self.getPopularBooks()
+                                        }
+                                    )
+        }) { receivedBooks, totalResults in
+            self.updateTable(withReceivedBooks: receivedBooks, totalResults: totalResults, isGetPopular: false)
+        }
     }
 
     override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation,
@@ -70,12 +113,10 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         tableView.reloadData()
 
         if searchBar.text == "" {
-            action = .getPopular
-            Api.instance.getPopularBooks(byCategoryId: categoryId, count: count)
+            getPopularBooks()
         } else {
             offset = 0
-            action = .search
-            Api.instance.searchBooks(byQuery: lastInput, count: count, offset: offset, categoryId: categoryId)
+            searchBooks()
         }
     }
 
@@ -92,13 +133,10 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
                 }, completion: nil)
 
             if searchBar.text == "" {
-                action = .getPopular
-                Api.instance.getPopularBooks(byCategoryId: categoryId, count: count)
+                getPopularBooks()
             } else {
                 offset = 0
-                action = .search
-                Api.instance.searchBooks(byQuery: lastInput, count: count, offset: offset, categoryId:
-                    categoryId)
+                searchBooks()
             }
         }
     }
@@ -127,24 +165,24 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         tableView.bounces = false
     }
 
-    func updateTable(withReceivedBooks receivedBooks: [Book], totalResults: Int) {
+    func updateTable(withReceivedBooks receivedBooks: [Book], totalResults: Int, isGetPopular: Bool) {
         loadingMore = false
         activityIndicator.stopAnimating()
         placeholderView?.removeFromSuperview()
         placeholderView = nil
         tableView.bounces = true
 
-        if offset == 0 || action == ApiAction.getPopular {
+        if offset == 0 || isGetPopular {
             books = receivedBooks
 
             UIView.transition(with: tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {
                 self.tableView.reloadData()
                 }, completion: nil)
 
-            if action == .getPopular {
+            if isGetPopular {
                 sectionTitleLabel1.text = "ПОПУЛЯРНОЕ"
                 removePreloaderView()
-            } else if action == .search {
+            } else {
                 sectionTitleLabel1.text = textForSectionHeaderWithTotalResults(totalResults)
                 updatePreloaderViewWithTotalResults(totalResults)
             }
@@ -161,7 +199,6 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
             preloaderView?.preloaderViewDataSourceDidFinishedLoading()
             updatePreloaderViewWithTotalResults(totalResults)
         }
-
     }
 
     private func removePreloaderView() {
@@ -182,7 +219,11 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
     }
 
     private func textForSectionHeaderWithTotalResults(_ totalResults: Int) -> String {
-        let pluralForms = ["НАЙДЕН %d ДОКУМЕНТ", "НАЙДЕНО %d ДОКУМЕНТА", "НАЙДЕНО %d ДОКУМЕНТОВ"]
+        let pluralForms = [
+            "НАЙДЕН %d ДОКУМЕНТ",
+            "НАЙДЕНО %d ДОКУМЕНТА",
+            "НАЙДЕНО %d ДОКУМЕНТОВ"
+        ]
         let keys = [2, 0, 1, 1, 1, 2, 2, 2, 2, 2]
         let ending = totalResults % 100 > 4 && totalResults % 100 < 20 ? 2 : keys[totalResults % 10]
 
@@ -284,14 +325,7 @@ class SearchTableViewController: BookTableViewController, UISearchBarDelegate, P
         
         DispatchQueue.main.asyncAfter(deadline: .now()
             + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
-                self.action = .search
-                Api.instance.searchBooks(
-                    byQuery: self.lastInput,
-                    count: self.count,
-                    offset: self.offset,
-                    categoryId: self.categoryId
-                )
+                self.searchBooks()
         }
     }
-    
 }

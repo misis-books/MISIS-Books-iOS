@@ -9,7 +9,6 @@
 import Foundation
 
 class Book {
-
     let authors: String
     let bigPreviewUrl: String
     let categoryId: Int
@@ -74,5 +73,4 @@ class Book {
 
         return nil
     }
-
 }

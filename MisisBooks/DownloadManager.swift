@@ -9,14 +9,12 @@
 import Foundation
 
 class DownloadManager: NSObject, URLSessionDelegate {
-
     static let instance = DownloadManager()
     var downloads = [FileInformation]()
     let identifierDownload = "com.maximloskov.MisisBooks"
     var session: Foundation.URLSession!
 
     class FileInformation: NSObject {
-
         var downloadComplete: Bool!
         var fileName: String!
         var isDownloading: Bool!
@@ -37,7 +35,6 @@ class DownloadManager: NSObject, URLSessionDelegate {
             destinationUrl = nil
             self.source = source
         }
-
     }
 
     override init() {
@@ -220,5 +217,4 @@ class DownloadManager: NSObject, URLSessionDelegate {
         
         return nil
     }
-    
 }

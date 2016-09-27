@@ -9,7 +9,6 @@
 import UIKit
 
 class BookTableViewController: UITableViewController, UIActionSheetDelegate, UIDocumentInteractionControllerDelegate {
-
     var books = [Book]()
     var downloadableBooks = [Book]()
     var sectionTitleLabel1: UILabel!
@@ -47,6 +46,21 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         sectionTitleLabel2.textColor = UIColor(red: 53 / 255.0, green: 57 / 255.0, blue: 66 / 255.0, alpha: 1)
     }
 
+    private func addBookToFavorites() {
+        Api.instance.addBookToFavorites(selectedBook, failure: { error in
+            PopUpMessage(title: "Ошибка", subtitle: error.description).show()
+            }) { result in
+                if result {
+                    ControllerManager.instance.favoritesTableViewController.addBook(self.selectedBook)
+                    PopUpMessage(title: "Сервер принял запрос",
+                                 subtitle: "Документ успешно добавлен в избранное").show()
+                } else {
+                    PopUpMessage(title: "Сервер отклонил запрос",
+                                 subtitle: "Не удалось добавить документ в избранное").show()
+                }
+        }
+    }
+
     // MARK: - Методы UITableViewDataSource
 
     override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
@@ -60,8 +74,8 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
     }
 
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return numberOfSections(in: tableView) == 2 && (section == 0 && downloadableBooks.count == 0 ||
-            section == 1 && books.count == 0) ? nil : {
+        return numberOfSections(in: tableView) == 2
+            && (section == 0 && downloadableBooks.count == 0 || section == 1 && books.count == 0) ? nil : {
                 let sectionHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 26))
                 sectionHeaderView.addSubview(section == 0 ? sectionTitleLabel1 : sectionTitleLabel2)
 
@@ -148,8 +162,9 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
                 documentInteractionController.uti = "com.adobe.pdf"
                 documentInteractionController.presentOpenInMenu(from: .zero, in: self.view, animated: true)
             case 3: // "Добавить/удалить из избранного"
-                selectedBook.isAddedToFavorites ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
-                    Api.instance.addBookToFavorites(selectedBook)
+                selectedBook.isAddedToFavorites
+                    ? ControllerManager.instance.favoritesTableViewController.deleteBooksFromFavorites([selectedBook])
+                    : addBookToFavorites()
             case 4: // "Удалить файл"
                 ControllerManager.instance.downloadsTableViewController.deleteBooks([selectedBook])
             default:
@@ -166,8 +181,9 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
             case 2: // "Отменить загрузку"
                 ControllerManager.instance.downloadsTableViewController.cancelDownloadBook(selectedBook)
             case 3: // "Добавить/удалить из избранного"
-                selectedBook.isAddedToFavorites ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
-                    Api.instance.addBookToFavorites(selectedBook)
+                selectedBook.isAddedToFavorites
+                    ? ControllerManager.instance.favoritesTableViewController.deleteBooksFromFavorites([selectedBook])
+                    : addBookToFavorites()
             default:
                 break
             }
@@ -176,8 +192,9 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
             case 1: // "Загрузить"
                 ControllerManager.instance.downloadsTableViewController.downloadBook(selectedBook)
             case 2: // "Добавить/удалить из избранного"
-                selectedBook.isAddedToFavorites ? Api.instance.deleteBooksFromFavorites([selectedBook]) :
-                    Api.instance.addBookToFavorites(selectedBook)
+                selectedBook.isAddedToFavorites
+                    ? ControllerManager.instance.favoritesTableViewController.deleteBooksFromFavorites([selectedBook])
+                    : addBookToFavorites()
             default:
                 break
             }
@@ -192,5 +209,4 @@ class BookTableViewController: UITableViewController, UIActionSheetDelegate, UID
         -> UIViewController {
             return navigationController!
     }
-
 }

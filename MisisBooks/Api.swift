@@ -8,83 +8,59 @@
 
 import Foundation
 
-enum ApiAction {
-
-    case addBookToFavorites
-    case search
-    case deleteAllBooksFromFavorites
-    case deleteBookFromFavorites
-    case getCategories
-    case getFavorites
-    case getPopular
-    case getPopularForWeek
-    case logOut
-    case signIn
-
-}
-
 enum ApiError: Error {
-
+    case jsonDataNotParsed
+    case invalidServerResponse
+    case serverError(statusCode: Int)
+    case invalidJsonData
     case notConnectedToInternet
     case timedOut
     case notConnected
-    case noData
-    case statusCodeNotSupported
-    case missingMimeType
-    case mimeTypeNotSupported
     case noSubscription
     case tooManyRequests
     case missingAccessToken
     case invalidVkAccessToken
-    case tooManyRequestsToCreationToken
+    case tooManyAuthorizationRequests
     case unknownError
-    case invalidJson
 
-    func description() -> (title: String, detail: String, short: String) {
+    var description: String {
         switch self {
+        case .jsonDataNotParsed:
+            return "Не удалось разобрать данные JSON."
+        case .invalidServerResponse:
+            return "Неправильный ответ сервера."
+        case .serverError(let statusCode):
+            return "Ошибка сервера: \(statusCode)."
+        case .invalidJsonData:
+            return "Неправильные данные JSON."
         case .notConnectedToInternet:
-            return ("Ошибка соединения",
-                    "Не удалось установить связь\nс сервером, так как отсутствует\nподключение к Интернету",
-                    "Отсутствует подключение к Интернету")
+            return "Отсутствует подключение к Интернету."
         case .timedOut:
-            return ("Ошибка соединения",
-                    "Не удалось установить связь\nс сервером, так как истекло\nвремя ожидания ответа",
-                    "Истекло время ожидания ответа")
+            return "Истекло время ожидания ответа сервера."
         case .notConnected:
-            return ("Ошибка соединения", "Не удалось подключиться к серверу", "Не удалось подключиться к серверу")
-        case .noData:
-            return ("Ошибка обработки", "Сервер не вернул данные", "Сервер не вернул данные")
-        case .statusCodeNotSupported:
-            return ("Запрос не выполнен", "Код состояния HTTP не поддерживается",
-                    "Код состояния HTTP не поддерживается")
-        case .missingMimeType:
-            return ("Запрос не выполнен", "Отсутствует MIME-тип", "Отсутствует MIME-тип")
-        case .mimeTypeNotSupported:
-            return ("Запрос не выполнен", "MIME-тип не поддерживается", "MIME-тип не поддерживается")
+            return "Не удалось подлючиться к серверу."
         case .noSubscription:
-            return ("Предупреждение", "Вы не оформили подписку", "Вы не оформили подписку")
+            return "Вы не оформили подписку."
         case .tooManyRequests:
-            return ("Предупреждение", "Слишком много запросов\nза единицу времени", "Слишком много запросов")
+            return "Слишком много запросов."
         case .missingAccessToken:
-            return ("Ошибка доступа", "Приложение не отправило\nмаркер доступа", "Нет маркера доступа")
+            return "Отсутствует маркер доступа."
         case .invalidVkAccessToken:
-            return ("Ошибка доступа", "Авторизация через ВКонтакте\nотклонена сервером",
-                    "Авторизация через ВКонтакте отклонена")
-        case .tooManyRequestsToCreationToken:
-            return ("Предупреждение", "Слишком много запросов\nна создание маркера доступа",
-                    "Слишком много запросов на авторизацию")
+            return "Авторизация через ВКонтакте отклонена."
+        case .tooManyAuthorizationRequests:
+            return "Слишком много запросов на авторизацию."
         case .unknownError:
-            return ("Неизвестная ошибка", "Cервер вернул ошибку, которую\nприложение не может обработать",
-                    "Невозможно установить причину")
-        case .invalidJson:
-            return ("Ошибка обработки", "Не удалось правильно обработать\nответ сервера", "Данные не обработаны")
+            return "Неизвестная приложению ошибка."
         }
     }
+}
 
+enum ApiResult {
+    case success([String: AnyObject])
+    case failure(ApiError)
 }
 
 class Api {
-
     static let instance = Api()
     var accessToken = UserDefaults.standard.string(forKey: "accessToken")
     var vkAccessToken: String!
@@ -115,236 +91,230 @@ class Api {
             }.resume()
     }
 
-    func getCategories() {
-        // TODO: Доделать
-    }
+    func getPopularBooks(byCategoryId categoryId: Int, count: Int, failure: @escaping (_ error: ApiError) -> (),
+                         success: @escaping (_ receivedBooks: [Book], _ totalResults: Int) -> ()) {
+        guard let accessToken = Api.instance.accessToken else {
+            signIn {
+                self.getPopularBooks(byCategoryId: categoryId, count: count, failure: failure, success: success)
+            }
 
-    func getPopularBooks(byCategoryId categoryId: Int, count: Int) {
-        if accessToken != nil {
-            let parameters = ["access_token=\(accessToken!)", "category=\(categoryId)", "count=\(count)", "fields=all"]
-            let urlString = "\(baseUrlString)/materials.getPopular?" + parameters.joined(separator: "&")
+            return
+        }
 
-            executeAction(.getPopular, urlString: urlString) { json, error in
-                if error != nil {
-                    PopUpMessage(title: "Ошибка", subtitle: error!.description().short).show()
-                } else if let response = json!["response"] as? [String: AnyObject],
+        let parameters = [
+            "access_token=\(accessToken)",
+            "category=\(categoryId)",
+            "count=\(count)",
+            "fields=all"
+        ]
+        let urlString = "\(baseUrlString)/materials.getPopular?" + parameters.joined(separator: "&")
+        executeTask(withUrlString: urlString) { result in
+            switch result {
+            case .success(let json):
+                if let response = json["response"] as? [String: AnyObject],
                     let items = response["items"] as? [AnyObject],
                     let totalResults = response["all_items_count"] as? Int {
-                    ControllerManager.instance.searchTableViewController.updateTable(
-                        withReceivedBooks: self.getReceivedBooks(fromItems: items),
-                        totalResults: totalResults
-                    )
+                    success(self.extractBooks(fromItems: items), totalResults)
+                } else {
+                    failure(.jsonDataNotParsed)
                 }
-            }
-        } else {
-            signIn {
-                self.getPopularBooks(byCategoryId: categoryId, count: count)
+            case .failure(let error):
+                failure(error)
             }
         }
     }
 
-    func getPopularBooksForWeek(byCategoryId categoryId: Int, count: Int) {
-        if accessToken != nil {
-            let parameters = ["access_token=\(accessToken!)", "category=\(categoryId)", "count=\(count)", "fields=all"]
-            let urlString = "\(baseUrlString)/materials.getPopularForWeek?" + parameters.joined(separator: "&")
+    func getPopularBooksForWeek(byCategoryId categoryId: Int, count: Int, failure: @escaping (_ error: ApiError) -> (),
+                                success: @escaping (_ receivedBooks: [Book], _ totalResults: Int) -> ()) {
+        guard let accessToken = Api.instance.accessToken else {
+            signIn {
+                self.getPopularBooksForWeek(byCategoryId: categoryId, count: count, failure: failure, success: success)
+            }
 
-            executeAction(.getPopularForWeek, urlString: urlString) { json, error in
-                if error != nil {
-                    PopUpMessage(title: "Ошибка", subtitle: error!.description().short).show()
-                } else if let response = json!["response"] as? [String: AnyObject],
+            return
+        }
+
+        let parameters = [
+            "access_token=\(accessToken)",
+            "category=\(categoryId)",
+            "count=\(count)",
+            "fields=all"
+        ]
+        let urlString = "\(baseUrlString)/materials.getPopularForWeek?" + parameters.joined(separator: "&")
+        executeTask(withUrlString: urlString) { result in
+            switch result {
+            case .success(let json):
+                if let response = json["response"] as? [String: AnyObject],
                     let items = response["items"] as? [AnyObject],
                     let totalResults = response["all_items_count"] as? Int {
-                    ControllerManager.instance.searchTableViewController.updateTable(
-                        withReceivedBooks: self.getReceivedBooks(fromItems: items),
-                        totalResults: totalResults
-                    )
+                    success(self.extractBooks(fromItems: items), totalResults)
+                } else {
+                    failure(.jsonDataNotParsed)
                 }
-            }
-        } else {
-            signIn {
-                self.getPopularBooksForWeek(byCategoryId: categoryId, count: count)
+            case .failure(let error):
+                failure(error)
             }
         }
     }
 
-    func searchBooks(byQuery query: String, count: Int, offset: Int, categoryId: Int) {
-        if accessToken != nil {
-            let parameters = [
-                "access_token=\(accessToken!)",
-                "category=\(categoryId)",
-                "count=\(count)",
-                "fields=all",
-                "offset=\(offset)",
-                "q=\(query.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)"
-            ]
-            let urlString = "\(baseUrlString)/materials.search?" + parameters.joined(separator: "&")
+    func searchBooks(byQuery query: String, count: Int, offset: Int, categoryId: Int,
+                     failure: @escaping (_ error: ApiError) -> (),
+                     success: @escaping (_ receivedBooks: [Book], _ totalResults: Int) -> ()) {
+        guard let accessToken = Api.instance.accessToken else {
+            signIn {
+                self.searchBooks(byQuery: query, count: count, offset: offset, categoryId: categoryId, failure: failure,
+                                 success: success)
+            }
 
-            executeAction(.search, urlString: urlString) { json, error in
-                if error != nil {
-                    PopUpMessage(title: "Ошибка", subtitle: error!.description().short).show()
-                } else if let response = json!["response"] as? [String: AnyObject],
+            return
+        }
+
+        let parameters = [
+            "access_token=\(accessToken)",
+            "category=\(categoryId)",
+            "count=\(count)",
+            "fields=all",
+            "offset=\(offset)",
+            "q=\(query.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!)"
+        ]
+        let urlString = "\(baseUrlString)/materials.search?" + parameters.joined(separator: "&")
+        executeTask(withUrlString: urlString) { result in
+            switch result {
+            case .success(let json):
+                if let response = json["response"] as? [String: AnyObject],
                     let items = response["items"] as? [AnyObject],
                     let totalResults = response["all_items_count"] as? Int {
-                    ControllerManager.instance.searchTableViewController.updateTable(
-                        withReceivedBooks: self.getReceivedBooks(fromItems: items),
-                        totalResults: totalResults
-                    )
+                    success(self.extractBooks(fromItems: items), totalResults)
+                } else {
+                    failure(.jsonDataNotParsed)
                 }
-            }
-        } else {
-            signIn {
-                self.searchBooks(byQuery: query, count: count, offset: offset, categoryId: categoryId)
+            case .failure(let error):
+                failure(error)
             }
         }
     }
 
-    func addBookToFavorites(_ book: Book) {
-        if accessToken != nil {
-            let urlString = "\(baseUrlString)/fave.addDocument?edition_id=\(book.id)&access_token=\(accessToken!)"
+    func addBookToFavorites(_ book: Book, failure: @escaping (_ error: ApiError) -> (),
+                            success: @escaping (_ result: Bool) -> ()) {
+        guard let accessToken = Api.instance.accessToken else {
+            signIn {
+                self.addBookToFavorites(book, failure: failure, success: success)
+            }
 
-            executeAction(.addBookToFavorites, urlString: urlString) { json, error in
-                if error != nil {
-                    PopUpMessage(title: "Ошибка", subtitle: error!.description().short).show()
-                } else if let response = json!["response"] as? [String: AnyObject],
+            return
+        }
+
+        let parameters = [
+            "access_token=\(accessToken)",
+            "edition_id=\(book.id)"
+        ]
+        let urlString = "\(baseUrlString)/fave.addDocument?" + parameters.joined(separator: "&")
+        executeTask(withUrlString: urlString) { result in
+            switch result {
+            case .success(let json):
+                if let response = json["response"] as? [String: AnyObject],
                     let result = response["result"] as? Bool {
-                    if result {
-                        ControllerManager.instance.favoritesTableViewController.addBook(book)
-                        PopUpMessage(
-                            title: "Сервер принял запрос",
-                            subtitle: "Документ успешно добавлен в избранное"
-                            ).show()
-                    } else {
-                        PopUpMessage(
-                            title: "Сервер отклонил запрос",
-                            subtitle: "Не удалось добавить документ в избранное"
-                            ).show()
-                    }
+                    success(result)
+                } else {
+                    failure(.jsonDataNotParsed)
                 }
-            }
-        } else {
-            signIn {
-                self.addBookToFavorites(book)
+            case .failure(let error):
+                failure(error)
             }
         }
     }
 
-    func getFavorites(byCount count: Int, offset: Int) {
-        if accessToken != nil {
-            let parameters = ["access_token=\(accessToken!)", "count=\(count)", "fields=all", "offset=\(offset)"]
-            let urlString = "\(baseUrlString)/fave.getDocuments?" + parameters.joined(separator: "&")
+    func getFavorites(byCount count: Int, offset: Int, failure: @escaping (_ error: ApiError) -> (),
+                      success: @escaping (_ receivedBooks: [Book], _ totalResults: Int) -> ()) {
+        guard let accessToken = Api.instance.accessToken else {
+            signIn {
+                self.getFavorites(byCount: count, offset: offset, failure: failure, success: success)
+            }
 
-            executeAction(.getFavorites, urlString: urlString) { json, error in
-                if error != nil {
-                    if error!.description().title != "Ошибка соединения" {
-                        PopUpMessage(title: "Ошибка", subtitle: error!.description().short).show()
-                    }
+            return
+        }
 
-                    print("Загружаем избранное из БД")
-
-                    ControllerManager.instance.favoritesTableViewController.loadBooksFromDatabase()
-                } else if let response = json!["response"] as? [String: AnyObject],
+        let parameters = [
+            "access_token=\(accessToken)",
+            "count=\(count)",
+            "fields=all",
+            "offset=\(offset)"
+        ]
+        let urlString = "\(baseUrlString)/fave.getDocuments?" + parameters.joined(separator: "&")
+        executeTask(withUrlString: urlString) { result in
+            switch result {
+            case .success(let json):
+                if let response = json["response"] as? [String: AnyObject],
                     let items = response["items"] as? [AnyObject],
                     let totalResults = response["all_items_count"] as? Int {
-                    ControllerManager.instance.favoritesTableViewController.updateTable(
-                        self.getReceivedBooks(fromItems: items),
-                        totalResults: totalResults
-                    )
+                    success(self.extractBooks(fromItems: items), totalResults)
+                } else {
+                    failure(.jsonDataNotParsed)
                 }
-            }
-        } else {
-            signIn {
-                self.getFavorites(byCount: count, offset: offset)
+            case .failure(let error):
+                failure(error)
             }
         }
     }
 
-    func deleteAllBooksFromFavorites() {
-        if accessToken != nil {
-            let urlString = "\(baseUrlString)/fave.deleteAllDocuments?access_token=\(accessToken!)"
+    func deleteAllBooksFromFavorites(failure: @escaping (_ error: ApiError) -> (),
+                                     success: @escaping (_ result: Bool) -> ()) {
+        guard let accessToken = Api.instance.accessToken else {
+            signIn {
+                self.deleteAllBooksFromFavorites(failure: failure, success: success)
+            }
 
-            executeAction(.deleteAllBooksFromFavorites, urlString: urlString) { json, error in
-                if error != nil {
-                    PopUpMessage(title: "Ошибка", subtitle: error!.description().short).show()
-                } else if let response = json!["response"] as? [String: AnyObject],
+            return
+        }
+
+        let urlString = "\(baseUrlString)/fave.deleteAllDocuments?access_token=\(accessToken)"
+        executeTask(withUrlString: urlString) { result in
+            switch result {
+            case .success(let json):
+                if let response = json["response"] as? [String: AnyObject],
                     let result = response["result"] as? Bool {
-                    if result {
-                        ControllerManager.instance.favoritesTableViewController.deleteAllBooks()
-                        PopUpMessage(
-                            title: "Сервер принял запрос",
-                            subtitle: "Все документы удалены из избранного"
-                            ).show()
-                    } else {
-                        PopUpMessage(
-                            title: "Сервер отклонил запрос",
-                            subtitle: "Не удалось удалить все документы из избранного"
-                            ).show()
-                    }
+                    success(result)
+                } else {
+                    failure(.jsonDataNotParsed)
                 }
-            }
-        } else {
-            signIn {
-                self.deleteAllBooksFromFavorites()
+            case .failure(let error):
+                failure(error)
             }
         }
     }
 
-    func deleteBooksFromFavorites(_ books: [Book]) {
-        if accessToken != nil {
-            let bookIds = books.map { String($0.id) }.joined(separator: ",")
-            let urlString = "\(baseUrlString)/fave.deleteDocument?edition_id=\(bookIds)&access_token=\(accessToken!)"
+    func deleteBooksFromFavorites(_ books: [Book], failure: @escaping (_ error: ApiError) -> (),
+                                  success: @escaping (_ result: Bool) -> ()) {
+        guard let accessToken = Api.instance.accessToken else {
+            signIn {
+                self.deleteBooksFromFavorites(books, failure: failure, success: success)
+            }
 
-            executeAction(.deleteBookFromFavorites, urlString: urlString) { json, error in
-                if error != nil {
-                    PopUpMessage(title: "Ошибка", subtitle: error!.description().short).show()
-                } else if let response = json!["response"] as? [String: AnyObject],
+            return
+        }
+
+        let parameters = [
+            "access_token=\(accessToken)",
+            "edition_id=\(books.map { "\($0.id)" }.joined(separator: ","))"
+        ]
+        let urlString = "\(baseUrlString)/fave.deleteDocument?" + parameters.joined(separator: "&")
+        executeTask(withUrlString: urlString) { result in
+            switch result {
+            case .success(let json):
+                if let response = json["response"] as? [String: AnyObject],
                     let result = response["result"] as? Bool {
-                    if result {
-                        ControllerManager.instance.favoritesTableViewController.deleteBooks(books)
-
-                        if books.count == 1 {
-                            PopUpMessage(title: "Сервер принял запрос",
-                                         subtitle: "Документ успешно удален из избранного").show()
-                        } else {
-                            PopUpMessage(title: "Сервер принял запрос",
-                                         subtitle: "Документы успешно удалены из избранного").show()
-                        }
-                    } else {
-                        if books.count == 1 {
-                            PopUpMessage(title: "Сервер отклонил запрос",
-                                         subtitle: "Не удалось удалить документ из избранного").show()
-                        } else {
-                            PopUpMessage(title: "Сервер отклонил запрос",
-                                         subtitle: "Не удалось удалить документы из избранного").show()
-                        }
-                    }
+                    success(result)
+                } else {
+                    failure(.jsonDataNotParsed)
                 }
-            }
-        } else {
-            signIn {
-                self.deleteBooksFromFavorites(books)
+            case .failure(let error):
+                failure(error)
             }
         }
     }
 
-    func signIn(_ completionHandler: @escaping () -> ()) {
-        if vkAccessToken != nil {
-            let urlString = "\(baseUrlString)/auth.signin?vk_access_token=\(vkAccessToken)"
-
-            executeAction(.signIn, urlString: urlString) { json, _ in
-                if let json = json, let response = json["response"] as? [String: AnyObject],
-                    let accessToken = response["access_token"] as? String {
-                    print("Маркер доступа получен: \(accessToken)")
-
-                    let standardUserDefaults = UserDefaults.standard
-                    standardUserDefaults.set(accessToken, forKey: "accessToken")
-                    standardUserDefaults.synchronize()
-                    self.accessToken = accessToken
-
-                    ControllerManager.instance.menuTableViewController.updateTableHeaderView()
-                    completionHandler()
-                }
-            }
-        } else {
+    func signIn(_ completion: @escaping () -> ()) {
+        guard let vkAccessToken = vkAccessToken else {
             ControllerManager.instance.searchTableViewController.showPlaceholderView(
                 PlaceholderView(
                     viewController: ControllerManager.instance.searchTableViewController,
@@ -365,120 +335,131 @@ class Api {
                     ControllerManager.instance.menuTableViewController.logInButtonPressed()
                 }
             )
+
+            return
+        }
+
+        let urlString = "\(baseUrlString)/auth.signin?vk_access_token=\(vkAccessToken)"
+        executeTask(withUrlString: urlString) { result in
+            var apiError: ApiError? = nil
+
+            switch result {
+            case .success(let json):
+                if let response = json["response"] as? [String: AnyObject],
+                    let accessToken = response["access_token"] as? String {
+                    print("Маркер доступа получен: \(accessToken)")
+
+                    let standardUserDefaults = UserDefaults.standard
+                    standardUserDefaults.set(accessToken, forKey: "accessToken")
+                    standardUserDefaults.synchronize()
+                    self.accessToken = accessToken
+
+                    ControllerManager.instance.menuTableViewController.updateTableHeaderView()
+
+                    completion()
+                } else {
+                    apiError = .jsonDataNotParsed
+                }
+            case .failure(let error):
+                apiError = error
+            }
+
+            if let apiError = apiError {
+                PopUpMessage(title: "Ошибка", subtitle: apiError.description).show()
+                ControllerManager.instance.menuTableViewController.vkLogInFailed()
+            }
         }
     }
 
-    private func executeAction(_ action: ApiAction, urlString: String,
-                               completionHandler: @escaping (_ json: [String: AnyObject]?, _ error: ApiError?) -> ()) {
-        print("Запрос: \(urlString)")
+    private func executeTask(withUrlString urlString: String, completion: @escaping (_ result: ApiResult) -> ()) {
+        print("Запрос по URL: \(urlString)")
 
         let url = URL(string: urlString)!
-        let request = NSMutableURLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
+        let task = session.dataTask(with: request) { data, response, error in
+            if let error = error {
+                let apiError: ApiError
 
-        let task = session.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
-            do {
-                let httpResponse = response as! HTTPURLResponse?
-                let mimeType = httpResponse?.mimeType
-
-                if error != nil {
-                    print("Код ошибки соединения: \(error!._code)")
-
-                    switch error!._code {
-                    case -1009: // NSURLErrorNotConnectedToInternet
-                        throw ApiError.notConnectedToInternet
-                    case -1001: // NSURLErrorTimedOut
-                        throw ApiError.timedOut
-                    default:
-                        throw ApiError.notConnected
-                    }
-                } else if data!.count == 0 {
-                    throw ApiError.noData
-                } else if httpResponse?.statusCode != 200 {
-                    throw ApiError.statusCodeNotSupported
-                } else if mimeType == nil {
-                    throw ApiError.missingMimeType
-                } else if mimeType != "application/json" {
-                    throw ApiError.mimeTypeNotSupported
-                }
-
-                do {
-                    let json = try JSONSerialization.jsonObject(with: data!, options: .mutableContainers)
-                        as! [String: AnyObject]
-
-                    if let error = json["error"] as? [String: AnyObject],
-                        let errorCode = error["error_code"] as? Int {
-                        switch errorCode {
-                        case 2: // "The user has no subscription"
-                            throw ApiError.noSubscription
-                        case 3: // "Too many requests"
-                            throw ApiError.tooManyRequests
-                        case 4: // "Invalid access token"
-                            // Получение нового маркера доступа с возможностью дальнейшего выполнения запроса
-                            self.signIn {
-                                self.executeAction(action, urlString: urlString, completionHandler:
-                                    completionHandler)
-                            }
-                        case 5: // "Missing access token"
-                            throw ApiError.missingAccessToken
-                        case 6: // "Invalid VK access token"
-                            throw ApiError.invalidVkAccessToken
-                        case 7: // "Too many requests to creation token"
-                            throw ApiError.tooManyRequestsToCreationToken
-                        default:
-                            throw ApiError.unknownError
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            completionHandler(json, nil)
-                        }
-                    }
-                } catch {
-                    throw ApiError.invalidJson
-                }
-            } catch let error {
-                let error = error as! ApiError
-
-                switch action {
-                case .search, .getPopular, .getPopularForWeek, .getCategories:
-                    DispatchQueue.main.async {
-                        ControllerManager.instance.searchTableViewController.showPlaceholderView(
-                            PlaceholderView(
-                                viewController: ControllerManager.instance.searchTableViewController,
-                                title: error.description().title,
-                                subtitle: error.description().detail,
-                                buttonText: "Повторить попытку"
-                            ) {
-                                self.executeAction(action, urlString: urlString, completionHandler:
-                                    completionHandler)
-                            }
-                        )
-                    }
-                case .getFavorites, .addBookToFavorites, .deleteBookFromFavorites, .deleteAllBooksFromFavorites:
-                    DispatchQueue.main.async {
-                        completionHandler(nil, error)
-                    }
-                case .signIn:
-                    ControllerManager.instance.menuTableViewController.vkLogInFailed()
+                switch error._code {
+                case -1009: // NSURLErrorNotConnectedToInternet
+                    apiError = .notConnectedToInternet
+                case -1001: // NSURLErrorTimedOut
+                    apiError = .timedOut
                 default:
-                    break
+                    apiError = .notConnected
+                }
+
+                DispatchQueue.main.async {
+                    completion(.failure(apiError))
+                }
+
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                DispatchQueue.main.async {
+                    completion(.failure(.invalidServerResponse))
+                }
+
+                return
+            }
+
+            guard 200...299 ~= httpResponse.statusCode else {
+                DispatchQueue.main.async {
+                    completion(.failure(.serverError(statusCode: httpResponse.statusCode)))
+                }
+
+                return
+            }
+
+            guard let data = data,
+                let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+                    as! [String: AnyObject] else {
+                        DispatchQueue.main.async {
+                            completion(.failure(.invalidJsonData))
+                        }
+
+                        return
+            }
+
+            if let error = json["error"] as? [String: AnyObject],
+                let errorCode = error["error_code"] as? Int {
+                var apiError: ApiError? = nil
+
+                switch errorCode {
+                case 2:
+                    apiError = .noSubscription
+                case 3:
+                    apiError = .tooManyRequests
+                case 4:
+                    self.signIn {
+                        self.executeTask(withUrlString: urlString, completion: completion)
+                    }
+                case 5:
+                    apiError = .missingAccessToken
+                case 6:
+                    apiError = .invalidVkAccessToken
+                case 7:
+                    apiError = .tooManyAuthorizationRequests
+                default:
+                    apiError = .unknownError
+                }
+
+                if let apiError = apiError {
+                    DispatchQueue.main.async {
+                        completion(.failure(apiError))
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    completion(.success(json))
                 }
             }
-        })
-
-        switch action {
-        case .search, .getPopular, .getPopularForWeek, .getCategories:
-            searchDataTask?.cancel()
-            searchDataTask = task
-        case .getFavorites, .addBookToFavorites, .deleteBookFromFavorites, .deleteAllBooksFromFavorites:
-            favoritesDataTask?.cancel()
-            favoritesDataTask = task
-        case .signIn, .logOut:
-            accountDataTask?.cancel()
-            accountDataTask = task
         }
-
         task.resume()
     }
+
+
 
     private func formattedString(withAuthors authors: [String]) -> String {
         var result = authors.joined(separator: "|")
@@ -504,7 +485,7 @@ class Api {
         return result
     }
 
-    private func getReceivedBooks(fromItems items: [AnyObject]) -> [Book] {
+    private func extractBooks(fromItems items: [AnyObject]) -> [Book] {
         var receivedBooks = [Book]()
 
         for item in items {
@@ -519,15 +500,21 @@ class Api {
                 let name = item["name"] as? String,
                 let smallPreviewUrl = item["photo_small"] as? String {
                 receivedBooks.append(
-                    Book(authors: formattedString(withAuthors: authors), bigPreviewUrl: bigPreviewUrl,
-                         categoryId: categoryId, downloadUrl: downloadUrl,
-                         fileSize: formattedString(withFileSize: fileSize), id: id,
-                         isMarkedAsFavorite: isMarkedAsFavorite, name: name, smallPreviewUrl: smallPreviewUrl)
+                    Book(
+                        authors: formattedString(withAuthors: authors),
+                        bigPreviewUrl: bigPreviewUrl,
+                        categoryId: categoryId,
+                        downloadUrl: downloadUrl,
+                        fileSize: formattedString(withFileSize: fileSize),
+                        id: id,
+                        isMarkedAsFavorite: isMarkedAsFavorite,
+                        name: name,
+                        smallPreviewUrl: smallPreviewUrl
+                    )
                 )
             }
         }
         
         return receivedBooks
     }
-    
 }

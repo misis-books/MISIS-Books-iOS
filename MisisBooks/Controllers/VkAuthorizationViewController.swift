@@ -9,7 +9,6 @@
 import UIKit
 
 class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
-
     private var activityIndicatorView: UIActivityIndicatorView!
     private var webView: UIWebView!
     private var errorLabel: UILabel!
@@ -35,8 +34,14 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         activityIndicatorView.center = view.center
         view.addSubview(activityIndicatorView)
 
-        let parameters = ["client_id=4720039", "display=mobile", "redirect_uri=https://oauth.vk.com/blank.html",
-                          "response_type=token", "revoke=1", "scope=offline"]
+        let parameters = [
+            "client_id=4720039",
+            "display=mobile",
+            "redirect_uri=https://oauth.vk.com/blank.html",
+            "response_type=token",
+            "revoke=1",
+            "scope=offline"
+        ]
         let urlString = "https://oauth.vk.com/authorize?" + parameters.joined(separator: "&")
 
         webView.loadRequest(URLRequest(url: URL(string: urlString)!))
@@ -62,7 +67,7 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
         errorLabel.font = UIFont(name: "HelveticaNeue-Light", size: 14)
         errorLabel.lineBreakMode = .byWordWrapping
         errorLabel.numberOfLines = 0
-        errorLabel.text = "Невозможно загрузить страницу\nПроверьте соединение с Интернетом"
+        errorLabel.text = "Невозможно загрузить страницу.\nПроверьте соединение с Интернетом."
         errorLabel.textAlignment = .center
         errorLabel.textColor = .black
         errorLabel.sizeToFit()
@@ -105,5 +110,4 @@ class VkAuthorizationViewController: UIViewController, UIWebViewDelegate {
             dismiss(animated: true, completion: nil)
         }
     }
-
 }

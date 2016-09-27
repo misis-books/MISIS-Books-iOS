@@ -9,7 +9,6 @@
 import UIKit
 
 class ControllerManager {
-
     static let instance = ControllerManager()
     let downloadsTableViewController = DownloadsTableViewController(style: .grouped)
     let favoritesTableViewController = FavoritesTableViewController(style: .grouped)
@@ -28,5 +27,4 @@ class ControllerManager {
             menuViewController: menuTableViewController
         )
     }
-    
 }

@@ -9,7 +9,6 @@
 import UIKit
 
 class DownloadsTableViewController: BookTableViewController {
-
     private var placeholderView: PlaceholderView?
 
     override func viewDidAppear(_ animated: Bool) {

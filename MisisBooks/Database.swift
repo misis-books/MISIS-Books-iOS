@@ -9,7 +9,6 @@
 import UIKit
 
 class Database {
-
     static let instance = Database()
     private let fields = [
         ("id", "INTEGER"),
@@ -145,5 +144,4 @@ class Database {
         let query = "DELETE FROM `Books` WHERE `id` = \(book.id) AND `list` = '\(list)'"
         sqlite3_exec(database, query.cString(using: String.Encoding.utf8)!, nil, nil, nil)
     }
-    
 }

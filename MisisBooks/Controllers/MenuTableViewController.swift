@@ -180,22 +180,28 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
         Api.instance.vkAccessToken = vkAccessToken
 
         Api.instance.signIn {
-            let searchTableViewController = ControllerManager.instance.searchTableViewController
+            /* let searchTableViewController = ControllerManager.instance.searchTableViewController
             let favoritesTableViewController = ControllerManager.instance.favoritesTableViewController
 
-            if searchTableViewController.action == ApiAction.getPopular {
+            if searchTableViewController.action == .getPopular {
                 searchTableViewController.activityIndicator?.startAnimating()
                 searchTableViewController.placeholderView?.removeFromSuperview()
                 searchTableViewController.placeholderView = nil
-                Api.instance.getPopularBooks(byCategoryId: 1, count: 20)
+
+                ControllerManager.instance.searchTableViewController.categoryId = 1
+                ControllerManager.instance.searchTableViewController.count = 20
+                ControllerManager.instance.searchTableViewController.getPopularBooks()
             }
 
             if favoritesTableViewController.isReady && favoritesTableViewController.action == .getFavorites {
                 favoritesTableViewController.activityIndicator?.startAnimating()
                 favoritesTableViewController.placeholderView?.removeFromSuperview()
                 favoritesTableViewController.placeholderView = nil
-                Api.instance.getFavorites(byCount: 20, offset: 0)
-            }
+
+                ControllerManager.instance.favoritesTableViewController.count = 20
+                ControllerManager.instance.favoritesTableViewController.offset = 0
+                ControllerManager.instance.favoritesTableViewController.getFavorites()
+            } */
         }
     }
 
@@ -317,8 +323,10 @@ class MenuTableViewController: UITableViewController, UIAlertViewDelegate {
             
             Api.instance.accessToken = nil
             Api.instance.vkAccessToken = nil
-            Api.instance.getPopularBooks(byCategoryId: 1, count: 20)
+
+            ControllerManager.instance.searchTableViewController.categoryId = 1
+            ControllerManager.instance.searchTableViewController.count = 20
+            ControllerManager.instance.searchTableViewController.getPopularBooks()
         }
     }
-
 }

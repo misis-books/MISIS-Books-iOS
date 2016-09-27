@@ -9,7 +9,6 @@
 import UIKit
 
 class SlideMenuOption {
-
     let contentViewOpacity: Float = 0.5
     let menuBezelWidth = UIScreen.main.bounds.width
     let menuViewWidth: CGFloat = 265
@@ -20,20 +19,15 @@ class SlideMenuOption {
 }
 
 class SlideMenuController: UIViewController {
-
-    enum SlideAction {
-
+    enum Action {
         case close
         case open
-
     }
 
-    struct PanInfo {
-
-        var action: SlideAction
+    struct Panel {
+        var action: Action
         var shouldBounce: Bool
         var velocity: CGFloat
-
     }
 
     fileprivate var menuContainerView: UIView!
@@ -78,11 +72,9 @@ class SlideMenuController: UIViewController {
         addMenuGestures()
     }
 
-    override func viewWillTransition(to size: CGSize,
-                                     with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        // menuContainerView.hidden = true
         closeMenuWithoutAnimation()
         menuContainerView.isHidden = false
         removeMenuGestures()
@@ -222,12 +214,12 @@ class SlideMenuController: UIViewController {
         return -options.menuViewWidth
     }
 
-    private func panMenuResultInfoForVelocity(_ velocity: CGPoint) -> PanInfo {
+    private func panMenuResultInfoForVelocity(_ velocity: CGPoint) -> Panel {
         let leftOrigin = menuContainerView.frame.origin.x
         let pointOfNoReturn = floor(menuMinOrigin()) + options.pointOfNoReturnWidth
         let thresholdVelocity: CGFloat = 1000
 
-        var panInfo = PanInfo(action: .close, shouldBounce: false, velocity: 0)
+        var panInfo = Panel(action: .close, shouldBounce: false, velocity: 0)
         panInfo.action = leftOrigin <= pointOfNoReturn ? .close : .open
 
         options.pointOfNoReturnWidth = panInfo.action == .open ? options.menuViewWidth - 20 : 20
@@ -332,11 +324,9 @@ class SlideMenuController: UIViewController {
 
         return slice.contains(point)
     }
-
 }
 
 extension SlideMenuController: UIGestureRecognizerDelegate {
-
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         let point = touch.location(in: view)
         
@@ -348,5 +338,4 @@ extension SlideMenuController: UIGestureRecognizerDelegate {
         
         return true
     }
-    
 }

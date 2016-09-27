@@ -9,37 +9,30 @@
 import UIKit
 
 enum PopUpMessagePosition {
-
     case bottom
     case top
     case underNavigationBar
-
 }
 
 enum PopUpMessageState {
-
     case hidden
     case hiding
     case movingBackward
     case movingForward
     case showing
     case visible
-
 }
 
 protocol PopUpMessageDelegate {
-
     func popUpMessageDidHide(_ popUpMessage: PopUpMessage, inView view: UIView)
     func popUpMessageDidShow(_ popUpMessage: PopUpMessage, inView view: UIView)
     func popUpMessageWillHide(_ popUpMessage: PopUpMessage, inView view: UIView)
     func popUpMessageWillShow(_ popUpMessage: PopUpMessage, inView view: UIView)
     func hidePopUpMessage(_ popUpMessage: PopUpMessage, forced: Bool)
     func showPopUpMessage(_ popUpMessage: PopUpMessage!, hideAfter delay: TimeInterval)
-
 }
 
 class PopUpMessage: UIView, CAAnimationDelegate {
-
     var allowTapToDismiss = false
     let bannerOpacity: CGFloat = 1
     var delegate: PopUpMessageDelegate!
@@ -61,8 +54,6 @@ class PopUpMessage: UIView, CAAnimationDelegate {
     var state: PopUpMessageState!
     var subtitleLabel: UILabel!
     var tapHandler: ((_ popUpMessage: PopUpMessage) -> ())?
-
-    /// Поле заголовка
     var titleLabel: UILabel!
 
     init(view: UIView?, position: PopUpMessagePosition?, title: String?, subtitle: String?,
@@ -147,12 +138,12 @@ class PopUpMessage: UIView, CAAnimationDelegate {
             UIView.animate(withDuration: shouldForceHide ? kForceHideAnimationDuration : fadeOutDuration, delay: 0,
                 options: .curveLinear, animations: {
                     self.alpha = 0
-                }, completion: { _ in
+                }) { _ in
                     self.state = .hidden
                     self.delegate.popUpMessageDidHide(self, inView: self.superview!)
                     NotificationCenter.default.removeObserver(self)
                     self.removeFromSuperview()
-            })
+            }
         } else if anim.value(forKey: "animation") as? String == kMovePopUpMessageKey && flag {
             state = .visible
         }
@@ -489,5 +480,4 @@ class PopUpMessage: UIView, CAAnimationDelegate {
             layer.mask!.position = .zero
         }
     }
-
 }

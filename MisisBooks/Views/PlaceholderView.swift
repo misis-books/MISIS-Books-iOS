@@ -9,7 +9,6 @@
 import UIKit
 
 class PlaceholderView: UIView {
-
     private var viewController: UIViewController!
     private var button: UIButton!
     private var titleLabel: UILabel!
@@ -60,7 +59,12 @@ class PlaceholderView: UIView {
         super.layoutSubviews()
 
         let navigationBarHeight = viewController.navigationController!.navigationBar.frame.size.height
-        frame = CGRect(x: 0, y: -navigationBarHeight, width: viewController.view.bounds.width, height: viewController.view.bounds.height)
+        frame = CGRect(
+            x: 0,
+            y: -navigationBarHeight,
+            width: viewController.view.bounds.width,
+            height: viewController.view.bounds.height
+        )
         titleLabel.center = CGPoint(x: frame.size.width / 2, y: frame.size.height / 2 - 50)
         subtitleLabel.center = CGPoint(x: frame.size.width / 2, y: frame.size.height / 2)
         button.center = CGPoint(x: frame.size.width / 2, y: frame.size.height / 2 + 60)
@@ -69,5 +73,4 @@ class PlaceholderView: UIView {
     func buttonPressed() {
         tapHandler()
     }
-
 }

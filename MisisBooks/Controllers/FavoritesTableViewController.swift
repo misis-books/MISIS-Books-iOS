@@ -9,14 +9,12 @@
 import UIKit
 
 class FavoritesTableViewController: BookTableViewController, PreloaderViewDelegate {
-
-    var action: ApiAction!
     var activityIndicator: UIActivityIndicatorView!
     var isReady = false
     var placeholderView: PlaceholderView?
-    private var count = 20
+    var count = 20
     private var loadingMore = false
-    private var offset = 0
+    var offset = 0
     private var preloaderView: PreloaderView?
     private var totalResults = 0
 
@@ -36,8 +34,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         activityIndicator.startAnimating()
         view.addSubview(activityIndicator)
 
-        action = .getFavorites
-        Api.instance.getFavorites(byCount: count, offset: offset)
+        getFavorites()
     }
 
     override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
@@ -46,6 +43,46 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         }
 
         activityIndicator.center = CGPoint(x: view.bounds.size.width / 2, y: 18)
+    }
+
+    func getFavorites() {
+        Api.instance.getFavorites(byCount: count, offset: offset, failure: { error in
+            /* if error != .notConnected {
+                PopUpMessage(title: "Ошибка", subtitle: error.description).show()
+            } */
+
+            print("Загружаем избранное из БД")
+
+            self.loadBooksFromDatabase()
+            }) { receivedBooks, totalResults in
+                self.updateTable(receivedBooks, totalResults: totalResults)
+        }
+    }
+
+    func deleteBooksFromFavorites(_ booksToDelete: [Book]) {
+        Api.instance.deleteBooksFromFavorites(booksToDelete, failure: { error in
+            PopUpMessage(title: "Ошибка", subtitle: error.description).show()
+        }) { result in
+            if result {
+                self.deleteBooks(booksToDelete)
+
+                if booksToDelete.count == 1 {
+                    PopUpMessage(title: "Сервер принял запрос",
+                                 subtitle: "Документ успешно удален из избранного").show()
+                } else {
+                    PopUpMessage(title: "Сервер принял запрос",
+                                 subtitle: "Документы успешно удалены из избранного").show()
+                }
+            } else {
+                if booksToDelete.count == 1 {
+                    PopUpMessage(title: "Сервер отклонил запрос",
+                                 subtitle: "Не удалось удалить документ из избранного").show()
+                } else {
+                    PopUpMessage(title: "Сервер отклонил запрос",
+                                 subtitle: "Не удалось удалить документы из избранного").show()
+                }
+            }
+        }
     }
 
     func addBook(_ book: Book) {
@@ -282,8 +319,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
 
         count = 20
         offset = 0
-        action = .getFavorites
-        Api.instance.getFavorites(byCount: count, offset: offset)
+        getFavorites()
     }
 
     func updateTable(_ receivedBooks: [Book], totalResults: Int) {
@@ -455,9 +491,20 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
 
         if actionSheet.tag == 0 && buttonIndex == 0 {
             if let selectedIndexPaths = tableView.indexPathsForSelectedRows {
-                Api.instance.deleteBooksFromFavorites(selectedIndexPaths.map { self.books[$0.row] })
+                self.deleteBooksFromFavorites(selectedIndexPaths.map { self.books[$0.row] })
             } else {
-                Api.instance.deleteAllBooksFromFavorites()
+                Api.instance.deleteAllBooksFromFavorites(failure: { error in
+                    PopUpMessage(title: "Ошибка", subtitle: error.description).show()
+                }) { result in
+                    if result {
+                        self.deleteAllBooks()
+                        PopUpMessage(title: "Сервер принял запрос",
+                                     subtitle: "Все документы удалены из избранного").show()
+                    } else {
+                        PopUpMessage(title: "Сервер отклонил запрос",
+                                     subtitle: "Не удалось удалить все документы из избранного").show()
+                    }
+                }
             }
         }
     }
@@ -484,9 +531,7 @@ class FavoritesTableViewController: BookTableViewController, PreloaderViewDelega
         
         DispatchQueue.main.asyncAfter(deadline: .now()
             + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
-                self.action = .getFavorites
-                Api.instance.getFavorites(byCount: self.count, offset: self.offset)
+                self.getFavorites()
         }
     }
-    
 }

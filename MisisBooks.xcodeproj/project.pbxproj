@@ -12,6 +12,7 @@
 		842723541D95BC1100A48064 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842723531D95BC1100A48064 /* DownloadManager.swift */; };
 		842723561D95BC1800A48064 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842723551D95BC1800A48064 /* Api.swift */; };
 		842723581D95BC1D00A48064 /* PopUpMessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842723571D95BC1D00A48064 /* PopUpMessageManager.swift */; };
+		8427E5371D9A9ED100003E79 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8427E5361D9A9ED100003E79 /* Constants.swift */; };
 		844224601B3A44D3001A11E3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8442245F1B3A44D3001A11E3 /* libsqlite3.tbd */; };
 		84CF493C1AF4EF380099A3AF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CF493B1AF4EF380099A3AF /* AppDelegate.swift */; };
 		84CF49431AF4EF380099A3AF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84CF49421AF4EF380099A3AF /* Images.xcassets */; };
@@ -40,6 +41,7 @@
 		842723531D95BC1100A48064 /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		842723551D95BC1800A48064 /* Api.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
 		842723571D95BC1D00A48064 /* PopUpMessageManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopUpMessageManager.swift; sourceTree = "<group>"; };
+		8427E5361D9A9ED100003E79 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		8442245F1B3A44D3001A11E3 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		84CF49361AF4EF380099A3AF /* MisisBooks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MisisBooks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84CF493A1AF4EF380099A3AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 			children = (
 				84CF493B1AF4EF380099A3AF /* AppDelegate.swift */,
 				842723551D95BC1800A48064 /* Api.swift */,
+				8427E5361D9A9ED100003E79 /* Constants.swift */,
 				8427234F1D95BC0300A48064 /* ControllerManager.swift */,
 				842723511D95BC0A00A48064 /* Database.swift */,
 				842723531D95BC1100A48064 /* DownloadManager.swift */,
@@ -237,6 +240,7 @@
 				84CF49851AF4F1990099A3AF /* PlaceholderView.swift in Sources */,
 				84CF49811AF4F1990099A3AF /* PopUpMessage.swift in Sources */,
 				84CF49841AF4F1990099A3AF /* CustomTableViewCell.swift in Sources */,
+				8427E5371D9A9ED100003E79 /* Constants.swift in Sources */,
 				84CF496A1AF4F11E0099A3AF /* MenuTableViewController.swift in Sources */,
 				84CF49691AF4F11E0099A3AF /* FilterTableViewController.swift in Sources */,
 				84CF49661AF4F11E0099A3AF /* BookTableViewController.swift in Sources */,

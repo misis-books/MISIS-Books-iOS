@@ -29,14 +29,12 @@ private func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 
 class PopUpMessageManager: NSObject, PopUpMessageDelegate {
-
     static let instance = PopUpMessageManager()
     private let bottomPositionSemaphore: DispatchSemaphore
     private let topPositionSemaphore: DispatchSemaphore
     private let navigationBarPositionSemaphore: DispatchSemaphore
     private var popUpMessages: [PopUpMessage]
     private var bannerViews: [UIView]
-
 
     override init() {
         topPositionSemaphore = DispatchSemaphore(value: 0)
@@ -99,8 +97,11 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
             return
         }
 
-        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(hidePopUpMessage(_:)),
-                                               object: popUpMessage)
+        NSObject.cancelPreviousPerformRequests(
+            withTarget: self,
+            selector: #selector(hidePopUpMessage(_:)),
+            object: popUpMessage
+        )
 
         if forced {
             popUpMessage.shouldForceHide = true
@@ -241,5 +242,4 @@ class PopUpMessageManager: NSObject, PopUpMessageDelegate {
             }
         }
     }
-
 }

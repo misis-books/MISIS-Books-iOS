@@ -10,7 +10,6 @@ import UIKit
 import CoreGraphics
 
 class RoundProgressView: UIView {
-
     var isWaiting = false {
         didSet {
             setNeedsDisplay()
@@ -121,5 +120,4 @@ class RoundProgressView: UIView {
         context.addLine(to: CGPoint(x: rect.width * 3 / 4, y: rect.height / 4))
         context.fillPath()
     }
-    
 }

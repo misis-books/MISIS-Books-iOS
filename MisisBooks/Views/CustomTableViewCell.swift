@@ -9,7 +9,6 @@
 import UIKit
 
 class CustomTableViewCell: UITableViewCell {
-
     var book: Book!
     var nameLabel: UILabel!
     var authorsLabel: UILabel!
@@ -39,18 +38,30 @@ class CustomTableViewCell: UITableViewCell {
         let categoryLabelSize = CustomTableViewCell.getLabelSize(withText: categoryLabel.text!, font: categoryLabel.font)
 
         nameLabel.frame = CGRect(x: 15, y: 8.5, width: nameLabelSize.width, height: nameLabelSize.height)
-        authorsLabel.frame = CGRect(x: 15, y: nameLabelSize.height + 11, width: authorsLabelSize.width, height: authorsLabelSize.height)
-        categoryLabel.frame = CGRect(x: 15, y: nameLabelSize.height + authorsLabelSize.height + 16.5, width: categoryLabelSize.width + 10,
-            height: categoryLabelSize.height + 6)
-        roundProgressView.frame = CGRect(x: frame.width - 70, y: nameLabelSize.height + authorsLabelSize.height + 16.5, width: 20, height: 20)
-        starImage.frame = CGRect(x: frame.width - 35, y: nameLabelSize.height + authorsLabelSize.height + 16.5, width: 20, height: 20)
-    }
-
-    class func getCategoryName(byId categoryId: Int) -> String {
-        let categoryNames = ["Все", "Пособия", "Дипломы", "Сборники научных трудов", "Монографии, научные издания",
-            "Книги «МИСиС»", "Авторефераты диссертаций", "Разное", "Журналы", "Документы филиалов «МИСиС»", "УМКД"]
-
-        return categoryNames[categoryId]
+        authorsLabel.frame = CGRect(
+            x: 15,
+            y: nameLabelSize.height + 11,
+            width: authorsLabelSize.width,
+            height: authorsLabelSize.height
+        )
+        categoryLabel.frame = CGRect(
+            x: 15,
+            y: nameLabelSize.height + authorsLabelSize.height + 16.5,
+            width: categoryLabelSize.width + 10,
+            height: categoryLabelSize.height + 6
+        )
+        roundProgressView.frame = CGRect(
+            x: frame.width - 70,
+            y: nameLabelSize.height + authorsLabelSize.height + 16.5,
+            width: 20,
+            height: 20
+        )
+        starImage.frame = CGRect(
+            x: frame.width - 35,
+            y: nameLabelSize.height + authorsLabelSize.height + 16.5,
+            width: 20,
+            height: 20
+        )
     }
 
     class func getFont(byId fontId: Int) -> UIFont {
@@ -67,7 +78,7 @@ class CustomTableViewCell: UITableViewCell {
         return CustomTableViewCell.getLabelSize(withText: book.name, font: CustomTableViewCell.getFont(byId: 0)).height
             + CustomTableViewCell.getLabelSize(withText: book.authors, font: CustomTableViewCell.getFont(byId: 1)).height
             + CustomTableViewCell.getLabelSize(
-                withText: CustomTableViewCell.getCategoryName(byId: book.categoryId - 1),
+                withText: Constants.Categories.names[book.categoryId - 1],
                 font: CustomTableViewCell.getFont(byId: 2)
                 ).height + 35.5
     }
@@ -123,20 +134,6 @@ class CustomTableViewCell: UITableViewCell {
     private func configureWithBook(_ book: Book, query: String!) {
         self.book = book
 
-        let categoryColors = [
-            UIColor(red: 186 / 255.0, green: 186 / 255.0, blue: 186 / 255.0, alpha: 1),
-            UIColor(red: 74 / 255.0, green: 191 / 255.0, blue: 180 / 255.0, alpha: 1),
-            UIColor(red: 253 / 255.0, green: 85 / 255.0, blue: 89 / 255.0, alpha: 1),
-            UIColor(red: 184 / 255.0, green: 145 / 255.0, blue: 78 / 255.0, alpha: 1),
-            UIColor(red: 179 / 255.0, green: 200 / 255.0, blue: 51 / 255.0, alpha: 1),
-            UIColor(red: 155 / 255.0, green: 89 / 255.0, blue: 182 / 255.0, alpha: 1),
-            UIColor(red: 1, green: 145 / 255.0, blue: 0, alpha: 1),
-            UIColor(red: 46 / 255.0, green: 204 / 255.0, blue: 113 / 255.0, alpha: 1),
-            UIColor(red: 69 / 255.0, green: 131 / 255.0, blue: 136 / 255.0, alpha: 1),
-            UIColor(red: 136 / 255.0, green: 69 / 255.0, blue: 69 / 255.0, alpha: 1),
-            UIColor(red: 96 / 255.0, green: 160 / 255.0, blue: 223 / 255.0, alpha: 1)
-        ]
-
         nameLabel = UILabel()
         nameLabel.font = CustomTableViewCell.getFont(byId: 0)
 
@@ -166,9 +163,9 @@ class CustomTableViewCell: UITableViewCell {
         categoryLabel = CustomLabel()
         categoryLabel.edgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 5, right: 3)
         categoryLabel.font = CustomTableViewCell.getFont(byId: 2)
-        categoryLabel.text = CustomTableViewCell.getCategoryName(byId: book.categoryId - 1)
+        categoryLabel.text = Constants.Categories.names[book.categoryId - 1]
         categoryLabel.textColor = .white
-        categoryLabel.layer.backgroundColor = categoryColors[book.categoryId - 1].cgColor
+        categoryLabel.layer.backgroundColor = Constants.Categories.colors[book.categoryId - 1].cgColor
         categoryLabel.layer.cornerRadius = 2
         categoryLabel.lineBreakMode = .byWordWrapping
         categoryLabel.numberOfLines = 0
@@ -202,5 +199,4 @@ class CustomTableViewCell: UITableViewCell {
         
         tag = book.id
     }
-
 }

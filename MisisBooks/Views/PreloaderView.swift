@@ -9,22 +9,17 @@
 import UIKit
 
 enum PreloaderViewState {
-
     case normal
     case pulling
     case loading
-
 }
 
 protocol PreloaderViewDelegate {
-
     func preloaderViewDataSourceIsLoading() -> Bool!
     func preloaderViewDidTriggerRefresh()
-
 }
 
 class PreloaderView: UIView {
-
     var label: UILabel!
     private var delegate: PreloaderViewDelegate!
     private var savedText: String?
@@ -165,5 +160,4 @@ class PreloaderView: UIView {
         
         loadState = state
     }
-
 }

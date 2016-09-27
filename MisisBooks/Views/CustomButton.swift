@@ -9,7 +9,6 @@
 import UIKit
 
 class CustomButton: UIButton {
-
     init(title: String, color: UIColor) {
         super.init(frame: .zero)
 
@@ -44,5 +43,4 @@ class CustomButton: UIButton {
             self.layer.opacity = opacity
         }
     }
-
 }
